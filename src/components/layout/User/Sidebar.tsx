@@ -1,6 +1,6 @@
 import { Menu, X } from "lucide-react";
-import { Logo } from "../ui/Logo";
-import { OutlineButton } from "../ui/Button";
+import { Logo } from "../../ui/User/Logo";
+import { OutlineButton } from "../../ui/User/Button";
 import { useState } from "react";
 import { Link } from "react-router";
 

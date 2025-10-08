@@ -1,15 +1,15 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { HomePage } from "./pages/HomePage/HomePage.tsx";
+import { HomePage } from "./pages/User/HomePage/HomePage.tsx";
+import { UserLayout } from "./components/layout/User/UserLayout.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />}>
+        <Route path="/" element={<UserLayout />}>
           <Route index element={<HomePage />} />
         </Route>
       </Routes>
