@@ -43,7 +43,7 @@ export const Sidebar = () => {
     ));
 
   return (
-    <header className="flex justify-between items-center px-6 py-4 border-b border-[#EBEBEB] relative">
+    <header className=" flex justify-between items-center px-6 py-4 border-b border-[#EBEBEB] relative">
       <Menu
         onClick={handleOpenSidebar}
         className="text-primary cursor-pointer"

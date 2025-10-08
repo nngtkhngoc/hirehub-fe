@@ -4,10 +4,10 @@ import { Footer } from "./Footer";
 
 export const UserLayout = () => {
   return (
-    <>
+    <div className="relative">
       <Navbar />
       <Outlet />
       <Footer />
-    </>
+    </div>
   );
 };
