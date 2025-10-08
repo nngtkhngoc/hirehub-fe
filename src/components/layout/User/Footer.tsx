@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   BriefcaseBusiness,
   Building2,
@@ -10,13 +12,13 @@ import {
   UserPlus,
   type LucideIcon,
 } from "lucide-react";
+
+import instagram from "../../../assets/icons/instagram.png";
+import facebook from "../../../assets/icons/facebook.png";
+import twitter from "../../../assets/icons/twitter.png";
 import { PrimaryButton } from "../../ui/User/Button";
 import { Logo } from "../../ui/User/Logo";
 import { Link } from "react-router";
-import twitter from "../../../assets/icons/twitter.png";
-import instagram from "../../../assets/icons/instagram.png";
-import facebook from "../../../assets/icons/facebook.png";
-import { useState } from "react";
 
 interface FooterNavItem {
   label: string;

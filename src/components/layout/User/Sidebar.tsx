@@ -1,8 +1,10 @@
-import { Menu, X } from "lucide-react";
-import { Logo } from "../../ui/User/Logo";
-import { OutlineButton } from "../../ui/User/Button";
-import { useState } from "react";
 import { Link } from "react-router";
+import { useState } from "react";
+
+import { Menu, X } from "lucide-react";
+
+import { OutlineButton } from "../../ui/User/Button";
+import { Logo } from "../../ui/User/Logo";
 
 interface NavLink {
   label: string;

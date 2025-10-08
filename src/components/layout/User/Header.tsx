@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router";
-import { Logo } from "../../ui/User/Logo";
+
 import { OutlineButton } from "../../ui/User/Button";
+import { Logo } from "../../ui/User/Logo";
 
 interface NavLink {
   label: string;

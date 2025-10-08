@@ -1,9 +1,11 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { HomePage } from "./pages/User/HomePage/HomePage.tsx";
+import { createRoot } from "react-dom/client";
+import { StrictMode } from "react";
+
+import "./index.css";
+
 import { UserLayout } from "./components/layout/User/UserLayout.tsx";
+import { HomePage } from "./pages/User/HomePage/HomePage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Header } from "./Header";
+
 import { Sidebar } from "./Sidebar";
+import { Header } from "./Header";
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);

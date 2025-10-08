@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+
 import illustration from "../../../../assets/illustration/herosection.png";
 import { PrimaryButton } from "../../../../components/ui/User/Button";
 
