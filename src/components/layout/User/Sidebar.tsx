@@ -1,8 +1,10 @@
-import { Menu, X } from "lucide-react";
-import { Logo } from "../../ui/User/Logo";
-import { OutlineButton } from "../../ui/User/Button";
-import { useState } from "react";
 import { Link } from "react-router";
+import { useState } from "react";
+
+import { Menu, X } from "lucide-react";
+
+import { OutlineButton } from "../../ui/User/Button";
+import { Logo } from "../../ui/User/Logo";
 
 interface NavLink {
   label: string;
@@ -43,7 +45,7 @@ export const Sidebar = () => {
     ));
 
   return (
-    <header className="flex justify-between items-center px-6 py-4 border-b border-[#EBEBEB] relative">
+    <header className=" flex justify-between items-center px-6 py-4 border-b border-[#EBEBEB] relative">
       <Menu
         onClick={handleOpenSidebar}
         className="text-primary cursor-pointer"
