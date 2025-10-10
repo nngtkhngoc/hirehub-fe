@@ -111,7 +111,9 @@ export const FeaturedJobs = () => {
         <NoteCircle text="Job" />
       </div>
 
-      <HighlightText text="CÔNG VIỆC NỔI BẬT" />
+      <h3>
+        <HighlightText text="CÔNG VIỆC NỔI BẬT" />
+      </h3>
 
       <div className="flex flex-row justify-around items-center gap-[12px] lg:gap-[20px] lg:justify-between">
         <div className="flex flex-row justify-around items-center bg-white rounded-[30px] w-[210px] h-[40px] shadow-[0_4px_4px_0_#DFD2FA] lg:w-[300px]">
@@ -127,10 +129,11 @@ export const FeaturedJobs = () => {
           paddingX="lg:px-[30px]"
         />
       </div>
-      <Carousel className="md:w-4/5 flex items-center justify-center w-[280px] pt-5">
+
+      <Carousel className="w-4/5 flex items-center justify-center pt-5">
         <CarouselContent>
           {jobs.map((job) => (
-            <CarouselItem className="basis-1/3 h-[360px] pr-10 w-[280px]">
+            <CarouselItem className="md:basis-1/2 h-[360px]  lg:basis-1/3">
               <JobLandingPage job={job} />
             </CarouselItem>
           ))}

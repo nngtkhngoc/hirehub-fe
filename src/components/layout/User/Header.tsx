@@ -41,7 +41,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="flex justify-between items-center px-20 h-[75px] border boder-b border-[#EBEBEB]">
+    <header className="flex justify-between items-center md:px-10 lg:px-20 h-[75px] border boder-b border-[#EBEBEB]">
       <Logo />
       <nav className="flex justify-around items-center gap-[32px]">
         {renderNavLinks()}

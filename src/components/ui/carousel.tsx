@@ -161,7 +161,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="carousel-item"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
-        orientation === "horizontal" ? "pl-10 " : "pt-4",
+        orientation === "horizontal" ? "md:pl-10 pl-4" : "pt-4",
         className
       )}
       {...props}
@@ -185,7 +185,7 @@ function CarouselPrevious({
       className={cn(
         "absolute size-8 !rounded-[10px] bg-primary text-white  cursor-pointer",
         orientation === "horizontal"
-          ? "top-1/2 -left-12 -translate-y-1/2"
+          ? "top-1/2 -left-8 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
@@ -215,7 +215,7 @@ function CarouselNext({
       className={cn(
         "absolute size-8 !rounded-[10px]  bg-[#38128A] text-white cursor-pointer",
         orientation === "horizontal"
-          ? "top-1/2 -right-12 -translate-y-1/2"
+          ? "top-1/2 -right-7 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
