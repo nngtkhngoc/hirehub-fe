@@ -1,6 +1,7 @@
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import howitworks from "@/assets/illustration/howitworks.png";
 import { NumberCircle } from "../ui/NumberCircle";
+import { NoteCircle } from "../ui/NoteCircle";
 
 interface Step {
   title: string;
@@ -51,7 +52,9 @@ export const HowItWorks = () => {
   return (
     <section className="py-10 lg:flex lg:flex-row lg:justify-center lg:gap-10 flex-col items-center justify-center lg:px-10">
       <img src={howitworks} alt="computer" className="lg:block hidden" />
-
+      <div className="flex flex-row justify-center items-center pb-5">
+        <NoteCircle text="Steps" />
+      </div>
       <section className="flex flex-col items-center lg:items-start lg:gap-3">
         <h3>
           <HighlightText text="QUY TRÌNH ĐƠN GIẢN" />

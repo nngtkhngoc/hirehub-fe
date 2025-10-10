@@ -38,7 +38,7 @@ export const PopularCategory = () => {
   };
 
   return (
-    <section className="flex flex-col gap-3 items-center bg-gradient-to-b from-[#FEFEFE] to-[#E0D5F7] py-10 lg:gap-5">
+    <section className="flex flex-col gap-6 items-center bg-gradient-to-b from-[#FEFEFE] to-[#E0D5F7] py-10 lg:gap-5">
       <div className="w-fit">
         <NoteCircle text="Category" />
       </div>
