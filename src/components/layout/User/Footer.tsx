@@ -73,9 +73,9 @@ export const Footer = () => {
   return (
     <footer className="md:h-[350px]">
       <section className="flex flex-col px-8 py-8 gap-1 md:gap-0 md:h-[300px]  md:flex-row justify-between md:items-center md:px-20 bg-gradient-to-r from-[#F7F6F8] to-[#EEE5FF]">
-        <section className="flex flex-col justify-between items-center md:items-start md:w-[400px] gap-[16px] pb-10 md:pb-0">
+        <section className="flex flex-col justify-between items-center md:items-start md:w-[400px] gap-[16px] pb-10 md:pb-0 pr-10">
           <Logo />
-          <p className="font-light text-[12px] md:text-[14px] text-justify text-[#263238] md:w-[340px] leading-[24px]">
+          <p className="font-light text-[12px] md:text-[14px] text-justify text-[#263238] lg:w-[340px] leading-[24px]">
             Nền tảng tuyển dụng hiện đại, nơi các doanh nghiệp dễ dàng tìm kiếm
             ứng viên phù hợp và ứng viên nhanh chóng tiếp cận những cơ hội việc
             làm chất lượng

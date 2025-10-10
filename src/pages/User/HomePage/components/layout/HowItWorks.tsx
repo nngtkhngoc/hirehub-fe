@@ -1,6 +1,6 @@
-import { NumberCircle } from "./NumberCircle";
-
-import howitworks from "../../../../assets/illustration/howitworks.png";
+import { HighlightText } from "@/components/ui/User/HighlightText";
+import howitworks from "@/assets/illustration/howitworks.png";
+import { NumberCircle } from "../ui/NumberCircle";
 
 interface Step {
   title: string;
@@ -49,22 +49,19 @@ export const HowItWorks = () => {
   };
 
   return (
-    <section className="py-10 lg:flex lg:flex-row lg:justify-center lg:gap-20 flex-col items-center justify-center lg:px-10">
+    <section className="py-10 lg:flex lg:flex-row lg:justify-center lg:gap-10 flex-col items-center justify-center lg:px-10">
       <img src={howitworks} alt="computer" className="lg:block hidden" />
 
-      <section>
-        <section className="flex flex-col items-center lg:items-start">
-          <div className="w-fit text-center">
-            <h3 className="relative text-center text-primary text-[30px] font-extrabold  font-title lg:text-[48px] lg:text-left  whitespace-nowrap after:content-[''] after:absolute after:left-0 after:bottom-1 lg:after:bottom-3 after:w-full after:h-[13px] sm:after:h-[20px] after:bg-secondary after:-z-10 ">
-              QUY TRÌNH ĐƠN GIẢN
-            </h3>
-          </div>
+      <section className="flex flex-col items-center lg:items-start lg:gap-3">
+        <h3>
+          <HighlightText text="QUY TRÌNH ĐƠN GIẢN" />
+        </h3>
 
-          <div className="flex flex-col gap-5 px-2 py-8 lg:px-0 lg:justify-start lg:items-start ">
-            {renderSteps()}
-          </div>
-        </section>
+        <div className="flex flex-col gap-5 px-2 py-8 lg:px-0 lg:justify-start lg:items-start ">
+          {renderSteps()}
+        </div>
       </section>
+
       <div className="w-full flex items-center justify-center block lg:hidden">
         <img src={howitworks} alt="computer" />
       </div>

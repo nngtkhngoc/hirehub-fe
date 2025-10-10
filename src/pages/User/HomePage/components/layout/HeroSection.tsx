@@ -1,7 +1,8 @@
 import { Search } from "lucide-react";
 
-import illustration from "../../../../assets/illustration/herosection.png";
-import { PrimaryButton } from "../../../../components/ui/User/Button";
+import { NoteCircle } from "@/pages/User/HomePage/components/ui/NoteCircle";
+import illustration from "@/assets/illustration/herosection.png";
+import { PrimaryButton } from "@/components/ui/User/Button";
 
 export const HeroSection = () => {
   return (
@@ -13,8 +14,8 @@ export const HeroSection = () => {
           className="block lg:hidden"
         />
         <section className="flex flex-col gap-3 lg:items-start lg:max-w-[670px] lg:gap-5">
-          <div className="hidden lg:block bg-gradient-to-r from-[#7E4BEB] via-[#4B18B8] to-[#38128A] text-secondary font-bold font-[16px] px-[20px] py-[4px] rounded-[30px]">
-            HireHub
+          <div className="hidden lg:block">
+            <NoteCircle text="HireHub" />
           </div>
           <h3 className="text-center text-[36px] font-extrabold font-title leading-[40px] lg:text-[80px] lg:text-left lg:leading-[80px]">
             <div className="">
