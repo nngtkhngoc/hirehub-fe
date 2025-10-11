@@ -1,5 +1,6 @@
-import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import { BadgeQuestionMark } from "lucide-react";
+
+import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import forgetpassword from "@/assets/illustration/forgetpassword.png";
 
 export const ForgetPasswordPage = () => {

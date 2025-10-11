@@ -1,8 +1,10 @@
-import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
-import { KeyRound } from "lucide-react";
-import resetpassword from "@/assets/illustration/resetpassword.png";
-import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+
+import { Eye, EyeOff } from "lucide-react";
+import { KeyRound } from "lucide-react";
+
+import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
+import resetpassword from "@/assets/illustration/resetpassword.png";
 
 export const ResetPasswpordPage = () => {
   const [openPassword, setOpenPassword] = useState(false);

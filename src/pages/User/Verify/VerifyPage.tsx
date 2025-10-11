@@ -1,12 +1,13 @@
-import { Mail } from "lucide-react";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { Mail } from "lucide-react";
+
+import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
+import verify from "@/assets/illustration/verify.png";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
-import verify from "@/assets/illustration/verify.png";
 
 export const VerifyPage = () => {
   return (
