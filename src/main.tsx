@@ -14,25 +14,34 @@ import { ResetPasswpordPage } from "./pages/User/ResetPassword/ResetPasswordPage
 import { MailSentPage } from "./pages/User/MailSent/MailSentPage.tsx";
 import { JobListPage } from "./pages/User/JobList/JobListPage.tsx";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<UserLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="/job-list" element={<JobListPage />} />
-        </Route>
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route index element={<AuthPage />} />
-          <Route path="/auth/verify" element={<VerifyPage />} />
-          <Route
-            path="/auth/forget-password"
-            element={<ForgetPasswordPage />}
-          />
-          <Route path="/auth/reset-password" element={<ResetPasswpordPage />} />
-          <Route path="/auth/mail-sent" element={<MailSentPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<UserLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="/job-list" element={<JobListPage />} />
+          </Route>
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route index element={<AuthPage />} />
+            <Route path="/auth/verify" element={<VerifyPage />} />
+            <Route
+              path="/auth/forget-password"
+              element={<ForgetPasswordPage />}
+            />
+            <Route
+              path="/auth/reset-password"
+              element={<ResetPasswpordPage />}
+            />
+            <Route path="/auth/mail-sent" element={<MailSentPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   </StrictMode>
 );

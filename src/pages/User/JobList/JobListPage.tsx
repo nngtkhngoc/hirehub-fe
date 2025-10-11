@@ -11,9 +11,13 @@ export const JobListPage = () => {
             <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px] font-title">
               CÁCH
             </span>
-            <span> </span>
+            <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px]">
+              {" "}
+            </span>
             <HighlightText text="NHANH NHẤT" />
-            <span> </span>
+            <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px]">
+              {" "}
+            </span>
             <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px] font-title">
               ĐỂ TÌM VIỆC
             </span>
@@ -21,6 +25,7 @@ export const JobListPage = () => {
         }
         description="Hàng ngàn công việc mới được cập nhật mỗi ngày trên HireHub. Chỉ cần đăng nhập, bạn có thể dễ dàng khám phá và nắm bắt cơ hội phù hợp ngay lập tức."
         illustration={joblist}
+        type="việc làm"
       />
     </div>
   );
