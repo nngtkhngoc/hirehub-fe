@@ -72,7 +72,7 @@ export const SignIn = () => {
           label={
             <div className="w-full flex flex-row gap-2 justify-center items-center">
               <img src={google} alt="google" className="w-[20px] h-[20px]" />
-              <span className="text-[12px] ">Đăng nhập bằng Google</span>
+              <span className="text-[12px]">Đăng nhập bằng Google</span>
             </div>
           }
         />
