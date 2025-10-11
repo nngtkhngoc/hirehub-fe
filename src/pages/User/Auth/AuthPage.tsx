@@ -10,7 +10,7 @@ interface TabContent {
   description: string;
 }
 
-export const Auth = () => {
+export const AuthPage = () => {
   const [authTab, setAuthTab] = useState<"sign-in" | "sign-up">("sign-in");
 
   const tabContents: Record<"sign-in" | "sign-up", TabContent> = {

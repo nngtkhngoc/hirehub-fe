@@ -1,4 +1,4 @@
-import { JobLandingPage } from "@/components/ui/User/JobLandingPage";
+import { JobLandingPageCard } from "@/components/ui/User/JobLandingPageCard";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import { PrimaryButton } from "@/components/ui/User/Button";
 import { NoteCircle } from "../ui/NoteCircle";
@@ -134,7 +134,7 @@ export const FeaturedJobs = () => {
         <CarouselContent>
           {jobs.map((job) => (
             <CarouselItem className="md:basis-1/2 h-[360px]  lg:basis-1/3">
-              <JobLandingPage job={job} />
+              <JobLandingPageCard job={job} />
             </CarouselItem>
           ))}
         </CarouselContent>
