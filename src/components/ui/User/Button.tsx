@@ -55,7 +55,7 @@ export const OutlineButton = ({
   label = "Primary Button",
   onClick,
   outlineColor = "outline outline-[2px] outline-primary",
-  bgColor,
+  bgColor = "bg-white",
   hoverBgColor = "hover:bg-[#DFD2FA] cursor-pointer",
   textColor = "text-primary",
   paddingX = "px-[20px]",
