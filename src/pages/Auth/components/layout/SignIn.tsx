@@ -8,7 +8,7 @@ export const SignIn = () => {
   const [openPassword, setOpenPassword] = useState(false);
 
   return (
-    <div className="bg-white rounded-[10px] shadow-[0_2px_10px_0_#DFD2FA] w-full px-6 py-10 gap-6 flex flex-col w-full">
+    <div className="bg-white rounded-[10px] shadow-[0_2px_10px_0_#DFD2FA] w-full px-6 sm:px-8 py-10 gap-6 flex flex-col w-full">
       <form className="flex flex-col gap-5">
         <div className="flex flex-col ">
           <label htmlFor="email" className="text-[14px] font-semibold">
@@ -18,17 +18,21 @@ export const SignIn = () => {
             type="text"
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
+            required
           />
         </div>
+
         <div className="flex flex-col">
           <label htmlFor="password" className="text-[14px] font-semibold">
-            Password
+            Mật khẩu
           </label>
           <div className="relative">
             <input
               type={openPassword ? "text" : "password"}
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
               placeholder="********"
+              required
+              id="pasword"
             />
             {openPassword ? (
               <Eye

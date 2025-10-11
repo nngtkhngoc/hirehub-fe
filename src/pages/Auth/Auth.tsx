@@ -48,12 +48,12 @@ export const Auth = () => {
         backgroundImage: `url(${authbg})`,
       }}
     >
-      <div className="bg-white/73 py-10 px-8 rounded-[10px] shadow-[ -2px_4px_10px_0_#DFD2FA ] w-9/10 flex flex-col items-center gap-6 md:w-3/5 lg:w-4/5 lg:flex-row justify-end lg:gap-10">
+      <div className="bg-white/73 py-10 px-2 md:px-8 rounded-[10px] shadow-[ -2px_4px_10px_0_#DFD2FA ] w-9/10 flex flex-col items-center gap-6 md:w-3/5 lg:w-4/5 lg:flex-row justify-end lg:gap-10">
         <div className="flex flex-col justify-center items-center gap-5">
           {renderTabContents()}
 
           <div className="flex justify-center items-center w-full h-[48x] shadow-[0_2px_10px_0_#DFD2FA] rounded-[10px] bg-white">
-            <div className="flex flex-row gap-5 items-center py-2 ">
+            <div className="flex flex-row gap-2 items-center py-2 px-2">
               <button
                 className={`w-[130px] h-[33px] rounded-[10px] font-bold text-[13px] ${
                   authTab === "sign-in"

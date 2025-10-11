@@ -21,7 +21,7 @@ export const PrimaryButton = ({
   label = "Primary Button",
   onClick,
   outlineColor,
-  bgColor = "bg-gradient-to-r from-[#7749DA] to-[#38128A]",
+  bgColor = "bg-gradient-to-r from-[#7749DA] to-[#38128A] outline outline-[2px] outline-gradient-to-r outline-primary",
   hoverBgColor = "hover:bg-gradient-to-r hover:from-[#260C5C] hover:to-[#38128A] cursor-pointer",
   textColor = "text-white",
   paddingX = "px-[20px]",
