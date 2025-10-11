@@ -1,7 +1,7 @@
 import type { Job } from "@/types/Job";
 import { OutlineButton } from "./Button";
 
-export const JobLandingPage = ({ job }: { job: Job }) => {
+export const JobLandingPageCard = ({ job }: { job: Job }) => {
   return (
     <div className="w-[280px] sm:w-[320px] h-[322px] rounded-[10px] shadow-[0_4px_10px_rgba(0,0,0,0.25)] px-5 py-5 space-y-2 bg-white hover:bg-primary cursor-pointer transition-all duration-300 group">
       <div className="flex flex-row items-center gap-5">
