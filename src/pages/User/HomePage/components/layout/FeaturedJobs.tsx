@@ -2,11 +2,10 @@ import { JobLandingPageCard } from "@/components/ui/User/JobLandingPageCard";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import { PrimaryButton } from "@/components/ui/User/Button";
 import { NoteCircle } from "../ui/NoteCircle";
-import type { Job } from "@/types/Job";
-import shopee from "@/assets/icons/shopee.png";
+
+import { jobs } from "@/mock/job.mock";
 
 import { Search } from "lucide-react";
-import type { Recruiter } from "@/types/Recruiter";
 
 import {
   Carousel,
@@ -17,94 +16,6 @@ import {
 } from "@/components/ui/carousel";
 
 export const FeaturedJobs = () => {
-  const recruiter: Recruiter = {
-    name: "Shopee",
-    logo: shopee,
-  };
-  const jobs: Job[] = [
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-    {
-      recruiter: recruiter,
-      title: "Backend Developer",
-      level: "Internship",
-      description:
-        "Xây dựng và duy trì hệ thống phía server, thiết kế API, quản lý cơ sở dữ liệu và đảm bảo hiệu năng, bảo mật cho toàn bộ ứng dụng.",
-      postingDate: new Date(),
-      workspace: "NYC, America",
-    },
-  ];
-
   return (
     <section className="flex flex-col items-center justify-center py-10 gap-5 bg-[#F7F6F8]">
       <div className="flex flex-row justify-center items-center">

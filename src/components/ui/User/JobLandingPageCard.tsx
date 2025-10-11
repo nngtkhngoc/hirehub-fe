@@ -30,7 +30,7 @@ export const JobLandingPageCard = ({ job }: { job: Job }) => {
         </div>
       </div>
 
-      <div className="text-[13px] leading-[24px] text-[#7A7D87] overflow-hidden text-ellipsis group-hover:text-white">
+      <div className="text-[13px] leading-[24px] text-[#7A7D87] overflow-hidden text-ellipsis group-hover:text-white line-clamp-4">
         {job.description}
       </div>
       <div className="float-right">
