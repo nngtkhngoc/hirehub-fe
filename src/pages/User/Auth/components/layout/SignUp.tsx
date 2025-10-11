@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
-import google from "@/assets/icons/google.png";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SignUpCandidate } from "./SignUpCandidate";
 import { SignUpRecruiter } from "./SignUpRecruiter";
+import google from "@/assets/icons/google.png";
 
 export const SignUp = () => {
   const [typeAccount, setTypeAccount] = useState<"candidate" | "recruiter">(

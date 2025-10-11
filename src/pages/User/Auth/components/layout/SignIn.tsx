@@ -1,5 +1,7 @@
-import { Eye, EyeOff } from "lucide-react";
+import { Link } from "react-router";
 import { useState } from "react";
+
+import { Eye, EyeOff } from "lucide-react";
 
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import google from "@/assets/icons/google.png";
@@ -57,6 +59,12 @@ export const SignIn = () => {
         </div>
       </form>
 
+      <Link
+        to="/auth/forget-password"
+        className="text-[12px] font-semibold text-right underline text-primary"
+      >
+        Quên mật khẩu?
+      </Link>
       <div className="w-full flex flex-col gap-3">
         <PrimaryButton label="Đăng Nhập" paddingX="w-full" />
         <div className="text-center text-[12px] text-[#263238]">hoặc</div>
