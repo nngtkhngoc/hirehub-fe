@@ -6,6 +6,5 @@ export const getAllProvinces = async (): Promise<Province[]> => {
     withCredentials: false,
   });
 
-  console.log(res);
   return res.data;
 };
