@@ -12,6 +12,7 @@ import { VerifyPage } from "./pages/User/Verify/VerifyPage.tsx";
 import { ForgetPasswordPage } from "./pages/User/ForgetPassword/ForgetPasswordPage.tsx";
 import { ResetPasswpordPage } from "./pages/User/ResetPassword/ResetPasswordPage.tsx";
 import { MailSentPage } from "./pages/User/MailSent/MailSentPage.tsx";
+import { JobListPage } from "./pages/User/JobList/JobListPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/" element={<UserLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="/job-list" element={<JobListPage />} />
         </Route>
         <Route path="/auth" element={<AuthLayout />}>
           <Route index element={<AuthPage />} />
