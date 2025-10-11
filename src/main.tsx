@@ -10,6 +10,7 @@ import { AuthPage } from "./pages/User/Auth/AuthPage.tsx";
 import { AuthLayout } from "./components/layout/User/AuthLayout.tsx";
 import { VerifyPage } from "./pages/User/Verify/VerifyPage.tsx";
 import { ForgetPasswordPage } from "./pages/User/ForgetPassword/ForgetPasswordPage.tsx";
+import { ResetPasswpordPage } from "./pages/User/ResetPassword/ResetPasswordPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -24,7 +25,8 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/auth/forget-password"
             element={<ForgetPasswordPage />}
-          />
+          />{" "}
+          <Route path="/auth/reset-password" element={<ResetPasswpordPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
