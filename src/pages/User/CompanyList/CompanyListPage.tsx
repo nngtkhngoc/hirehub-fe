@@ -1,9 +1,6 @@
 import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
-import joblist from "@/assets/illustration/joblist.png";
-import { jobs } from "@/mock/job.mock";
-import { JobCard } from "@/components/ui/User/JobCard";
-import { Filter } from "lucide-react";
+import companylist from "@/assets/illustration/companylist.png";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FilterBar } from "./components/layout/FilterBar";
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import {
   Pagination,
@@ -23,10 +19,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Filter } from "lucide-react";
+import { FilterBar } from "./components/layout/FilterBar";
+import { recruiters } from "@/mock/recruiter.mock";
+import { CompanyCard } from "@/components/ui/User/CompanyCard";
 
-export const JobListPage = () => {
-  const renderJobs = () => {
-    return jobs.map((job) => <JobCard job={job} />);
+export const CompanyListPage = () => {
+  const renderCompanies = () => {
+    return recruiters.map((recruiter) => <CompanyCard company={recruiter} />);
   };
 
   return (
@@ -35,32 +35,23 @@ export const JobListPage = () => {
         title={
           <h2 className="text-left lg:leading-[60px]">
             <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px] font-title">
-              CÁCH
+              KHÁM PHÁ CÁC CÔNG TY{" "}
             </span>
-            <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px]">
-              {" "}
-            </span>
-            <HighlightText text="NHANH NHẤT" />
-            <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px]">
-              {" "}
-            </span>
-            <span className="text-[28px] sm:text-[30px] font-extrabold md:text-[35px] xl:text-[48px] font-title">
-              ĐỂ TÌM VIỆC
-            </span>
+            <HighlightText text="HÀNG ĐẦU" />
           </h2>
         }
-        description="Hàng ngàn công việc mới được cập nhật mỗi ngày trên HireHub. Chỉ cần đăng nhập, bạn có thể dễ dàng khám phá và nắm bắt cơ hội phù hợp ngay lập tức."
-        illustration={joblist}
-        type="việc làm"
+        description="Kết nối với những người có cùng chí hướng, khám phá cơ hội mới và xây dựng những mối quan hệ ý nghĩa giúp bạn phát triển bản thân và sự nghiệp."
+        illustration={companylist}
+        type="công ty"
       />
 
-      <div className="flex flex-col w-full bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start">
+      <div className="flex flex-col w-full bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start lg:pl-5">
         <div className="flex flex-col justify-center items-center">
-          <h3 className="text-center text-[23px] font-medium">
-            Danh sách công việc
+          <h3 className="text-center text-[23px] font-medium whitespace-nowrap">
+            Danh sách công ty
           </h3>
           <div className="hidden lg:block">
-            <FilterBar />{" "}
+            <FilterBar />
             <div className="w-full flex items-center justify-center w-full pt-4">
               <OutlineButton
                 label="Hủy"
@@ -101,8 +92,8 @@ export const JobListPage = () => {
         </Dialog>
 
         <div className=" flex flex-col items-center justify-center gap-10">
-          <div className=" flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
-            {renderJobs()}
+          <div className=" flex flex-col lg:grid xl:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-[30px] lg:space-x-[30px]">
+            {renderCompanies()}
           </div>{" "}
           <Pagination>
             <PaginationContent>
