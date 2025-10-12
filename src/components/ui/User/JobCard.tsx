@@ -13,7 +13,7 @@ export const JobCard = ({ job }: { job: Job }) => {
   else postedText = `Đã đăng ${daysAgo} ngày trước`;
 
   return (
-    <div className="w-[315px] h-[263px] rounded-[10px] px-5 py-5 space-y-2 bg-white hover:bg-primary cursor-pointer transition-all duration-300 group border border-[#DBDBDB]">
+    <div className="w-[315px] h-[263px] rounded-[10px] px-5 py-5 space-y-2 bg-white hover:bg-primary cursor-pointer transition-all duration-300 group border border-[#DBDBDB] hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02]">
       <div className="w-full space-y-2 pb-4 border-b-2 border-[#C7C7C7]">
         <div className="flex flex-row justify-between items-center gap-5">
           <div className="flex flex-row items-center gap-5">

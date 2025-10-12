@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 
-import { NoteCircle } from "@/pages/User/HomePage/components/ui/NoteCircle";
+import { NoteCircle } from "@/pages/User/Home/components/ui/NoteCircle";
 import illustration from "@/assets/illustration/herosection.png";
 import { PrimaryButton } from "@/components/ui/User/Button";
 
