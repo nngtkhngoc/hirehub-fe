@@ -44,25 +44,4 @@ export const recruiters: Recruiter[] = [
     description:
       "Viettel là tập đoàn viễn thông và công nghệ lớn nhất Việt Nam, hoạt động tại hơn 10 quốc gia.",
   },
-  {
-    name: "VinAI",
-    logo: shopee,
-    address: "Hà Nội, Việt Nam",
-    description:
-      "VinAI là công ty nghiên cứu trí tuệ nhân tạo hàng đầu, trực thuộc tập đoàn Vingroup, tập trung vào AI ứng dụng và học sâu.",
-  },
-  {
-    name: "Techcombank",
-    logo: shopee,
-    address: "Hà Nội, Việt Nam",
-    description:
-      "Techcombank là một trong những ngân hàng thương mại cổ phần lớn nhất Việt Nam, tiên phong về ngân hàng số.",
-  },
-  {
-    name: "MoMo",
-    logo: shopee,
-    address: "TP. Hồ Chí Minh, Việt Nam",
-    description:
-      "MoMo là ví điện tử phổ biến nhất Việt Nam, cung cấp dịch vụ thanh toán và tài chính tiện lợi cho hàng triệu người dùng.",
-  },
 ];
