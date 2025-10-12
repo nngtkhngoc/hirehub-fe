@@ -8,7 +8,7 @@ interface UserCardProps {
 
 export const UserCard = ({ user }: UserCardProps) => {
   return (
-    <div className="w-[292px] h-[407px] rounded-[30px] border border-[#DBDBDB] flex flex-col gap-[10px] items-center justify-center group hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02] cursor-pointer transition-all duration-300">
+    <div className="bg-white w-[292px] h-[407px] rounded-[30px] border border-[#DBDBDB] flex flex-col gap-[10px] items-center justify-center group hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02] cursor-pointer transition-all duration-300">
       <img
         src={user.avatar}
         alt="avartar"

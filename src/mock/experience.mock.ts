@@ -19,4 +19,13 @@ export const experiences = [
       "Tham gia phát triển hệ thống quản lý nội bộ bằng Node.js và React, viết unit test và refactor code.",
     image: "abc",
   },
+  {
+    company: recruiters[3],
+    position: "Software Engineer Intern",
+    startDate: new Date("2021-06-01"),
+    endDate: new Date("2025-12-10"),
+    description:
+      "Tham gia phát triển hệ thống quản lý nội bộ bằng Node.js và React, viết unit test và refactor code.",
+    image: "abc",
+  },
 ];
