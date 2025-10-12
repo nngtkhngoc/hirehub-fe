@@ -1,6 +1,8 @@
 import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import userList from "@/assets/illustration/userlist.png";
+import { UserCard } from "@/components/ui/User/UserCard";
+import { users } from "@/mock/uer.mock";
 
 export const UserListPage = () => {
   return (
@@ -18,6 +20,8 @@ export const UserListPage = () => {
         illustration={userList}
         type="người dùng"
       />
+
+      <UserCard user={users[0]} />
     </div>
   );
 };

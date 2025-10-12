@@ -10,4 +10,5 @@ export type User = {
   status: string;
   skills: Skill[];
   experience: Experiene[];
+  position: string;
 };

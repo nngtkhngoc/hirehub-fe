@@ -3,7 +3,7 @@ import { skills } from "./skill.mock";
 import { experiences } from "./experience.mock";
 import user1 from "@/assets/illustration/user1.png";
 
-export const mockUser: User[] = [
+export const users: User[] = [
   {
     id: "u001",
     email: "ngoc.khanh@example.com",
@@ -13,6 +13,7 @@ export const mockUser: User[] = [
     status: "Đang tìm việc",
     skills: skills,
     experience: experiences,
+    position: "Frontend Developer",
   },
   {
     id: "u001",
@@ -23,6 +24,7 @@ export const mockUser: User[] = [
     status: "Đang có việc",
     skills: skills,
     experience: experiences,
+    position: "Backend Developer",
   },
   {
     id: "u001",
@@ -30,9 +32,10 @@ export const mockUser: User[] = [
     name: "Khanh Ngoc",
     address: "TP. Hồ Chí Minh, Việt Nam",
     avatar: user1,
-    status: "ang có việc",
+    status: "Đang có việc",
     skills: skills,
     experience: experiences,
+    position: "Fullstack Developer",
   },
   {
     id: "u001",
@@ -40,9 +43,10 @@ export const mockUser: User[] = [
     name: "Khanh Ngoc",
     address: "TP. Hồ Chí Minh, Việt Nam",
     avatar: user1,
-    status: "ang có việc",
+    status: "Đang có việc",
     skills: skills,
     experience: experiences,
+    position: "Fullstack Developer",
   },
   {
     id: "u001",
@@ -53,5 +57,6 @@ export const mockUser: User[] = [
     status: "Đang tìm việc",
     skills: skills,
     experience: [],
+    position: "Fullstack Developer",
   },
 ];
