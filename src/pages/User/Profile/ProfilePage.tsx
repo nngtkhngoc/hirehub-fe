@@ -14,7 +14,7 @@ export const ProfilePage = () => {
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">
         <BasicInfor user={users[0]} />
         <DetailsInfor user={users[0]} />
-        <Resume />
+        <Resume user={users[0]} />
         <Experiences />
         <Study />
         <SkillsAndLanguages />

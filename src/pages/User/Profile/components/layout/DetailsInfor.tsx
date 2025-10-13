@@ -45,12 +45,10 @@ export const DetailsInfor = ({ user }: { user: User }) => {
             <infor.icon size={22} className="text-[#888888]" />
           </div>
 
-          <div className="flex flex-col items-start justify-center w-0 flex-1 overflow-hidden text-ellipsis">
+          <div className="flex flex-col items-start justify-center w-0 flex-1 ">
             <div
-              className={`text-[15px] font-medium text-black transition-all duration-300 ${
-                isItemExpanded
-                  ? "line-clamp-none overflow-hidden text-ellipsis"
-                  : "overflow-hidden text-ellipsis"
+              className={`text-[15px] font-medium text-black transition-all duration-300 w-full ${
+                isItemExpanded ? "break-words" : "overflow-hidden text-ellipsis"
               }`}
             >
               {infor.content}
@@ -71,7 +69,7 @@ export const DetailsInfor = ({ user }: { user: User }) => {
         <PartTitle text="Lời giới thiệu" />
         <div
           ref={introduceRef}
-          className={`text-[12px] leading-[24px] transition-all text-justify duration-300 pt-4 ${
+          className={`text-[14px] leading-[26px] transition-all text-justify duration-300 pt-4 ${
             isExpanded ? "line-clamp-none" : "line-clamp-3"
           }`}
         >
