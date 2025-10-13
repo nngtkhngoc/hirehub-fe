@@ -12,8 +12,8 @@ export const ProfilePage = () => {
   return (
     <div className="flex flex-row py-40 items-center justify-center bg-[#F8F9FB]">
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">
-        <BasicInfor user={users[4]} />
-        <DetailsInfor />
+        <BasicInfor user={users[0]} />
+        <DetailsInfor user={users[0]} />
         <Resume />
         <Experiences />
         <Study />
