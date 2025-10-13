@@ -17,6 +17,7 @@ import { JobListPage } from "./pages/User/JobList/JobListPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CompanyListPage } from "./pages/User/CompanyList/CompanyListPage.tsx";
 import { UserListPage } from "./pages/User/UserList/UserListPage.tsx";
+import { ProfilePage } from "./pages/User/Profile/ProfilePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +29,11 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/" element={<UserLayout />}>
             <Route index element={<HomePage />} />
             <Route path="/job-list" element={<JobListPage />} />
-            <Route path="/company-list" element={<CompanyListPage />} />{" "}
+            <Route path="/company-list" element={<CompanyListPage />} />
             <Route path="/user-list" element={<UserListPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
+
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<AuthPage />} />
             <Route path="/auth/verify" element={<VerifyPage />} />
