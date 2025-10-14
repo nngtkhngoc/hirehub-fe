@@ -23,14 +23,24 @@ export const users: User[] = [
       { name: "Vietnamese", level: "Native" },
       { name: "English", level: "Intermediate" },
     ],
-    study: {
-      university: "University of Information Technology - VNUHCM",
-      logo: "https://upload.wikimedia.org/wikipedia/vi/3/3e/Logo_UIT_updated.png",
-      startDate: "2020-09",
-      endDate: "2024-06",
-      major: "Computer Science",
-      degree: "Bachelor's Degree",
-    },
+    study: [
+      {
+        university: "University of Information Technology - VNUHCM",
+        logo: "https://upload.wikimedia.org/wikipedia/vi/3/3e/Logo_UIT_updated.png",
+        startDate: new Date("2020-09"),
+        endDate: new Date("2024-06"),
+        major: "Computer Science",
+        degree: "Bachelor's Degree",
+      },
+      {
+        university: "Ho Chi Minh City University of Science (HCMUS)",
+        logo: "https://upload.wikimedia.org/wikipedia/vi/d/d6/HCMUS_logo.png",
+        startDate: new Date("2019-09"),
+        endDate: new Date("2023-06"),
+        major: "Software Engineering",
+        degree: "Bachelor's Degree",
+      },
+    ],
     introduction:
       "Xin chào, tôi là Ngọc, một người nhiệt huyết, chú trọng chi tiết và luôn đam mê với công nghệ cũng như việc học hỏi không ngừng. Tôi thích làm việc trong môi trường năng động và mong muốn đóng góp vào những dự án có ý nghĩa, tạo ra giá trị thực. Rất vui được làm quen với mọi người!",
   },
@@ -51,14 +61,16 @@ export const users: User[] = [
       { name: "Vietnamese", level: "Native" },
       { name: "English", level: "Upper-Intermediate" },
     ],
-    study: {
-      university: "Ho Chi Minh City University of Science (HCMUS)",
-      logo: "https://upload.wikimedia.org/wikipedia/vi/d/d6/HCMUS_logo.png",
-      startDate: "2019-09",
-      endDate: "2023-06",
-      major: "Software Engineering",
-      degree: "Bachelor's Degree",
-    },
+    study: [
+      {
+        university: "Ho Chi Minh City University of Science (HCMUS)",
+        logo: "https://upload.wikimedia.org/wikipedia/vi/d/d6/HCMUS_logo.png",
+        startDate: new Date("2019-09"),
+        endDate: new Date("2023-06"),
+        major: "Software Engineering",
+        degree: "Bachelor's Degree",
+      },
+    ],
     introduction:
       "Backend Developer với niềm yêu thích hệ thống hiệu năng cao, bảo mật và kiến trúc RESTful API. Quan tâm tới Node.js, NestJS và cơ sở dữ liệu phân tán.",
   },
@@ -80,14 +92,16 @@ export const users: User[] = [
       { name: "English", level: "Fluent" },
       { name: "Japanese", level: "JLPT N3" },
     ],
-    study: {
-      university: "Hanoi University of Science and Technology (HUST)",
-      logo: "https://upload.wikimedia.org/wikipedia/vi/1/12/Logo_BK_HN.png",
-      startDate: "2018-09",
-      endDate: "2022-06",
-      major: "Information Technology",
-      degree: "Bachelor's Degree",
-    },
+    study: [
+      {
+        university: "Hanoi University of Science and Technology (HUST)",
+        logo: "https://upload.wikimedia.org/wikipedia/vi/1/12/Logo_BK_HN.png",
+        startDate: new Date("2018-09"),
+        endDate: new Date("2022-06"),
+        major: "Information Technology",
+        degree: "Bachelor's Degree",
+      },
+    ],
     introduction:
       "Fullstack Developer với nền tảng kỹ thuật mạnh về cả frontend và backend. Mình thích giải quyết vấn đề thực tế bằng công nghệ, đặc biệt trong lĩnh vực web và SaaS.",
   },

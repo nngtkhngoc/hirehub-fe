@@ -49,7 +49,7 @@ export const ExperienceCard = ({
           <div className="text-[14px] text-[#888888] font-regular">
             {experience.position}
           </div>
-          <div className="flex flex-row items-center justify-center gap-3">
+          <div className="flex flex-row items-center justify-left gap-1 sm:gap-3">
             <div className="text-[12px] font-regular text-[#a6a6a6]">
               T{experience.startDate.getMonth()}/
               {experience.startDate.getFullYear()} - T

@@ -9,8 +9,8 @@ export type Language = {
 export type Study = {
   university: string;
   logo: string;
-  startDate: string; // format: "YYYY-MM" hoặc "DD/MM/YYYY"
-  endDate: string; // hoặc "Present" nếu đang học
+  startDate: Date; // format: "YYYY-MM" hoặc "DD/MM/YYYY"
+  endDate: Date; // hoặc "Present" nếu đang học
   major?: string; // optional: ngành học
   degree?: string; // optional: cử nhân, thạc sĩ,...
 };
@@ -29,6 +29,6 @@ export type User = {
   phoneNumber: string; // số điện thoại
   resumeLink: string; // link tới CV hoặc portfolio
   languages: Language[];
-  study: Study; // học vấn
+  study: Study[]; // học vấn
   introduction: string;
 };
