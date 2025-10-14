@@ -15,7 +15,7 @@ export const ProfilePage = () => {
         <BasicInfor user={users[0]} />
         <DetailsInfor user={users[0]} />
         <Resume user={users[0]} />
-        <Experiences />
+        <Experiences user={users[0]} />
         <Study />
         <SkillsAndLanguages />
       </div>

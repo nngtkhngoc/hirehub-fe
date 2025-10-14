@@ -1,4 +1,4 @@
-import type { Experiene } from "./Experience";
+import type { Experience } from "./Experience";
 import type { Skill } from "./Skill";
 
 export type Language = {
@@ -23,7 +23,7 @@ export type User = {
   avatar: string;
   status: string;
   skills: Skill[];
-  experience: Experiene[];
+  experience: Experience[];
   position: string;
   github: string; // link GitHub cá nhân
   phoneNumber: string; // số điện thoại

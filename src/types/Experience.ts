@@ -1,6 +1,6 @@
 import type { Recruiter } from "./Recruiter";
 
-export type Experiene = {
+export type Experience = {
   company: Recruiter;
   position: string;
   startDate: Date;
