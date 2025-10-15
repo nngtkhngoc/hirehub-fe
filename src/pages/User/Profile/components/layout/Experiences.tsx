@@ -15,7 +15,7 @@ export const Experiences = ({ user }: { user: User }) => {
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
       <div className="flex flex-col w-full">
-        <PartTitle text="Lời giới thiệu" />
+        <PartTitle text="Kinh nghiệm" />
         <div className=" flex-col gap-4">{renderExperiences()}</div>
       </div>
     </div>

@@ -17,7 +17,7 @@ export const ProfilePage = () => {
         <Resume user={users[0]} />
         <Experiences user={users[0]} />
         <Study user={users[0]} />
-        <SkillsAndLanguages />
+        <SkillsAndLanguages user={users[0]} />
       </div>
       <div className="lg:flex lg:flex-col hidden lg:block">
         <RecommendedJobs />
