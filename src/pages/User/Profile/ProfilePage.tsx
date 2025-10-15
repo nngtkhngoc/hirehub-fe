@@ -10,7 +10,7 @@ import { Study } from "./components/layout/Study";
 
 export const ProfilePage = () => {
   return (
-    <div className="flex flex-row py-40 items-center justify-center bg-[#F8F9FB]">
+    <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] h-full gap-10">
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">
         <BasicInfor user={users[0]} />
         <DetailsInfor user={users[0]} />
@@ -19,9 +19,9 @@ export const ProfilePage = () => {
         <Study user={users[0]} />
         <SkillsAndLanguages user={users[0]} />
       </div>
-      <div className="lg:flex lg:flex-col hidden lg:block">
-        <RecommendedJobs />
+      <div className="lg:flex lg:flex-col hidden lg:block lg:justify-start lg:h-full">
         <RecommendedUsers />
+        <RecommendedJobs />
       </div>
     </div>
   );
