@@ -2,7 +2,7 @@ import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import userList from "@/assets/illustration/userlist.png";
 import { UserCard } from "@/components/ui/User/UserCard";
-import { users } from "@/mock/uer.mock";
+import { users } from "@/mock/user.mock";
 import {
   Pagination,
   PaginationContent,
