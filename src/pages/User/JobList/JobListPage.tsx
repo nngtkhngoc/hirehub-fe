@@ -1,7 +1,6 @@
 import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import joblist from "@/assets/illustration/joblist.png";
-import { jobs } from "@/mock/job.mock";
 import { JobCard } from "@/components/ui/User/JobCard";
 import { Filter } from "lucide-react";
 import {
@@ -23,10 +22,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import useJob from "@/hooks/useJob";
 
 export const JobListPage = () => {
+  const getAllJobsQuery = useJob();
+
   const renderJobs = () => {
-    return jobs.map((job) => <JobCard job={job} />);
+    return getAllJobsQuery.data?.map((job) => <JobCard job={job} />);
   };
 
   return (

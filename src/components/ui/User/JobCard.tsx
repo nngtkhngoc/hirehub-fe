@@ -36,7 +36,7 @@ export const JobCard = ({ job }: { job: Job }) => {
           <Bookmark size={21} className="text-[#A6A6A6]" />
         </div>
         <div className="flex flex-col gap-1 text-primary ">
-          <h4 className="text-[24px] font-bold group-hover:text-secondary">
+          <h4 className="text-[24px] font-bold group-hover:text-secondary line-clamp-1 overflow-hidden w-full">
             {job.title}
           </h4>
           <div className="text-[13px] leading-[24px] group-hover:text-white">
