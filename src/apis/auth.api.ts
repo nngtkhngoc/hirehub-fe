@@ -18,3 +18,16 @@ export const sendPasswordReset = async (email: string) => {
 
   return res.data;
 };
+
+export const resetPassword = async (resetPasswordData: {
+  email: string;
+  token: string;
+  newPassword: string;
+}) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/auth/reset-password?email=${resetPasswordData.email}&token=${resetPasswordData.token}`,
+    { newPassword: resetPasswordData.newPassword }
+  );
+
+  return res.data;
+};
