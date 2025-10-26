@@ -1,72 +1,103 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-
+import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import google from "@/assets/icons/google.png";
+import { signIn } from "@/apis/auth.api";
+import { toast } from "sonner";
 
 export const SignIn = () => {
   const [openPassword, setOpenPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const nav = useNavigate();
+  const { mutate, isPending } = useMutation({
+    mutationFn: signIn,
+    onSuccess: (data) => {
+      console.log("Đăng nhập thành công ✅", data);
+      toast.success("Đăng nhập thành công!");
+      setTimeout(() => nav("/"), 500);
+    },
+    onError: (err) => {
+      toast.error("Đăng nhập thất bại!");
+      console.log(err);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutate({ email, password });
+  };
 
   return (
-    <div className="bg-white rounded-[10px] shadow-[0_2px_10px_0_#DFD2FA] w-full px-6 sm:px-8 py-10 gap-6 flex flex-col w-full">
-      <form className="flex flex-col gap-5">
-        <div className="flex flex-col ">
+    <div className="bg-white rounded-[10px] shadow-[0_2px_10px_0_#DFD2FA] w-full px-6 sm:px-8 py-10 gap-6 flex flex-col">
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+        {/* Email */}
+        <div className="flex flex-col">
           <label htmlFor="email" className="text-[14px] font-semibold">
             Email
           </label>
           <input
-            type="text"
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
             required
           />
         </div>
 
+        {/* Password */}
         <div className="flex flex-col">
           <label htmlFor="password" className="text-[14px] font-semibold">
             Mật khẩu
           </label>
           <div className="relative">
             <input
+              id="password"
               type={openPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
               placeholder="********"
               required
-              id="pasword"
             />
             {openPassword ? (
               <Eye
                 strokeWidth={0.75}
                 className="absolute top-2 right-0 cursor-pointer"
                 size={16}
-                onClick={() => {
-                  setOpenPassword(false);
-                }}
+                onClick={() => setOpenPassword(false)}
               />
             ) : (
               <EyeOff
                 strokeWidth={0.75}
                 className="absolute top-2 right-0 cursor-pointer"
                 size={16}
-                onClick={() => {
-                  setOpenPassword(true);
-                }}
+                onClick={() => setOpenPassword(true)}
               />
             )}
           </div>
         </div>
+
+        <Link
+          to="/auth/forget-password"
+          className="text-[12px] font-semibold text-right underline text-primary"
+        >
+          Quên mật khẩu?
+        </Link>
+        <PrimaryButton
+          label={isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+          disabled={isPending}
+          paddingX="w-full"
+        />
       </form>
 
-      <Link
-        to="/auth/forget-password"
-        className="text-[12px] font-semibold text-right underline text-primary"
-      >
-        Quên mật khẩu?
-      </Link>
       <div className="w-full flex flex-col gap-3">
-        <PrimaryButton label="Đăng Nhập" paddingX="w-full" />
         <div className="text-center text-[12px] text-[#263238]">hoặc</div>
         <OutlineButton
           label={
