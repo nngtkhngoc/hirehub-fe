@@ -16,8 +16,7 @@ export const SignIn = () => {
   const nav = useNavigate();
   const { mutate, isPending } = useMutation({
     mutationFn: signIn,
-    onSuccess: (data) => {
-      console.log("Đăng nhập thành công ✅", data);
+    onSuccess: () => {
       toast.success("Đăng nhập thành công!");
       setTimeout(() => nav("/"), 500);
     },
