@@ -6,9 +6,6 @@ import { Menu, X } from "lucide-react";
 import { OutlineButton } from "../../ui/User/Button";
 import { Logo } from "../../ui/User/Logo";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { signOut } from "@/apis/auth.api";
 import profile from "@/assets/illustration/profile.png";
 import { LogOut, UserCircle } from "lucide-react";
 
@@ -18,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSignOut } from "@/hooks/authHook";
 
 interface NavLink {
   label: string;
@@ -62,28 +60,11 @@ export const Sidebar = () => {
     nav("/auth");
   };
 
-  const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: signOut,
-    onSuccess: () => {
-      toast.success("Đăng xuất thành công!", {
-        duration: 1000,
-      });
-      logout();
-    },
-    onError: (err) => {
-      toast.error("Đăng xuất thất bại!", {
-        duration: 1000,
-      });
-      console.log(err);
-    },
-  });
-
+  const { mutate: handleSignOut, isPending } = useSignOut();
   const handleLogout = () => {
-    mutate();
-    window.location.reload();
+    handleSignOut();
   };
 
   return (

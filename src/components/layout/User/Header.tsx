@@ -11,9 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, UserCircle } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { signOut } from "@/apis/auth.api";
-import { toast } from "sonner";
+import { useSignOut } from "@/hooks/authHook";
 
 interface NavLink {
   label: string;
@@ -52,27 +50,10 @@ export const Header = () => {
     nav("/auth");
   };
 
-  const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: signOut,
-    onSuccess: () => {
-      toast.success("Đăng xuất thành công!", {
-        duration: 1000,
-      });
-      logout();
-    },
-    onError: (err) => {
-      toast.error("Đăng xuất thất bại!", {
-        duration: 1000,
-      });
-      console.log(err);
-    },
-  });
-
+  const { mutate: handleSignOut, isPending } = useSignOut();
   const handleLogout = () => {
-    mutate();
+    handleSignOut();
   };
 
   return (
