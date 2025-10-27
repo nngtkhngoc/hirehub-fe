@@ -1,6 +1,8 @@
 export type Recruiter = {
-  logo: string;
   name: string;
   address: string;
+  foundedYear: string;
   description: string;
+  numberOfEmployees: number;
+  avatar: string;
 };
