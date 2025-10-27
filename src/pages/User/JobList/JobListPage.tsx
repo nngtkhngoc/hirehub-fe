@@ -1,7 +1,6 @@
 import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import joblist from "@/assets/illustration/joblist.png";
-import { jobs } from "@/mock/job.mock";
 import { JobCard } from "@/components/ui/User/JobCard";
 import { Filter } from "lucide-react";
 import {
@@ -17,17 +16,75 @@ import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
+  // PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useJobs } from "@/hooks/useJob";
+import { JobCardSkeleton } from "@/components/ui/User/JobCardSkeleton";
+import { useState } from "react";
+export interface SelectedFilters {
+  jobType: string[];
+  level: string[];
+  field: string[];
+  workMode: string[];
+}
 
 export const JobListPage = () => {
+  const { data: jobs, isLoading, error } = useJobs();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
+    jobType: [],
+    level: [],
+    field: [],
+    workMode: [],
+  });
+
+  if (error) return <p>Lỗi khi tải job</p>;
+
+  const jobsPerPage = 9;
+  const startIndex = (currentPage - 1) * jobsPerPage;
+  const endIndex = startIndex + jobsPerPage;
+  const filteredJobs = jobs?.filter((job) => {
+    const matchJobType =
+      selectedFilters.jobType.length === 0 ||
+      selectedFilters.jobType.includes(job.type.toLowerCase());
+
+    const matchLevel =
+      selectedFilters.level.length === 0 ||
+      selectedFilters.level.includes(job.level.toLowerCase());
+
+    // const matchField =
+    //   selectedFilters.field.length === 0 ||
+    //   selectedFilters.field.includes(job.field);
+
+    const matchWorkMode =
+      selectedFilters.workMode.length === 0 ||
+      selectedFilters.workMode.includes(job.workspace.toLowerCase());
+
+    return matchJobType && matchLevel && matchWorkMode;
+  });
+  const currentJobs = filteredJobs?.slice(startIndex, endIndex);
+
   const renderJobs = () => {
-    return jobs.map((job) => <JobCard job={job} />);
+    return currentJobs?.map((job) => <JobCard key={job.id} job={job} />);
   };
+
+  const totalPages = Math.ceil((filteredJobs?.length || 0) / jobsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const clearFilters = () =>
+    setSelectedFilters({
+      jobType: [],
+      level: [],
+      field: [],
+      workMode: [],
+    });
 
   return (
     <div>
@@ -60,13 +117,18 @@ export const JobListPage = () => {
             Danh sách công việc
           </h3>
           <div className="hidden lg:block">
-            <FilterBar />{" "}
+            <FilterBar
+              selectedFilters={selectedFilters}
+              setSelectedFilters={setSelectedFilters}
+            />
+
             <div className="w-full flex items-center justify-center w-full pt-4">
               <OutlineButton
                 label="Hủy"
                 bgColor="bg-transparent"
                 paddingY="py-[7px]"
                 paddingX="px-[20px]"
+                onClick={clearFilters}
               />
             </div>
           </div>
@@ -89,10 +151,17 @@ export const JobListPage = () => {
               </DialogTitle>
               <DialogDescription className="overflow-y-auto">
                 <>
-                  <FilterBar />
+                  <FilterBar
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                  />
                   <div className="flex flex-row justify-center items-center gap-3 py-2">
                     <PrimaryButton label="Xác nhận" textSize="text-[15px]" />
-                    <OutlineButton label="Hủy" textSize="text-[15px]" />
+                    <OutlineButton
+                      label="Hủy"
+                      textSize="text-[15px]"
+                      onClick={clearFilters}
+                    />
                   </div>
                 </>
               </DialogDescription>
@@ -101,30 +170,53 @@ export const JobListPage = () => {
         </Dialog>
 
         <div className=" flex flex-col items-center justify-center gap-10">
-          <div className=" flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
-            {renderJobs()}
-          </div>{" "}
+          {isLoading ? (
+            <div className=" flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
+              {[...Array(9)].map((_, i) => (
+                <JobCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className=" flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
+              {renderJobs()}
+            </div>
+          )}
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" />
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) handlePageChange(currentPage - 1);
+                  }}
+                />
               </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    href="#"
+                    isActive={currentPage === i + 1}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(i + 1);
+                    }}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
               <PaginationItem>
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" isActive>
-                  2
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages)
+                      handlePageChange(currentPage + 1);
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
