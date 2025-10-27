@@ -7,21 +7,28 @@ import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import google from "@/assets/icons/google.png";
 import { signIn } from "@/apis/auth.api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const SignIn = () => {
   const [openPassword, setOpenPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const setUser = useAuthStore((state) => state.setUser);
   const nav = useNavigate();
   const { mutate, isPending } = useMutation({
     mutationFn: signIn,
-    onSuccess: () => {
-      toast.success("Đăng nhập thành công!");
+    onSuccess: (data) => {
+      toast.success("Đăng nhập thành công!", {
+        duration: 1000,
+      });
+      setUser(data.data);
       setTimeout(() => nav("/"), 500);
     },
     onError: (err) => {
-      toast.error("Đăng nhập thất bại!");
+      toast.error("Đăng nhập thất bại!", {
+        duration: 1000,
+      });
       console.log(err);
     },
   });

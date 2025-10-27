@@ -2,6 +2,18 @@ import { Link, useNavigate } from "react-router";
 
 import { OutlineButton } from "../../ui/User/Button";
 import { Logo } from "../../ui/User/Logo";
+import { useAuthStore } from "@/stores/useAuthStore";
+import profile from "@/assets/illustration/profile.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, UserCircle } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { signOut } from "@/apis/auth.api";
+import { toast } from "sonner";
 
 interface NavLink {
   label: string;
@@ -40,13 +52,69 @@ export const Header = () => {
     nav("/auth");
   };
 
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: signOut,
+    onSuccess: () => {
+      toast.success("Đăng xuất thành công!", {
+        duration: 1000,
+      });
+      logout();
+    },
+    onError: (err) => {
+      toast.error("Đăng xuất thất bại!", {
+        duration: 1000,
+      });
+      console.log(err);
+    },
+  });
+
+  const handleLogout = () => {
+    mutate();
+  };
+
   return (
     <header className="flex justify-between items-center md:px-10 lg:px-20 h-[75px] border boder-b border-[#EBEBEB]">
       <Logo />
       <nav className="flex justify-around items-center gap-[32px]">
         {renderNavLinks()}
       </nav>
-      <OutlineButton label="Đăng nhập" onClick={handleLogin} />
+      {user ? (
+        <div className="w-[50px] h-[50px] object-cover rounded-full overflow-hidden cursor-pointer">
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <img
+                src={user.avatar ? user.avatar : profile}
+                alt="avatar"
+                className="w-[50px] h-[50px] rounded-full object-cover"
+              />
+            </DropdownMenuTrigger>{" "}
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <div className="flex flex-row items-center justify-start gap-2">
+                  <UserCircle className="text-[16px]" />
+                  Profile
+                </div>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <button
+                  className="flex flex-row items-center justify-start gap-2"
+                  onClick={handleLogout}
+                  disabled={isPending}
+                >
+                  <LogOut className="text-[16px]" />
+                  Log out
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : (
+        <OutlineButton label="Đăng nhập" onClick={handleLogin} />
+      )}
     </header>
   );
 };
