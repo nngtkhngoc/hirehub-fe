@@ -33,7 +33,22 @@ export interface SelectedFilters {
 }
 
 export const JobListPage = () => {
-  const { data: jobs, isLoading, error } = useJobs();
+  const [keyword, setKeyword] = useState("");
+  const [province, setProvince] = useState("");
+
+  const {
+    data: jobs,
+    isLoading,
+    error,
+  } = useJobs(
+    keyword,
+    province
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .trim()
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
     jobType: [],
@@ -109,6 +124,10 @@ export const JobListPage = () => {
         description="Hàng ngàn công việc mới được cập nhật mỗi ngày trên HireHub. Chỉ cần đăng nhập, bạn có thể dễ dàng khám phá và nắm bắt cơ hội phù hợp ngay lập tức."
         illustration={joblist}
         type="việc làm"
+        onSearch={(kw, prov) => {
+          setKeyword(kw);
+          setProvince(prov);
+        }}
       />
 
       <div className="flex flex-col w-full bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start">
