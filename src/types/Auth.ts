@@ -1,3 +1,6 @@
+import type { Experience } from "./Experience";
+import type { Skill } from "./Skill";
+
 export type SignInData = {
   email: string;
   password: string;
@@ -17,4 +20,6 @@ export type UserProfile = {
     action: string;
     resource: string;
   };
+  skills: Skill[];
+  experiences: Experience[];
 };

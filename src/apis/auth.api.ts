@@ -11,6 +11,28 @@ export const signIn = async (signInData: {
   return res.data;
 };
 
+export const signOut = async () => {
+  const res = await axiosClient.post(`${BASE_URL}/api/auth/logout`);
+
+  return res.data;
+};
+
+export const sendActivation = async (email: string) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/auth/send-activation?email=${email}`
+  );
+
+  return res.data;
+};
+
+export const activateAccount = async (email: string) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/auth/send-activation?email=${email}`
+  );
+
+  return res.data;
+};
+
 export const sendPasswordReset = async (email: string) => {
   const res = await axiosClient.post(
     `${BASE_URL}/api/auth/send-password-reset?email=${email}`
