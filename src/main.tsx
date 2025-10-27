@@ -10,7 +10,6 @@ import { AuthPage } from "./pages/User/Auth/AuthPage.tsx";
 import { AuthLayout } from "./components/layout/User/AuthLayout.tsx";
 import { VerifyPage } from "./pages/User/Verify/VerifyPage.tsx";
 import { ForgetPasswordPage } from "./pages/User/ForgetPassword/ForgetPasswordPage.tsx";
-import { ResetPasswpordPage } from "./pages/User/ResetPassword/ResetPasswordPage.tsx";
 import { MailSentPage } from "./pages/User/MailSent/MailSentPage.tsx";
 import { JobListPage } from "./pages/User/JobList/JobListPage.tsx";
 
@@ -18,6 +17,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CompanyListPage } from "./pages/User/CompanyList/CompanyListPage.tsx";
 import { UserListPage } from "./pages/User/UserList/UserListPage.tsx";
 import { ProfilePage } from "./pages/User/Profile/ProfilePage.tsx";
+import { ResetPasswordPage } from "./pages/User/ResetPassword/ResetPasswordPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -43,7 +43,7 @@ createRoot(document.getElementById("root")!).render(
             />
             <Route
               path="/auth/reset-password"
-              element={<ResetPasswpordPage />}
+              element={<ResetPasswordPage />}
             />
             <Route path="/auth/mail-sent" element={<MailSentPage />} />
           </Route>

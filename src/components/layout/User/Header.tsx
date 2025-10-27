@@ -11,9 +11,9 @@ interface NavLink {
 export const Header = () => {
   const navLinks: NavLink[] = [
     { label: "Trang chủ", link: "/" },
-    { label: "Việc làm", link: "/jobs" },
-    { label: "Công ty", link: "/companies" },
-    { label: "Kết nối", link: "/connect" },
+    { label: "Việc làm", link: "/job-list" },
+    { label: "Công ty", link: "/company-list" },
+    { label: "Kết nối", link: "/user-list" },
   ];
   const location = window.location.pathname;
   const isActive = (link: string) => {
@@ -37,7 +37,7 @@ export const Header = () => {
 
   const nav = useNavigate();
   const handleLogin = () => {
-    nav("/login");
+    nav("/auth");
   };
 
   return (

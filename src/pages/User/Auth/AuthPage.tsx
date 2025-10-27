@@ -4,6 +4,7 @@ import { BigLogo } from "@/components/ui/User/Logo";
 import { SignIn } from "./components/layout/SignIn";
 import { SignUp } from "./components/layout/SignUp";
 import auth from "@/assets/illustration/auth.png";
+import { Toaster } from "@/components/ui/sonner";
 
 interface TabContent {
   title: string;
@@ -42,7 +43,7 @@ export const AuthPage = () => {
 
   return (
     <div className="w-full bg-cover bg-center flex items-center justify-center lg:py-10 min-h-screen">
-      <div className="bg-white/73 py-10 px-2 md:px-8 rounded-[10px] shadow-[ -2px_4px_10px_0_#DFD2FA ] w-9/10 flex flex-col items-center gap-6 md:w-3/5 lg:w-4/5 lg:flex-row justify-end lg:gap-10">
+      <div className="bg-white/73 py-10 px-2 md:px-8 rounded-[10px] shadow-[ -2px_4px_10px_0_#DFD2FA ] w-9/10 flex flex-col items-center gap-6 md:w-3/5 lg:w-4/5 lg:flex-row justify-end xl:gap-30 lg:gap-5">
         <div className="flex flex-col justify-center items-center gap-5">
           {renderTabContents()}
 
@@ -79,6 +80,7 @@ export const AuthPage = () => {
           className="hidden lg:block lg:w-[500px]"
         />
       </div>
+      <Toaster position="top-center" />
     </div>
   );
 };
