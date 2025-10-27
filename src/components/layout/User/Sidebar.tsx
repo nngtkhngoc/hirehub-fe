@@ -1,10 +1,23 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 
 import { Menu, X } from "lucide-react";
 
 import { OutlineButton } from "../../ui/User/Button";
 import { Logo } from "../../ui/User/Logo";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { signOut } from "@/apis/auth.api";
+import profile from "@/assets/illustration/profile.png";
+import { LogOut, UserCircle } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavLink {
   label: string;
@@ -44,6 +57,35 @@ export const Sidebar = () => {
       </Link>
     ));
 
+  const nav = useNavigate();
+  const handleLogin = () => {
+    nav("/auth");
+  };
+
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: signOut,
+    onSuccess: () => {
+      toast.success("Đăng xuất thành công!", {
+        duration: 1000,
+      });
+      logout();
+    },
+    onError: (err) => {
+      toast.error("Đăng xuất thất bại!", {
+        duration: 1000,
+      });
+      console.log(err);
+    },
+  });
+
+  const handleLogout = () => {
+    mutate();
+    window.location.reload();
+  };
+
   return (
     <header className=" flex justify-between items-center px-6 py-4 border-b border-[#EBEBEB] relative">
       <Menu
@@ -52,7 +94,40 @@ export const Sidebar = () => {
       />
       <Logo />
 
-      <OutlineButton label="Đăng ký" />
+      {user ? (
+        <div className="w-[50px] h-[50px] object-cover rounded-full overflow-hidden cursor-pointer">
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <img
+                src={user.avatar ? user.avatar : profile}
+                alt="avatar"
+                className="w-[50px] h-[50px] rounded-full object-cover"
+              />
+            </DropdownMenuTrigger>{" "}
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <div className="flex flex-row items-center justify-start gap-2">
+                  <UserCircle className="text-[16px]" />
+                  Profile
+                </div>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <button
+                  className="flex flex-row items-center justify-start gap-2"
+                  onClick={handleLogout}
+                  disabled={isPending}
+                >
+                  <LogOut className="text-[16px]" />
+                  Log out
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : (
+        <OutlineButton label="Đăng nhập" onClick={handleLogin} />
+      )}
 
       {isOpenSidebar && (
         <div
@@ -76,7 +151,11 @@ export const Sidebar = () => {
         </div>
         <nav className="flex flex-col">{renderNavLinks()}</nav>
         <div className="p-6 mx-auto">
-          <OutlineButton label="Đăng ký " />
+          {user ? (
+            <OutlineButton label="Đăng xuất" onClick={handleLogout} />
+          ) : (
+            <OutlineButton label="Đăng nhập" onClick={handleLogin} />
+          )}
         </div>
       </aside>
     </header>

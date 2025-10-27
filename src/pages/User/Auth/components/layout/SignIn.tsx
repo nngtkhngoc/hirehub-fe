@@ -19,12 +19,16 @@ export const SignIn = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: signIn,
     onSuccess: (data) => {
-      toast.success("Đăng nhập thành công!");
+      toast.success("Đăng nhập thành công!", {
+        duration: 1000,
+      });
       setUser(data.data);
       setTimeout(() => nav("/"), 500);
     },
     onError: (err) => {
-      toast.error("Đăng nhập thất bại!");
+      toast.error("Đăng nhập thất bại!", {
+        duration: 1000,
+      });
       console.log(err);
     },
   });

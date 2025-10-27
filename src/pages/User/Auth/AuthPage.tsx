@@ -4,7 +4,6 @@ import { BigLogo } from "@/components/ui/User/Logo";
 import { SignIn } from "./components/layout/SignIn";
 import { SignUp } from "./components/layout/SignUp";
 import auth from "@/assets/illustration/auth.png";
-import { Toaster } from "@/components/ui/sonner";
 
 interface TabContent {
   title: string;
@@ -50,20 +49,20 @@ export const AuthPage = () => {
           <div className="flex justify-center items-center w-full h-[48x] shadow-[0_2px_10px_0_#DFD2FA] rounded-[10px] bg-white">
             <div className="flex flex-row gap-2 items-center py-2 px-2">
               <button
-                className={`w-[130px] h-[33px] rounded-[10px] font-bold text-[13px] ${
+                className={`w-[130px] h-[33px] rounded-[10px] font-bold text-[13px] cursor-pointer transition-all duration-300 ${
                   authTab === "sign-in"
-                    ? "bg-[#5E1EE6] text-white shadow-[0_4px_10px_0_#DFD2FA]"
-                    : "text-[#5E1EE6]"
+                    ? "bg-[#5E1EE6] text-white shadow-[0_4px_10px_0_#DFD2FA] hover:bg-[#38128A]"
+                    : "text-[#5E1EE6]  hover:bg-[#F7F6F8]"
                 }`}
                 onClick={() => setAuthTab("sign-in")}
               >
                 Đăng Nhập
               </button>
               <button
-                className={`w-[130px] h-[33px] rounded-[10px] font-bold text-[13px] ${
+                className={`w-[130px] h-[33px] rounded-[10px] font-bold text-[13px] cursor-pointer transition-all duration-300   ${
                   authTab === "sign-up"
-                    ? "bg-[#5E1EE6] text-white shadow-[0_4px_10px_0_#DFD2FA]"
-                    : "text-[#5E1EE6]"
+                    ? "bg-[#5E1EE6] text-white shadow-[0_4px_10px_0_#DFD2FA] hover:bg-[#38128A]"
+                    : "text-[#5E1EE6] hover:bg-[#F7F6F8]"
                 }`}
                 onClick={() => setAuthTab("sign-up")}
               >
@@ -80,7 +79,6 @@ export const AuthPage = () => {
           className="hidden lg:block lg:w-[500px]"
         />
       </div>
-      <Toaster position="top-center" />
     </div>
   );
 };

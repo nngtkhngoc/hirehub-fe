@@ -1,5 +1,7 @@
-import authbg from "@/assets/images/authbg.png";
 import { Outlet } from "react-router";
+
+import { Toaster } from "@/components/ui/sonner";
+import authbg from "@/assets/images/authbg.png";
 
 export const AuthLayout = () => {
   return (
@@ -10,6 +12,7 @@ export const AuthLayout = () => {
       }}
     >
       <Outlet />
+      <Toaster position="top-center" />
     </div>
   );
 };
