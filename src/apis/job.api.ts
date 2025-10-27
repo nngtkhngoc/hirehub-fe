@@ -1,9 +1,12 @@
 import { axiosClient } from "@/lib/axios";
-import type { CreateJobData, UpdateJobData } from "@/types/Job";
+import type { CreateJobData, Job, UpdateJobData } from "@/types/Job";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const getAllJobs = async (getAllJobQueries: { keyword: string }) => {
+export const getAllJobs = async (getAllJobQueries: {
+  keyword?: string;
+  province?: string;
+}): Promise<Job[]> => {
   const res = await axiosClient.get(`${BASE_URL}/api/jobs`, {
     params: getAllJobQueries,
   });

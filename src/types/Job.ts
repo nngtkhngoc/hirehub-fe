@@ -7,9 +7,11 @@ export type Job = {
   description: string;
   level: string;
   isBanned: boolean | null;
+  workspace: string;
   postingDate: Date;
   skilss: Skill[];
   recruiter: Recruiter;
+  type: string;
 };
 
 export type CreateJobData = {

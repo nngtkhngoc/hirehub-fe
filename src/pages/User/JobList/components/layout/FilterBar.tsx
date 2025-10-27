@@ -1,7 +1,19 @@
-import { useState } from "react";
+import type { SelectedFilters } from "../../JobListPage";
 
-export const FilterBar = () => {
-  const filterOptions = [
+interface FilterBarProps {
+  selectedFilters: SelectedFilters;
+  setSelectedFilters: React.Dispatch<React.SetStateAction<SelectedFilters>>;
+}
+
+export const FilterBar = ({
+  selectedFilters,
+  setSelectedFilters,
+}: FilterBarProps) => {
+  const filterOptions: {
+    key: keyof SelectedFilters;
+    title: string;
+    options: { label: string; value: string }[];
+  }[] = [
     {
       key: "jobType",
       title: "Loại hình",
@@ -30,11 +42,6 @@ export const FilterBar = () => {
         { label: "Game Development", value: "game_development" },
         { label: "Artificial Intelligence", value: "ai" },
         { label: "Software Testing", value: "software_testing" },
-        { label: "Data Science", value: "data_science" },
-        { label: "Information Security", value: "information_security" },
-        { label: "Design & User Experience", value: "design_ux" },
-        { label: "Embedded Systems", value: "embedded_systems" },
-        { label: "Khác", value: "other" },
       ],
     },
     {
@@ -46,19 +53,11 @@ export const FilterBar = () => {
         { label: "Onsite", value: "onsite" },
       ],
     },
-  ];
-  const [selectedFilters, setSelectedFilters] = useState<{
-    [key: string]: string[];
-  }>({
-    jobType: [],
-    level: [],
-    field: [],
-    workMode: [],
-  });
+  ] as const;
 
-  const handleToggle = (groupKey: string, value: string) => {
+  const handleToggle = (groupKey: keyof SelectedFilters, value: string) => {
     setSelectedFilters((prev) => {
-      const currentValues = prev[groupKey] || [];
+      const currentValues = prev[groupKey];
       const isSelected = currentValues.includes(value);
 
       return {
@@ -69,15 +68,16 @@ export const FilterBar = () => {
       };
     });
   };
+
   return (
     <div className="flex flex-col gap-[30px] w-[260px] p-4 text-black">
       {filterOptions.map((group) => (
         <div key={group.key}>
-          <h4 className="font-bold text-[20px] mb-[20px] text-left font-title  whitespace-nowrap">
+          <h4 className="font-bold text-[20px] mb-[20px] text-left font-title whitespace-nowrap">
             {group.title}
           </h4>
 
-          <div className="flex flex-col gap-[20px]  justify-start">
+          <div className="flex flex-col gap-[20px] justify-start">
             {group.options.map((opt) => (
               <label
                 key={opt.value}
@@ -85,7 +85,7 @@ export const FilterBar = () => {
               >
                 <input
                   type="checkbox"
-                  checked={selectedFilters[group.key]?.includes(opt.value)}
+                  checked={selectedFilters[group.key].includes(opt.value)}
                   onChange={() => handleToggle(group.key, opt.value)}
                   className="accent-primary cursor-pointer w-4 h-4 rounded-[4px]"
                 />
