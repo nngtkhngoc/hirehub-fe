@@ -6,6 +6,8 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const getAllJobs = async (getAllJobQueries: {
   keyword?: string;
   province?: string;
+  page?: number;
+  size?: number;
 }): Promise<Job[]> => {
   const res = await axiosClient.get(`${BASE_URL}/api/jobs`, {
     params: getAllJobQueries,

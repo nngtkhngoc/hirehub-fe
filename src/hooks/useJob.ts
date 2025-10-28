@@ -2,10 +2,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllJobs, createJob } from "@/apis/job.api";
 import { toast } from "sonner";
 
-export const useJobs = (keyword?: string, province?: string) => {
+export const useJobs = (
+  keyword?: string,
+  province?: string,
+  page?: number,
+  size?: number
+) => {
   return useQuery({
-    queryKey: ["jobs", keyword, province],
-    queryFn: () => getAllJobs({ keyword, province }),
+    queryKey: ["jobs", keyword, province, page, size],
+    queryFn: () => getAllJobs({ keyword, province, page, size }),
   });
 };
 

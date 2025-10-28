@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/pagination";
 import { useJobs } from "@/hooks/useJob";
 import { JobCardSkeleton } from "@/components/ui/User/JobCardSkeleton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 export interface SelectedFilters {
   jobType: string[];
   level: string[];
@@ -35,6 +35,8 @@ export interface SelectedFilters {
 export const JobListPage = () => {
   const [keyword, setKeyword] = useState("");
   const [province, setProvince] = useState("");
+  const size = 100;
+  const [page, setPage] = useState(1);
 
   const {
     data: jobs,
@@ -47,7 +49,9 @@ export const JobListPage = () => {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "D")
-      .trim()
+      .trim(),
+    size,
+    page
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
@@ -56,8 +60,6 @@ export const JobListPage = () => {
     field: [],
     workMode: [],
   });
-
-  if (error) return <p>Lỗi khi tải job</p>;
 
   const jobsPerPage = 9;
   const startIndex = (currentPage - 1) * jobsPerPage;
@@ -83,6 +85,15 @@ export const JobListPage = () => {
   });
   const currentJobs = filteredJobs?.slice(startIndex, endIndex);
 
+  useEffect(() => {
+    const totalLoadedJobs = page * size;
+    const totalDisplayedJobs = currentPage * jobsPerPage;
+
+    if (totalDisplayedJobs >= totalLoadedJobs - jobsPerPage) {
+      setPage((prev) => prev + 1);
+    }
+  }, [currentPage, page, jobsPerPage, size]);
+
   const renderJobs = () => {
     return currentJobs?.map((job) => <JobCard key={job.id} job={job} />);
   };
@@ -93,6 +104,7 @@ export const JobListPage = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const clearFilters = () =>
     setSelectedFilters({
       jobType: [],
@@ -130,8 +142,8 @@ export const JobListPage = () => {
         }}
       />
 
-      <div className="flex flex-col w-full bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start">
-        <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col w-full  bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start">
+        <div className="flex flex-col justify-center items-center pl-5">
           <h3 className="text-center text-[23px] font-medium">
             Danh sách công việc
           </h3>
@@ -188,18 +200,23 @@ export const JobListPage = () => {
           </DialogContent>
         </Dialog>
 
-        <div className=" flex flex-col items-center justify-center gap-10">
+        <div className=" flex flex-col items-center justify-center gap-10 w-full h-full">
           {isLoading ? (
-            <div className=" flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
               {[...Array(9)].map((_, i) => (
                 <JobCardSkeleton key={i} />
               ))}
             </div>
+          ) : error ? (
+            <div className="text-center text-red-500">
+              Lỗi khi tải danh sách công việc.
+            </div>
           ) : (
-            <div className=" flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
               {renderJobs()}
             </div>
           )}
+
           <Pagination>
             <PaginationContent>
               <PaginationItem>
