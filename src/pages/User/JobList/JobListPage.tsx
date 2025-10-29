@@ -214,7 +214,7 @@ export const JobListPage = () => {
           </DialogContent>
         </Dialog>
 
-        <div className=" flex flex-col items-center justify-center gap-10 w-full h-full">
+        <div className="flex flex-col items-center justify-center gap-10 w-full ">
           {isLoading ? (
             <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
               {[...Array(9)].map((_, i) => (
@@ -222,8 +222,12 @@ export const JobListPage = () => {
               ))}
             </div>
           ) : error ? (
-            <div className="text-center text-red-500">
+            <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
               Lỗi khi tải danh sách công việc.
+            </div>
+          ) : !currentJobs || currentJobs.length === 0 ? (
+            <div className="italic h-full w-full flex items-center justify-center pt-20">
+              Không có dữ liệu để hiển thị.
             </div>
           ) : (
             <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">
@@ -235,18 +239,17 @@ export const JobListPage = () => {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage > 1) handlePageChange(currentPage - 1);
                   }}
+                  hidden={totalPages <= 1}
                 />
               </PaginationItem>
 
               {Array.from({ length: totalPages }, (_, i) => (
                 <PaginationItem key={i}>
                   <PaginationLink
-                    href="#"
                     isActive={currentPage === i + 1}
                     onClick={(e) => {
                       e.preventDefault();
@@ -260,12 +263,12 @@ export const JobListPage = () => {
 
               <PaginationItem>
                 <PaginationNext
-                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     if (currentPage < totalPages)
                       handlePageChange(currentPage + 1);
                   }}
+                  hidden={totalPages <= 1}
                 />
               </PaginationItem>
             </PaginationContent>

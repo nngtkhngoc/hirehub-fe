@@ -18,7 +18,7 @@ export const JobCard = ({ job }: { job: Job }) => {
         <div className="flex flex-row justify-between items-center gap-5">
           <div className="flex flex-row items-center gap-5">
             <div className="w-[53px] h-[53px] flex items-center justify-center rounded-[10px] shadow-[0_4px_4px_rgba(0,0,0,0.25)] bg-white">
-              {job.recruiter.avatar ? (
+              {job.recruiter?.avatar ? (
                 <img
                   src={job.recruiter.avatar}
                   alt={job.recruiter.name}
@@ -31,7 +31,7 @@ export const JobCard = ({ job }: { job: Job }) => {
             <div className="flex flex-col items-start justify-around ">
               <div className="text-[18px] font-bold group-hover:text-white text-ellipsis line-clamp-1">
                 {" "}
-                {job.recruiter.name}
+                {job.recruiter?.name}
               </div>{" "}
               <div className="text-[#A6A6A6] text-[14px] ">{job.workspace}</div>
             </div>
