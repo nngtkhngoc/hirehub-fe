@@ -1,18 +1,18 @@
+import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
 import { useReducer, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
-import google from "@/assets/icons/google.png";
-import { signIn } from "@/apis/auth.api";
-import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { SignInData } from "@/types/Auth";
+import google from "@/assets/icons/google.png";
+import { signIn } from "@/apis/auth.api";
 
 type profileAction =
   | { type: "reset" }
-  | { type: "setProfile"; value: SignInData };
+  | { type: "updateField"; field: keyof SignInData; value: string };
 
 const initialProfileState = {
   email: "",
@@ -23,8 +23,8 @@ function profileReducer(state: SignInData, action: profileAction) {
   switch (action.type) {
     case "reset":
       return initialProfileState;
-    case "setProfile":
-      return { ...state, ...action.value };
+    case "updateField":
+      return { ...state, [action.field]: action.value };
     default:
       return state;
   }
@@ -76,11 +76,9 @@ export const SignIn = () => {
             value={profile.email}
             onChange={(e) =>
               dispatchProfile({
-                type: "setProfile",
-                value: {
-                  email: e.target.value,
-                  password: profile.password,
-                },
+                type: "updateField",
+                field: "email",
+                value: e.target.value,
               })
             }
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
@@ -101,11 +99,9 @@ export const SignIn = () => {
               value={profile.password}
               onChange={(e) =>
                 dispatchProfile({
-                  type: "setProfile",
-                  value: {
-                    email: profile.email,
-                    password: e.target.value,
-                  },
+                  type: "updateField",
+                  field: "password",
+                  value: e.target.value,
                 })
               }
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
