@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSignOut } from "@/hooks/authHook";
+import { useSignOut } from "@/hooks/useAuth";
 
 interface NavLink {
   label: string;

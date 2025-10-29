@@ -64,26 +64,32 @@ export const JobListPage = () => {
   const jobsPerPage = 9;
   const startIndex = (currentPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
-  const filteredJobs = jobs?.filter((job) => {
-    const matchJobType =
-      selectedFilters.jobType.length === 0 ||
-      selectedFilters.jobType.includes(job.type.toLowerCase());
+  const filteredJobs =
+    jobs &&
+    jobs.length > 0 &&
+    jobs?.filter((job) => {
+      const matchJobType =
+        selectedFilters.jobType.length === 0 ||
+        selectedFilters.jobType.includes(job.type.toLowerCase());
 
-    const matchLevel =
-      selectedFilters.level.length === 0 ||
-      selectedFilters.level.includes(job.level.toLowerCase());
+      const matchLevel =
+        selectedFilters.level.length === 0 ||
+        selectedFilters.level.includes(job.level.toLowerCase());
 
-    // const matchField =
-    //   selectedFilters.field.length === 0 ||
-    //   selectedFilters.field.includes(job.field);
+      // const matchField =
+      //   selectedFilters.field.length === 0 ||
+      //   selectedFilters.field.includes(job.field);
 
-    const matchWorkMode =
-      selectedFilters.workMode.length === 0 ||
-      selectedFilters.workMode.includes(job.workspace.toLowerCase());
+      const matchWorkMode =
+        selectedFilters.workMode.length === 0 ||
+        selectedFilters.workMode.includes(job.workspace.toLowerCase());
 
-    return matchJobType && matchLevel && matchWorkMode;
-  });
-  const currentJobs = filteredJobs?.slice(startIndex, endIndex);
+      return matchJobType && matchLevel && matchWorkMode;
+    });
+  const currentJobs =
+    filteredJobs &&
+    filteredJobs.length &&
+    filteredJobs?.slice(startIndex, endIndex);
 
   useEffect(() => {
     const totalLoadedJobs = page * size;
@@ -95,10 +101,16 @@ export const JobListPage = () => {
   }, [currentPage, page, jobsPerPage, size]);
 
   const renderJobs = () => {
-    return currentJobs?.map((job) => <JobCard key={job.id} job={job} />);
+    return (
+      currentJobs &&
+      currentJobs.length > 0 &&
+      currentJobs?.map((job) => <JobCard key={job.id} job={job} />)
+    );
   };
 
-  const totalPages = Math.ceil((filteredJobs?.length || 0) / jobsPerPage);
+  const totalPages = Math.ceil(
+    ((filteredJobs && filteredJobs.length) || 0) / jobsPerPage
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

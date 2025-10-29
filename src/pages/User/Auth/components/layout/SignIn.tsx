@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -8,11 +8,35 @@ import google from "@/assets/icons/google.png";
 import { signIn } from "@/apis/auth.api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
+import type { SignInData } from "@/types/Auth";
+
+type profileAction =
+  | { type: "reset" }
+  | { type: "setProfile"; value: SignInData };
+
+const initialProfileState = {
+  email: "",
+  password: "",
+};
+
+function profileReducer(state: SignInData, action: profileAction) {
+  switch (action.type) {
+    case "reset":
+      return initialProfileState;
+    case "setProfile":
+      return { ...state, ...action.value };
+    default:
+      return state;
+  }
+}
 
 export const SignIn = () => {
+  const [profile, dispatchProfile] = useReducer(
+    profileReducer,
+    initialProfileState
+  );
+
   const [openPassword, setOpenPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   const setUser = useAuthStore((state) => state.setUser);
   const nav = useNavigate();
@@ -35,7 +59,7 @@ export const SignIn = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate({ email, password });
+    mutate(profile);
   };
 
   return (
@@ -49,8 +73,16 @@ export const SignIn = () => {
           <input
             id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={profile.email}
+            onChange={(e) =>
+              dispatchProfile({
+                type: "setProfile",
+                value: {
+                  email: e.target.value,
+                  password: profile.password,
+                },
+              })
+            }
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
             required
@@ -66,8 +98,16 @@ export const SignIn = () => {
             <input
               id="password"
               type={openPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={profile.password}
+              onChange={(e) =>
+                dispatchProfile({
+                  type: "setProfile",
+                  value: {
+                    email: profile.email,
+                    password: e.target.value,
+                  },
+                })
+              }
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
               placeholder="********"
               required

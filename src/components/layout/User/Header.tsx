@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, UserCircle } from "lucide-react";
-import { useSignOut } from "@/hooks/authHook";
+import { useSignOut } from "@/hooks/useAuth";
 
 interface NavLink {
   label: string;
