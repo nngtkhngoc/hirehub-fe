@@ -33,25 +33,27 @@ export interface SelectedFilters {
 }
 
 export const JobListPage = () => {
-  const [keyword, setKeyword] = useState("");
-  const [province, setProvince] = useState("");
+  const [keyword, setKeyword] = useState<null | string>(null);
+  const [province, setProvince] = useState<null | string>(null);
   const size = 100;
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
 
   const {
     data: jobs,
     isLoading,
     error,
   } = useJobs(
-    keyword,
+    keyword || undefined,
     province
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .trim(),
-    size,
-    page
+      ? province
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .trim()
+      : undefined,
+    page,
+    size
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
@@ -76,25 +78,25 @@ export const JobListPage = () => {
         selectedFilters.level.length === 0 ||
         selectedFilters.level.includes(job.level.toLowerCase());
 
-      // const matchField =
-      //   selectedFilters.field.length === 0 ||
-      //   selectedFilters.field.includes(job.field);
+      const matchField =
+        selectedFilters.field.length === 0 ||
+        selectedFilters.field.includes(job.recruiter.field);
 
       const matchWorkMode =
         selectedFilters.workMode.length === 0 ||
         selectedFilters.workMode.includes(job.workspace.toLowerCase());
 
-      return matchJobType && matchLevel && matchWorkMode;
+      return matchJobType && matchLevel && matchWorkMode && matchField;
     });
+
   const currentJobs =
     filteredJobs &&
     filteredJobs.length &&
     filteredJobs?.slice(startIndex, endIndex);
 
   useEffect(() => {
-    const totalLoadedJobs = page * size;
+    const totalLoadedJobs = (page + 1) * size;
     const totalDisplayedJobs = currentPage * jobsPerPage;
-
     if (totalDisplayedJobs >= totalLoadedJobs - jobsPerPage) {
       setPage((prev) => prev + 1);
     }

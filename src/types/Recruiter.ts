@@ -5,4 +5,5 @@ export type Recruiter = {
   description: string;
   numberOfEmployees: number;
   avatar: string;
+  field: string;
 };

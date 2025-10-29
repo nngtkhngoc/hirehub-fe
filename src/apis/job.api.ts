@@ -13,7 +13,7 @@ export const getAllJobs = async (getAllJobQueries: {
     params: getAllJobQueries,
   });
 
-  return res.data;
+  return res.data.content;
 };
 
 export const getJobById = async (id: string) => {
