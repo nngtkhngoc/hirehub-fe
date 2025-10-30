@@ -52,6 +52,7 @@ export const SignIn = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    mode: "onChange",
   });
 
   const onSubmit: SubmitHandler<SignInData> = (profile) => {
@@ -67,8 +68,6 @@ export const SignIn = () => {
             Email
           </label>
           <input
-            // id="email"
-            // type="email"
             {...register("email")}
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
