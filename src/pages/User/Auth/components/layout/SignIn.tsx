@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
-import { useReducer, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -10,32 +10,21 @@ import type { SignInData } from "@/types/Auth";
 import google from "@/assets/icons/google.png";
 import { signIn } from "@/apis/auth.api";
 
-type profileAction =
-  | { type: "reset" }
-  | { type: "updateField"; field: keyof SignInData; value: string };
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
-const initialProfileState = {
-  email: "",
-  password: "",
-};
-
-function profileReducer(state: SignInData, action: profileAction) {
-  switch (action.type) {
-    case "reset":
-      return initialProfileState;
-    case "updateField":
-      return { ...state, [action.field]: action.value };
-    default:
-      return state;
-  }
-}
+const schema = yup
+  .object({
+    email: yup
+      .string()
+      .email("Địa chỉ email không hợp lệ")
+      .required("Vui lòng nhập email"),
+    password: yup.string().required("Vui lòng nhập mật khẩu"),
+  })
+  .required();
 
 export const SignIn = () => {
-  const [profile, dispatchProfile] = useReducer(
-    profileReducer,
-    initialProfileState
-  );
-
   const [openPassword, setOpenPassword] = useState(false);
 
   const setUser = useAuthStore((state) => state.setUser);
@@ -57,34 +46,34 @@ export const SignIn = () => {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit: SubmitHandler<SignInData> = (profile) => {
     mutate(profile);
   };
 
   return (
     <div className="bg-white rounded-[10px] shadow-[0_2px_10px_0_#DFD2FA] w-full px-6 sm:px-8 py-10 gap-6 flex flex-col">
-      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
         {/* Email */}
         <div className="flex flex-col">
           <label htmlFor="email" className="text-[14px] font-semibold">
             Email
           </label>
           <input
-            id="email"
-            type="email"
-            value={profile.email}
-            onChange={(e) =>
-              dispatchProfile({
-                type: "updateField",
-                field: "email",
-                value: e.target.value,
-              })
-            }
+            // id="email"
+            // type="email"
+            {...register("email")}
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
-            required
-          />
+          />{" "}
+          <p className="text-xs text-red-400 pt-2">{errors.email?.message}</p>
         </div>
 
         {/* Password */}
@@ -94,20 +83,17 @@ export const SignIn = () => {
           </label>
           <div className="relative">
             <input
-              id="password"
+              // id="password"
               type={openPassword ? "text" : "password"}
-              value={profile.password}
-              onChange={(e) =>
-                dispatchProfile({
-                  type: "updateField",
-                  field: "password",
-                  value: e.target.value,
-                })
-              }
+              {...register("password")}
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
               placeholder="********"
-              required
+              // required
             />
+            <p className="text-xs text-red-400 pt-2">
+              {errors.password?.message}
+            </p>
+
             {openPassword ? (
               <Eye
                 strokeWidth={0.75}
