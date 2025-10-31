@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
@@ -52,7 +52,7 @@ export const SignIn = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const onSubmit: SubmitHandler<SignInData> = (profile) => {
