@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/pagination";
 import { useJobs } from "@/hooks/useJob";
 import { JobCardSkeleton } from "@/components/ui/User/JobCardSkeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 export interface SelectedFilters {
   jobType: string[];
   level: string[];
@@ -102,6 +102,10 @@ export const JobListPage = () => {
     }
   }, [currentPage, page, jobsPerPage, size]);
 
+  useEffect(() => {
+    jobListRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedFilters]);
+
   const renderJobs = () => {
     return (
       currentJobs &&
@@ -116,7 +120,7 @@ export const JobListPage = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    jobListRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const clearFilters = () =>
@@ -127,6 +131,7 @@ export const JobListPage = () => {
       workMode: [],
     });
 
+  const jobListRef = useRef<HTMLDivElement>(null);
   return (
     <div>
       <Banner
@@ -155,8 +160,10 @@ export const JobListPage = () => {
           setProvince(prov);
         }}
       />
-
-      <div className="flex flex-col w-full  bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start">
+      <div
+        ref={jobListRef}
+        className="flex flex-col w-full  bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start"
+      >
         <div className="flex flex-col justify-center items-center pl-5">
           <h3 className="text-center text-[23px] font-medium">
             Danh sách công việc
