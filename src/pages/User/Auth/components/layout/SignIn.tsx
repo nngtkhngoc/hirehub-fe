@@ -72,7 +72,12 @@ export const SignIn = ({ ref }: { ref: any }) => {
             {...register("email")}
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
-            ref={ref}
+            ref={(el) => {
+              register("email").ref(el);
+              if (typeof ref === "function") ref(el);
+              else if (ref)
+                (ref as React.RefObject<HTMLInputElement | null>).current = el;
+            }}
           />{" "}
           <p className="text-xs text-red-400 pt-2">{errors.email?.message}</p>
         </div>

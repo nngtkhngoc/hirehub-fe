@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { signOut } from "@/apis/auth.api";
+import { getProfile, signOut } from "@/apis/auth.api";
 
 export const useSignOut = () => {
   const logout = useAuthStore((state) => state.logout);
@@ -21,5 +21,12 @@ export const useSignOut = () => {
       console.error(error);
       toast.error("Đăng xuất thất bại!", { duration: 2000 });
     },
+  });
+};
+
+export const useProfile = () => {
+  return useQuery({
+    queryKey: ["profile"],
+    queryFn: () => getProfile(),
   });
 };
