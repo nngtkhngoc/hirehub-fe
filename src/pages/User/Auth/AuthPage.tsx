@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BigLogo } from "@/components/ui/User/Logo";
 import { SignIn } from "./components/layout/SignIn";
@@ -24,6 +24,11 @@ export const AuthPage = () => {
       description: "Bắt đầu tạo hồ sơ để mở ra cánh cửa đến công việc mơ ước.",
     },
   };
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [authTab]);
 
   const renderTabContents = () => {
     const content = tabContents[authTab];
@@ -71,7 +76,11 @@ export const AuthPage = () => {
             </div>
           </div>
 
-          {authTab === "sign-in" ? <SignIn /> : <SignUp />}
+          {authTab === "sign-in" ? (
+            <SignIn ref={inputRef} />
+          ) : (
+            <SignUp ref={inputRef} />
+          )}
         </div>
         <img
           src={auth}

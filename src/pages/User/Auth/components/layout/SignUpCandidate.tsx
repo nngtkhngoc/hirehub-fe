@@ -1,10 +1,19 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useRef, useState, useEffect } from "react";
 
 import { Eye, EyeOff } from "lucide-react";
 
-export const SignUpCandidate = () => {
+export const SignUpCandidate = ({ ref }: { ref: any }) => {
   const [openPassword, setOpenPassword] = useState(false);
   const [openCfPassword, setOpenCfPassword] = useState(false);
+
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (ref && emailRef.current) {
+      emailRef.current.focus();
+    }
+  }, [ref]);
 
   return (
     <form className="flex flex-col gap-5">
@@ -17,6 +26,7 @@ export const SignUpCandidate = () => {
           id="email"
           className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
           placeholder="example@gmail.com"
+          ref={ref}
           required
         />
       </div>

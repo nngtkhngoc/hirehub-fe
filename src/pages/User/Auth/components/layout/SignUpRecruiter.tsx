@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useRef, useState, useEffect } from "react";
 
 import { ChevronDownIcon, Eye, EyeOff } from "lucide-react";
 
@@ -19,12 +20,20 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
-export const SignUpRecruiter = () => {
+export const SignUpRecruiter = ({ ref }: { ref: any }) => {
   const [openPassword, setOpenPassword] = useState(false);
   const [openCfPassword, setOpenCfPassword] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (ref && emailRef.current) {
+      emailRef.current.focus();
+    }
+  }, [ref]);
+
   return (
     <form className="flex flex-col gap-5">
       <div className="flex flex-col ">
@@ -37,6 +46,7 @@ export const SignUpRecruiter = () => {
           className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
           placeholder="example@gmail.com"
           required
+          ref={ref}
         />
       </div>
 

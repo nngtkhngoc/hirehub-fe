@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
 import { Eye, EyeOff } from "lucide-react";
@@ -24,7 +25,7 @@ const schema = yup
   })
   .required();
 
-export const SignIn = () => {
+export const SignIn = ({ ref }: { ref: any }) => {
   const [openPassword, setOpenPassword] = useState(false);
 
   const setUser = useAuthStore((state) => state.setUser);
@@ -71,6 +72,7 @@ export const SignIn = () => {
             {...register("email")}
             className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
             placeholder="example@gmail.com"
+            ref={ref}
           />{" "}
           <p className="text-xs text-red-400 pt-2">{errors.email?.message}</p>
         </div>

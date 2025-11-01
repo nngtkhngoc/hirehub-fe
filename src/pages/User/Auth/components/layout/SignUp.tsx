@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
@@ -6,7 +7,7 @@ import { SignUpCandidate } from "./SignUpCandidate";
 import { SignUpRecruiter } from "./SignUpRecruiter";
 import google from "@/assets/icons/google.png";
 
-export const SignUp = () => {
+export const SignUp = ({ ref }: { ref: any }) => {
   const [typeAccount, setTypeAccount] = useState<"candidate" | "recruiter">(
     "candidate"
   );
@@ -49,7 +50,11 @@ export const SignUp = () => {
           </RadioGroup>
         </div>
 
-        {typeAccount == "candidate" ? <SignUpCandidate /> : <SignUpRecruiter />}
+        {typeAccount == "candidate" ? (
+          <SignUpCandidate ref={ref} />
+        ) : (
+          <SignUpRecruiter ref={ref} />
+        )}
       </form>
 
       {/* Buttons */}
