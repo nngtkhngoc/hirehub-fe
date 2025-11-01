@@ -23,6 +23,7 @@ import { FilterBar } from "./components/layout/FilterBar";
 import { CompanyCard } from "@/components/ui/User/CompanyCard";
 import { useRecruiter } from "@/hooks/useUser";
 import { useEffect, useState } from "react";
+import { CompanyCardSkeleton } from "@/components/ui/User/CompanyCardSkeleton";
 
 export const CompanyListPage = () => {
   const [page, setPage] = useState(0);
@@ -138,9 +139,25 @@ export const CompanyListPage = () => {
         </Dialog>
 
         <div className=" flex flex-col items-center justify-center gap-10">
-          <div className=" flex flex-col lg:grid xl:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-[30px] lg:space-x-[30px]">
-            {renderCompanies()}
-          </div>{" "}
+          {isLoading ? (
+            <div className=" flex flex-col lg:grid xl:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-[30px] lg:space-x-[30px]">
+              {[...Array(6)].map((_, i) => (
+                <CompanyCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : error ? (
+            <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
+              Lỗi khi tải danh sách công ty.
+            </div>
+          ) : !currentRecruiters || currentRecruiters.length === 0 ? (
+            <div className="italic h-full w-full flex items-center justify-center pt-20">
+              Không có dữ liệu để hiển thị.
+            </div>
+          ) : (
+            <div className=" flex flex-col lg:grid xl:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-[30px] lg:space-x-[30px]">
+              {renderCompanies()}
+            </div>
+          )}
           <Pagination>
             <PaginationContent>
               <PaginationItem>

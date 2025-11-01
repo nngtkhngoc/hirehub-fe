@@ -36,8 +36,8 @@ export const Header = () => {
         to={navLink.link}
         className={
           isActive(navLink.link)
-            ? "text-primary font-bold text-[18px]"
-            : "text-[18px]"
+            ? "text-primary font-bold text-[16px]"
+            : "text-[16px]"
         }
       >
         {navLink.label}

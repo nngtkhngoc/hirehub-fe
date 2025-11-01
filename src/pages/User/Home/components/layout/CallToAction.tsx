@@ -4,19 +4,23 @@ import calltoaction from "@/assets/illustration/calltoaction.png";
 
 export const CallToAction = () => {
   return (
-    <section className="flex flex-col items-center justify-center gap-5 px-5 md:flex-row lg:px-20 lg:gap-20 py-10">
+    <section className="flex flex-col items-center justify-center gap-5 px-5 md:flex-row lg:px-20 lg:gap-20 py-10 bg-linear-to-b from-[#F6F1FF] via-[#F0EBFA] to-[#E8DDFF]">
       <div className="flex flex-col items-center justify-center gap-5 md:items-end lg:gap-10">
         <h3>
           <HighlightText text="THAM GIA NGAY" />
         </h3>
-        <div className="text-[#3F3D56] text-[12px] leading-[24px] text-center">
+        <div className="text-[#3F3D56] text-[12px] leading-[24px] text-right">
           Hãy để HireHub đồng hành cùng bạn trong hành trình sự nghiệp. Từ những
           bước khởi đầu, xây dựng hồ sơ, cho đến khi bạn tìm được công việc mơ
           ước – chúng tôi luôn ở bên cạnh, giúp bạn mở ra những cơ hội mới.
         </div>
         <div className="flex flex-row gap-3">
           <PrimaryButton label="Tìm kiếm công việc" textSize="text-[12px]" />
-          <OutlineButton label="Tìm kiếm ứng viên" textSize="text-[12px]" />
+          <OutlineButton
+            label="Tìm kiếm ứng viên"
+            textSize="text-[12px]"
+            bgColor="bg-transparent"
+          />
         </div>
       </div>
 
