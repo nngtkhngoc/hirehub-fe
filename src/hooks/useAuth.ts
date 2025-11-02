@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-boolean-cast */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
@@ -25,8 +26,10 @@ export const useSignOut = () => {
 };
 
 export const useProfile = () => {
+  const user = useAuthStore((state) => state.user);
+
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id],
     queryFn: () => getProfile(),
   });
 };
