@@ -1,11 +1,11 @@
-import type { User } from "@/types/User";
 import { PartTitle } from "../ui/PartTitle";
 import { ExperienceCard } from "../ui/ExperienceCard";
 import { experiences } from "@/mock/experience.mock";
+import type { UserProfile } from "@/types/Auth";
 
-export const Experiences = ({ user }: { user: User }) => {
+export const Experiences = ({ user }: { user: UserProfile }) => {
   const renderExperiences = () =>
-    user.experience.map((ex, index) => (
+    user.experiences.map((ex, index) => (
       <ExperienceCard
         experience={ex}
         lastCard={index == experiences.length - 1 ? true : false}

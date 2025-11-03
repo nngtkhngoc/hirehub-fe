@@ -1,7 +1,7 @@
-import type { User } from "@/types/User";
 import { PartTitle } from "../ui/PartTitle";
 import { useState, useEffect, useRef } from "react";
 import { Github, Mail, MapPin, Phone, type LucideIcon } from "lucide-react";
+import type { UserProfile } from "@/types/Auth";
 
 interface DetailedInformation {
   icon: LucideIcon;
@@ -9,7 +9,7 @@ interface DetailedInformation {
   content: string;
 }
 
-export const DetailsInfor = ({ user }: { user: User }) => {
+export const DetailsInfor = ({ user }: { user: UserProfile }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);

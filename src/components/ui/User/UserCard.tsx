@@ -1,5 +1,5 @@
 import type { User } from "@/types/User";
-import { Briefcase, Building, MapPin, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { OutlineButton } from "./Button";
 import profile from "@/assets/illustration/default_profile.webp";
 

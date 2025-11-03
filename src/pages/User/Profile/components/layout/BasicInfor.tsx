@@ -1,15 +1,16 @@
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
-import type { User } from "@/types/User";
+import type { UserProfile } from "@/types/Auth";
 import { useMediaQuery } from "@mui/material";
 import { Edit3, Send, UserPlus } from "lucide-react";
+import profile from "@/assets/illustration/default_profile.webp";
 
-export const BasicInfor = ({ user }: { user: User }) => {
+export const BasicInfor = ({ user }: { user: UserProfile }) => {
   const isMedium = useMediaQuery("(min-width:768px)");
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2]c h-[140px] flex flex-row justify-center items-center px-4 gap-4 relative md:h-[196px] md:px-10">
       <img
-        src={user.avatar}
+        src={user.avatar || profile}
         alt="profile"
         className="w-[100px] h-[100px] object-cover rounded-full md:w-[160px] md:h-[160px]"
       />
@@ -30,10 +31,10 @@ export const BasicInfor = ({ user }: { user: User }) => {
           </div>
           <div> • </div>
           <div className="line-clamp-1  text-ellipsis overflow-hidden">
-            {user.experience && (
+            {user.experiences && (
               <div>
-                {user.experience[0]?.endDate?.getTime() >= Date.now() ? (
-                  <span>{user.experience[0]?.company?.name}</span>
+                {user.experiences[0]?.endDate?.getTime() >= Date.now() ? (
+                  <span>{user.experiences[0]?.company?.name}</span>
                 ) : (
                   <span>{user.address}</span>
                 )}

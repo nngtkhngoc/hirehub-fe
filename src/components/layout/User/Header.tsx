@@ -69,7 +69,7 @@ export const Header = () => {
               <img
                 src={user.avatar ? user.avatar : profile}
                 alt="avatar"
-                className="w-[50px] h-[50px] rounded-full object-cover"
+                className="w-[40px] h-[40px] rounded-full object-cover"
               />
             </DropdownMenuTrigger>{" "}
             <DropdownMenuContent align="end">

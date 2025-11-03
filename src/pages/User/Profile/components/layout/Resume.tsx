@@ -1,9 +1,9 @@
 import { Files } from "lucide-react";
 import { PartTitle } from "../ui/PartTitle";
-import type { User } from "@/types/User";
 import { useState } from "react";
+import type { UserProfile } from "@/types/Auth";
 
-export const Resume = ({ user }: { user: User }) => {
+export const Resume = ({ user }: { user: UserProfile }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (

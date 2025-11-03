@@ -1,5 +1,6 @@
 import type { Experience } from "./Experience";
 import type { Skill } from "./Skill";
+import type { Language, Study } from "./User";
 
 export type SignInData = {
   email: string;
@@ -22,4 +23,11 @@ export type UserProfile = {
   };
   skills: Skill[];
   experiences: Experience[];
+  github: string; // link GitHub cá nhân
+  phoneNumber: string; // số điện thoại
+  resumeLink: string; // link tới CV hoặc portfolio
+  languages: Language[];
+  study: Study[]; // học vấn
+  introduction: string;
+  position: string;
 };

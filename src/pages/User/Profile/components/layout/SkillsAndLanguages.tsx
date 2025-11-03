@@ -1,9 +1,9 @@
-import type { User } from "@/types/User";
 import { PartTitle } from "../ui/PartTitle";
 import { SkillCard } from "../ui/SkillCard";
 import { LanguageCard } from "../ui/LanguageCard";
+import type { UserProfile } from "@/types/Auth";
 
-export const SkillsAndLanguages = ({ user }: { user: User }) => {
+export const SkillsAndLanguages = ({ user }: { user: UserProfile }) => {
   const renderSkills = () =>
     user.skills.map((skill) => <SkillCard text={skill.name} />);
 
