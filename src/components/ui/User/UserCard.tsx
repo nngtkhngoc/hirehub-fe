@@ -1,6 +1,7 @@
 import type { User } from "@/types/User";
 import { Briefcase, Building, MapPin, UserPlus } from "lucide-react";
 import { OutlineButton } from "./Button";
+import profile from "@/assets/illustration/default_profile.webp";
 
 interface UserCardProps {
   user: User;
@@ -8,52 +9,30 @@ interface UserCardProps {
 
 export const UserCard = ({ user }: UserCardProps) => {
   return (
-    <div className="bg-white w-[292px] h-[407px] rounded-[30px] border border-[#DBDBDB] flex flex-col gap-[10px] items-center justify-center group hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02] cursor-pointer transition-all duration-300">
-      <img
-        src={user.avatar}
-        alt="avartar"
-        className="object-cover w-[150px] h-[150px] rounded-full"
-      />
-
-      <span className="font-bold text-[18px] line-clamp-1 text-ellipsis">
-        {user.name}
-      </span>
-
-      <span className="font-light text-[14px] text-[#A6A6A6]">
-        {user.position}
-      </span>
-      {user.status === "Đang tìm việc" ? (
-        <div className="flex flex-row gap-2 text-[#8DB82D]">
-          <Briefcase size={18} />
-          <span className="text-[12px] font-regular">Đang tìm việc</span>
-        </div>
+    <div className="bg-white w-[292px] h-[410px] rounded-[30px] border border-[#DBDBDB] flex flex-col gap-[10px] items-center justify-center group hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02] cursor-pointer transition-all duration-300">
+      {user.avatar ? (
+        <img
+          src={user.avatar}
+          alt="avartar"
+          className="object-cover w-[150px] h-[150px] rounded-full"
+        />
       ) : (
-        user.experience && (
-          <div
-            className={`flex flex-row gap-2 ${
-              user.experience[0]?.endDate?.getTime() >= Date.now()
-                ? "text-[#5E1EE6]"
-                : "text-black"
-            }`}
-          >
-            {user.experience[0]?.endDate?.getTime() >= Date.now() ? (
-              <>
-                <Building size={18} />
-                <span className="text-[12px] font-regular">
-                  {user.experience[0]?.company?.name}
-                </span>
-              </>
-            ) : (
-              <>
-                <MapPin size={18} />
-                <span className="text-[12px] font-regular">{user.address}</span>
-              </>
-            )}
-          </div>
-        )
+        <img
+          src={profile}
+          alt="avartar"
+          className="object-cover w-[150px] h-[150px] rounded-full"
+        />
       )}
 
-      <div className="flex flex-row justify-center items-center gap-[8px]  text-[10px]  font-title ">
+      <div className="font-bold text-[18px] line-clamp-1 text-ellipsis px-5 text-center h-[35px]">
+        {user.name}
+      </div>
+
+      <div className="font-light text-[13px] text-[#A6A6A6] h-[40px] text-ellipsis px-5 text-center overflow-hidden leading-[22px]">
+        {user.description}
+      </div>
+
+      <div className="flex flex-row justify-center items-center gap-[8px]  text-[10px]  font-title h-[36px]">
         {user.skills?.slice(0, 3).map((skill) => (
           <div className="px-[10px] py-[5px] border border-[0.5px] border-[#A6A6A6] text-[#A6A6A6] font-medium rounded-[30px]">
             {skill.name}

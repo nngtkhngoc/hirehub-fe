@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import { OutlineButton } from "../../ui/User/Button";
 import { Logo } from "../../ui/User/Logo";
 import { useAuthStore } from "@/stores/useAuthStore";
-import profile from "@/assets/illustration/profile.png";
+import profile from "@/assets/illustration/default_profile.webp";
 import { LogOut, UserCircle } from "lucide-react";
 
 import {

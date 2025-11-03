@@ -1,5 +1,6 @@
 import { axiosClient } from "@/lib/axios";
 import type { Recruiter } from "@/types/Recruiter";
+import type { User } from "@/types/User";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -14,6 +15,22 @@ export const getAllRecruiters = async (
 ): Promise<Recruiter[]> => {
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
     params: getAllJobQueries,
+  });
+
+  return res.data.content;
+};
+
+export const getAllUsers = async (
+  getAllUserQueries: {
+    keyword?: string;
+    province?: string;
+    role?: string;
+    page?: number;
+    size?: number;
+  } = { role: "user" }
+): Promise<User[]> => {
+  const res = await axiosClient.get(`${BASE_URL}/api/users`, {
+    params: getAllUserQueries,
   });
 
   return res.data.content;

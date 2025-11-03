@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Outlet, useNavigate } from "react-router";
 
 import { Toaster } from "@/components/ui/sonner";

@@ -3,7 +3,7 @@ import { skills } from "./skill.mock";
 import { experiences } from "./experience.mock";
 import user1 from "@/assets/illustration/user1.png";
 import user2 from "@/assets/illustration/userlist.png";
-import profile from "@/assets/illustration/profile.png";
+import profile from "@/assets/illustration/default_profile.webp";
 
 export const users: User[] = [
   {

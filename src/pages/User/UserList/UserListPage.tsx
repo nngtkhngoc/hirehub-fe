@@ -2,20 +2,47 @@ import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import userList from "@/assets/illustration/userlist.png";
 import { UserCard } from "@/components/ui/User/UserCard";
-import { users } from "@/mock/user.mock";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useUsers } from "@/hooks/useUser";
+import { useEffect, useRef, useState } from "react";
+import { UserCardSkeleton } from "@/components/ui/User/UserCardSkeleton";
 
 export const UserListPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(0);
+  const usersPerPage = 8;
+  const size = 100;
+  const { data: users, isPending, error } = useUsers(page, size);
+
+  const totalPages = Math.ceil(((users && users.length) || 0) / usersPerPage);
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+
+  useEffect(() => {
+    const totalLoadedrecruiters = (page + 1) * size;
+    const totalDisplayedrecruiters = currentPage * usersPerPage;
+    if (totalDisplayedrecruiters >= totalLoadedrecruiters - usersPerPage) {
+      setPage((prev) => prev + 1);
+    }
+  }, [currentPage, page, usersPerPage, size]);
+
+  const currentUsers =
+    users && users.length && users?.slice(startIndex, endIndex);
   const renderUsers = () => {
-    return users.map((user) => <UserCard user={user} />);
+    return currentUsers && currentUsers.map((user) => <UserCard user={user} />);
+  };
+
+  const userListRef = useRef<HTMLDivElement>(null);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    userListRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -34,31 +61,64 @@ export const UserListPage = () => {
         type="người dùng"
       />
 
-      <div className="flex flex-col justify-center items-center gap-5 py-15">
-        <div className="flex flex-col justify-center items-center gap-5  md:grid md:grid-cols-2 md:gap-20 lg:grid-cols-3 lg:gap-10 xl:grid-cols-4">
-          {renderUsers()}
-        </div>
+      <div
+        className="flex flex-col justify-center items-center gap-5 py-15 w-full"
+        ref={userListRef}
+      >
+        {isPending ? (
+          <div className="flex flex-col justify-center items-center gap-5  md:grid md:grid-cols-2 md:gap-20 lg:grid-cols-3 lg:gap-10 xl:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <UserCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : error ? (
+          <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
+            Lỗi khi tải danh sách người dùng.
+          </div>
+        ) : !currentUsers || currentUsers.length === 0 ? (
+          <div className="italic h-full w-full flex items-center justify-center pt-20">
+            Không có dữ liệu để hiển thị.
+          </div>
+        ) : (
+          <div className="flex flex-col justify-center items-center gap-5  md:grid md:grid-cols-2 md:gap-20 lg:grid-cols-3 lg:gap-10 xl:grid-cols-4">
+            {renderUsers()}
+          </div>
+        )}
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) handlePageChange(currentPage - 1);
+                }}
+                hidden={totalPages <= 1}
+              />
             </PaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  isActive={currentPage === i + 1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(i + 1);
+                  }}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages)
+                    handlePageChange(currentPage + 1);
+                }}
+                hidden={totalPages <= 1}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>

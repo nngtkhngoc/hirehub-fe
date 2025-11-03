@@ -31,4 +31,5 @@ export type User = {
   languages: Language[];
   study: Study[]; // học vấn
   introduction: string;
+  description: string;
 };
