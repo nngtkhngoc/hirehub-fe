@@ -25,11 +25,22 @@ import { useRecruiter } from "@/hooks/useUser";
 import { useEffect, useState } from "react";
 import { CompanyCardSkeleton } from "@/components/ui/User/CompanyCardSkeleton";
 
+export interface CompanyFilter {
+  field: string[];
+  employees: string[];
+}
+
 export const CompanyListPage = () => {
-  const [page, setPage] = useState(0);
-  const size = 100;
   const [currentPage, setCurrentPage] = useState(1);
+  const [keyword, setKeyword] = useState<null | string>(null);
+  const [province, setProvince] = useState<null | string>(null);
+  const [companyFilter, setCompanyFilter] = useState<CompanyFilter>({
+    field: [],
+    employees: [],
+  });
+  const [page, setPage] = useState(0);
   const recruitersPerPage = 6;
+  const size = 100;
 
   useEffect(() => {
     const totalLoadedrecruiters = (page + 1) * size;
@@ -38,32 +49,51 @@ export const CompanyListPage = () => {
       setPage((prev) => prev + 1);
     }
   }, [currentPage, page, recruitersPerPage, size]);
+
   const {
     data: recruiters,
     isLoading,
     error,
   } = useRecruiter(
-    // keyword || undefined,
-    // province
-    //   ? province
-    //       .normalize("NFD")
-    //       .replace(/[\u0300-\u036f]/g, "")
-    //       .replace(/đ/g, "d")
-    //       .replace(/Đ/g, "D")
-    //       .trim()
-    //   : undefined,
-    undefined,
-    undefined,
+    keyword || undefined,
+    province
+      ? province
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .trim()
+      : undefined,
     page,
     size
   );
-  const totalPages = Math.ceil(
-    ((recruiters && recruiters.length) || 0) / recruitersPerPage
-  );
+
   const startIndex = (currentPage - 1) * recruitersPerPage;
   const endIndex = startIndex + recruitersPerPage;
+  const filteredRecruiters =
+    recruiters &&
+    recruiters.length > 0 &&
+    recruiters?.filter((recruiter) => {
+      const matchField =
+        companyFilter.field.length === 0 ||
+        companyFilter.field.includes(recruiter.field);
+
+      const matchEmployees =
+        companyFilter.employees.length === 0 ||
+        companyFilter.employees.includes(
+          recruiter.numberOfEmployees.toLowerCase()
+        );
+
+      return matchEmployees && matchField;
+    });
+
   const currentRecruiters =
-    recruiters && recruiters.length && recruiters?.slice(startIndex, endIndex);
+    filteredRecruiters &&
+    filteredRecruiters.length &&
+    filteredRecruiters?.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(
+    ((filteredRecruiters && filteredRecruiters.length) || 0) / recruitersPerPage
+  );
   const renderCompanies = () => {
     return (
       currentRecruiters &&
@@ -90,6 +120,10 @@ export const CompanyListPage = () => {
         description="Kết nối với những người có cùng chí hướng, khám phá cơ hội mới và xây dựng những mối quan hệ ý nghĩa giúp bạn phát triển bản thân và sự nghiệp."
         illustration={recruiterIllustrate}
         type="công ty"
+        onSearch={(kw, prov) => {
+          setKeyword(kw);
+          setProvince(prov);
+        }}
       />
 
       <div className="flex flex-col w-full bg-[#F8F9FB] py-12 gap-5 justify-center items-center lg:flex-row lg:items-start lg:pl-5">
@@ -98,7 +132,10 @@ export const CompanyListPage = () => {
             Danh sách công ty
           </h3>
           <div className="hidden lg:block">
-            <FilterBar />
+            <FilterBar
+              companyFilter={companyFilter}
+              setCompanyFilter={setCompanyFilter}
+            />
             <div className="w-full flex items-center justify-center w-full pt-4">
               <OutlineButton
                 label="Hủy"
@@ -127,7 +164,10 @@ export const CompanyListPage = () => {
               </DialogTitle>
               <DialogDescription className="overflow-y-auto">
                 <>
-                  <FilterBar />
+                  <FilterBar
+                    companyFilter={companyFilter}
+                    setCompanyFilter={setCompanyFilter}
+                  />{" "}
                   <div className="flex flex-row justify-center items-center gap-3 py-2">
                     <PrimaryButton label="Xác nhận" textSize="text-[15px]" />
                     <OutlineButton label="Hủy" textSize="text-[15px]" />
@@ -138,7 +178,7 @@ export const CompanyListPage = () => {
           </DialogContent>
         </Dialog>
 
-        <div className=" flex flex-col items-center justify-center gap-10">
+        <div className=" flex flex-col items-center justify-center gap-10 w-full">
           {isLoading ? (
             <div className=" flex flex-col lg:grid xl:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-[30px] lg:space-x-[30px]">
               {[...Array(6)].map((_, i) => (

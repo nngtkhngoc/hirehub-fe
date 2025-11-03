@@ -1,50 +1,45 @@
-import { useState } from "react";
+import type { CompanyFilter } from "../../CompanyListPage";
 
-export const FilterBar = () => {
-  const filterOptions = [
-    {
-      key: "field",
-      title: "Lĩnh vực",
-      options: [
-        { label: "Công nghệ thông tin", value: "cong_nghe_thong_tin" },
-        { label: "Tài chính – Ngân hàng", value: "tai_chinh_ngan_hang" },
-        { label: "Sản xuất & Chế tạo", value: "san_xuat_che_tao" },
-        { label: "Xây dựng & Bất động sản", value: "xay_dung_bat_dong_san" },
-        { label: "Vận tải & Logistics", value: "van_tai_logistics" },
-        { label: "Du lịch & Dịch vụ", value: "du_lich_dich_vu" },
-        { label: "Khác", value: "khac" },
-      ],
-    },
-    {
-      key: "workspace",
-      title: "Hình thức làm việc",
-      options: [
-        { label: "Remote", value: "remote" },
-        { label: "Hybrid", value: "hybrid" },
-        { label: "Onsite", value: "onsite" },
-      ],
-    },
-    {
-      key: "size",
-      title: "Số lượng nhân viên",
-      options: [
-        { label: "0 - 50", value: "small" },
-        { label: "50 - 100", value: "medium" },
-        { label: "> 100", value: "big" },
-      ],
-    },
-  ];
-  const [selectedFilters, setSelectedFilters] = useState<{
-    [key: string]: string[];
-  }>({
-    jobType: [],
-    level: [],
-    field: [],
-    workMode: [],
-  });
+interface FilterBarProps {
+  companyFilter: CompanyFilter;
+  setCompanyFilter: React.Dispatch<React.SetStateAction<CompanyFilter>>;
+}
 
-  const handleToggle = (groupKey: string, value: string) => {
-    setSelectedFilters((prev) => {
+const filterOptions: {
+  key: keyof CompanyFilter;
+  title: string;
+  options: { label: string; value: string }[];
+}[] = [
+  {
+    key: "field",
+    title: "Lĩnh vực",
+    options: [
+      { label: "Công nghệ thông tin", value: "Công nghệ thông tin" },
+      { label: "Tài chính – Ngân hàng", value: "Tài chính – Ngân hàng" },
+      { label: "Sản xuất & Chế tạo", value: "Sản xuất & Chế tạo" },
+      { label: "Xây dựng & Bất động sản", value: "Xây dựng & Bất động sản" },
+      { label: "Vận tải & Logistics", value: "Vận tải & Logistics" },
+      { label: "Du lịch & Dịch vụ", value: "Du lịch & Dịch vụ" },
+      { label: "Khác", value: "Khác" },
+    ],
+  },
+  {
+    key: "employees",
+    title: "Số lượng nhân viên",
+    options: [
+      { label: "0 - 50", value: "small" },
+      { label: "50 - 100", value: "medium" },
+      { label: "> 100", value: "big" },
+    ],
+  },
+];
+
+export const FilterBar = ({
+  companyFilter,
+  setCompanyFilter,
+}: FilterBarProps) => {
+  const handleToggle = (groupKey: keyof CompanyFilter, value: string) => {
+    setCompanyFilter((prev) => {
       const currentValues = prev[groupKey] || [];
       const isSelected = currentValues.includes(value);
 
@@ -56,6 +51,7 @@ export const FilterBar = () => {
       };
     });
   };
+
   return (
     <div className="flex flex-col gap-[30px] w-[200px] p-4 text-black">
       {filterOptions.map((group) => (
@@ -64,17 +60,19 @@ export const FilterBar = () => {
             {group.title}
           </h4>
 
-          <div className="flex flex-col gap-[20px]  justify-start">
+          <div className="flex flex-col gap-[20px] justify-start">
             {group.options.map((opt) => (
               <label
                 key={opt.value}
-                className="flex items-center gap-2 text-[16px] font-medium whitespace-nowrap"
+                className="flex items-center gap-2 text-[16px] font-medium whitespace-nowrap cursor-pointer hover:text-primary transition"
               >
                 <input
                   type="checkbox"
-                  checked={selectedFilters[group.key]?.includes(opt.value)}
+                  checked={
+                    companyFilter[group.key]?.includes(opt.value) || false
+                  }
                   onChange={() => handleToggle(group.key, opt.value)}
-                  className="accent-primary cursor-pointer w-4 h-4 rounded-[4px] "
+                  className="accent-primary cursor-pointer w-4 h-4 rounded-[4px]"
                 />
                 {opt.label}
               </label>

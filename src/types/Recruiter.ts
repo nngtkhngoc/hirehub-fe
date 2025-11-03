@@ -3,7 +3,7 @@ export type Recruiter = {
   address: string;
   foundedYear: string;
   description: string;
-  numberOfEmployees: number;
+  numberOfEmployees: string;
   avatar: string;
   field: string;
 };

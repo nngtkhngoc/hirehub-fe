@@ -16,7 +16,6 @@ import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import {
   Pagination,
   PaginationContent,
-  // PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,

@@ -3,14 +3,17 @@ import { Outlet, useNavigate } from "react-router";
 import { Toaster } from "@/components/ui/sonner";
 import authbg from "@/assets/images/authbg.png";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useEffect } from "react";
 
 export const AuthLayout = () => {
   const { user } = useAuthStore();
-
   const nav = useNavigate();
-  if (user) {
-    nav("/");
-  }
+
+  useEffect(() => {
+    if (user) {
+      nav("/");
+    }
+  }, []);
 
   return (
     <div

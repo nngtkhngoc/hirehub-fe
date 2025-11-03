@@ -12,6 +12,7 @@ export type Job = {
   skilss: Skill[];
   recruiter: Recruiter;
   type: string;
+  address: string;
 };
 
 export type CreateJobData = {

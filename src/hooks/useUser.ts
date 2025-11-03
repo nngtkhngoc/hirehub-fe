@@ -8,7 +8,8 @@ export const useRecruiter = (
   size?: number
 ) => {
   return useQuery({
-    queryKey: ["jobs", keyword, province, page, size],
-    queryFn: () => getAllRecruiters({ keyword, province, page, size }),
+    queryKey: ["recruiters", keyword, province, page, size],
+    queryFn: () =>
+      getAllRecruiters({ keyword, province, role: "recruiter", page, size }),
   });
 };
