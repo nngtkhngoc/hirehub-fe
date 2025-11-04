@@ -2,17 +2,18 @@ import { OutlineButton } from "@/components/ui/User/Button";
 import type { Job } from "@/types/Job";
 import { SendHorizonal } from "lucide-react";
 import { useState } from "react";
+import company from "@/assets/illustration/company.png";
 
 export const RecommendedJobCard = ({ job }: { job: Job }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div className="w-full flex flex-row gap-2 items-center py-4 border-b border-[#A6A6A6]">
       <img
-        src={job.recruiter.logo}
+        src={job.recruiter.avatar || company}
         alt={job.recruiter.name}
         className="object-cover shrink-0 h-[80px] w-[80px] rounded-full"
       />
-      <div className="flex flex-col items-center justify-center gap-2">
+      <div className="flex flex-col items-start justify-center gap-2">
         <div
           className={`w-full text-[14px] font-bold ${
             isExpanded ? "text-clip" : "overflow-hidden text-ellipsis"

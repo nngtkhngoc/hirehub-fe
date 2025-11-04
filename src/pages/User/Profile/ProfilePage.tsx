@@ -7,6 +7,7 @@ import { Resume } from "./components/layout/Resume";
 import { SkillsAndLanguages } from "./components/layout/SkillsAndLanguages";
 import { Study } from "./components/layout/Study";
 import { useNavigate } from "react-router";
+import { RecommendedUsers } from "./components/layout/RecommendedUsers";
 
 export const ProfilePage = () => {
   const user = useAuthStore((state) => state.user);
@@ -27,7 +28,7 @@ export const ProfilePage = () => {
           <SkillsAndLanguages user={user} />
         </div>
         <div className="lg:flex lg:flex-col hidden lg:block lg:justify-start lg:h-full lg:gap-10">
-          {/* <RecommendedUsers /> */}
+          <RecommendedUsers />
           <RecommendedJobs />
         </div>
       </div>

@@ -1,3 +1,4 @@
+import profile from "@/assets/illustration/default_profile.webp";
 import { OutlineButton } from "@/components/ui/User/Button";
 import type { User } from "@/types/User";
 import { UserPlus } from "lucide-react";
@@ -8,13 +9,13 @@ export const RecommendedUserCard = ({ user }: { user: User }) => {
   return (
     <div className="w-full flex flex-row gap-2 items-center py-4 border-b border-[#A6A6A6]">
       <img
-        src={user.avatar}
+        src={user.avatar || profile}
         alt="avatar"
         className="object-cover shrink-0 h-[80px] w-[80px] rounded-full"
       />
       <div className="flex flex-col items-center justify-center gap-2">
         <div
-          className={`w-full text-[14px] font-bold ${
+          className={`w-full text-[14px] font-bold h-[20px] ${
             isExpanded ? "text-clip" : "overflow-hidden text-ellipsis"
           }`}
           onClick={() => {

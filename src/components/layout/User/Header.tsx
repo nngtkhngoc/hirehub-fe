@@ -74,10 +74,13 @@ export const Header = () => {
             </DropdownMenuTrigger>{" "}
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <div className="flex flex-row items-center justify-start gap-2">
+                <Link
+                  to="/profile"
+                  className="flex flex-row items-center justify-start gap-2"
+                >
                   <UserCircle className="text-[16px]" />
                   Profile
-                </div>
+                </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem>
