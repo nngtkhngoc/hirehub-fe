@@ -71,30 +71,14 @@ export const BasicInfor = ({
     queryKey: ["provinces"],
     queryFn: getAllProvinces,
   });
-  // const handleBasicInforChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
 
-  //   const previewURL = URL.createObjectURL(file);
+  const handleSubmit = () => {
+    const formData = new FormData();
+    formData.append("id", user.id);
+    formData.append("name", user.name ?? "");
 
-  //   setUserData((prev) => ({
-  //     ...prev,
-  //     avatar: previewURL,
-  //     avatarFile: file,
-  //   }));
-
-  //   const formData = new FormData();
-  //   formData.append("id", user.id);
-  //   formData.append("name", user.name ?? "");
-  //   formData.append("avatar", file);
-
-  //   mutate(formData);
-  // };
-  // const { data: provinces } = useQuery({
-  //   queryKey: ["provinces"],
-  //   queryFn: getAllProvinces,
-  // });
-
+    mutate(formData);
+  };
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2]c h-[140px] flex flex-row justify-center items-center px-4 gap-4 relative md:h-[196px] md:px-10">
       <div className="relative h-[100px] md:h-[160px] w-[160px] md:w-[200px] flex items-center group">
@@ -202,7 +186,12 @@ export const BasicInfor = ({
                   <DialogClose asChild>
                     <OutlineButton label="Hủy" />
                   </DialogClose>
-                  <PrimaryButton label="Xác nhận" />
+                  <PrimaryButton
+                    label="Xác nhận"
+                    onClick={handleSubmit}
+                    disabled={isPending}
+                    loadingText="Đang tải..."
+                  />
                 </DialogFooter>
               </DialogContent>
             </form>
