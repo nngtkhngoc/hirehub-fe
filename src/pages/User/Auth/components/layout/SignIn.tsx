@@ -89,12 +89,10 @@ export const SignIn = ({ ref }: { ref: any }) => {
           </label>
           <div className="relative">
             <input
-              // id="password"
               type={openPassword ? "text" : "password"}
               {...register("password")}
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
               placeholder="********"
-              // required
             />
             <p className="text-xs text-red-400 pt-2">
               {errors.password?.message}
