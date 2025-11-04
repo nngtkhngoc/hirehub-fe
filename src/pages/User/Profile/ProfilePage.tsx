@@ -26,7 +26,7 @@ export const ProfilePage = () => {
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] h-full gap-15">
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">
         <BasicInfor user={userData} setUserData={setUserData} />
-        <DetailsInfor user={userData} />
+        <DetailsInfor user={userData} setUserData={setUserData} />
         <Resume user={userData} />
         <Experiences user={userData} />
         <Study user={userData} />
