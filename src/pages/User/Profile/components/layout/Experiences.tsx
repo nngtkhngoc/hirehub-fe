@@ -5,7 +5,7 @@ import type { UserProfile } from "@/types/Auth";
 
 export const Experiences = ({ user }: { user: UserProfile }) => {
   const renderExperiences = () =>
-    user.experiences.map((ex, index) => (
+    user.experiences?.map((ex, index) => (
       <ExperienceCard
         experience={ex}
         lastCard={index == experiences.length - 1 ? true : false}

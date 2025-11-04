@@ -23,11 +23,31 @@ export type UserProfile = {
   };
   skills: Skill[];
   experiences: Experience[];
-  github: string; // link GitHub cá nhân
-  phoneNumber: string; // số điện thoại
-  resumeLink: string; // link tới CV hoặc portfolio
+  github: string;
+  phoneNumber: string;
+  resumeLink: string;
   languages: Language[];
-  study: Study[]; // học vấn
+  study: Study[];
   introduction: string;
   position: string;
+  avatarFile?: File | undefined;
+};
+
+export type UserFormData = {
+  id: string;
+  name?: string | null;
+  address?: string | null;
+  description?: string | null;
+
+  github?: string;
+  phoneNumber?: string;
+  resumeLink?: string;
+  introduction?: string;
+  position?: string;
+
+  avatar?: File | null;
+  skills?: Skill[];
+  experiences?: Experience[];
+  languages?: Language[];
+  study?: Study[];
 };

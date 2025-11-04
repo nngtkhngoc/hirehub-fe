@@ -1,5 +1,7 @@
-import { getAllRecruiters, getAllUsers } from "@/apis/user.api";
-import { useQuery } from "@tanstack/react-query";
+import { getAllRecruiters, getAllUsers, updateUser } from "@/apis/user.api";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const useRecruiter = (
   keyword?: string,
@@ -17,5 +19,20 @@ export const useUsers = (page?: number, size?: number) => {
   return useQuery({
     queryKey: ["users", page, size],
     queryFn: () => getAllUsers({ page, size }),
+  });
+};
+
+export const useUpdateUser = () => {
+  const setUser = useAuthStore((state) => state.setUser);
+
+  return useMutation({
+    mutationFn: (formData: FormData) => updateUser(formData),
+    onSuccess: (user) => {
+      setUser(user);
+      toast.success("Cập nhật thành công!");
+    },
+    onError: () => {
+      toast.error("Cập nhật thất bại!");
+    },
   });
 };
