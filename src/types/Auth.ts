@@ -26,6 +26,7 @@ export type UserProfile = {
   github: string;
   phoneNumber: string;
   resume_link: string;
+  resume_name: string;
   languages: Language[];
   study: Study[];
   introduction: string;
@@ -41,7 +42,8 @@ export type UserFormData = {
 
   github?: string;
   phoneNumber?: string;
-  resume?: string;
+  resume?: File;
+  resume_name: string;
   introduction?: string;
   position?: string;
 
