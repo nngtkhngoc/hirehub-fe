@@ -67,6 +67,7 @@ export const BasicInfor = ({
 
     mutate(formData);
   };
+
   const { data: provinces } = useQuery({
     queryKey: ["provinces"],
     queryFn: getAllProvinces,
@@ -79,6 +80,7 @@ export const BasicInfor = ({
 
     mutate(formData);
   };
+
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2]c h-[140px] flex flex-row justify-center items-center px-4 gap-4 relative md:h-[196px] md:px-10">
       <div className="relative h-[100px] md:h-[160px] w-[160px] md:w-[200px] flex items-center group">
@@ -86,7 +88,7 @@ export const BasicInfor = ({
           <img
             src={user.avatar || profile}
             alt="profile"
-            className="w-[100px] h-[100px] md:w-[160px] md:h-[160px] object-cover rounded-full cursor-pointer"
+            className="w-[100px] h-[100px] md:w-[160px] md:h-[160px] object-cover object-center rounded-full cursor-pointer"
           />
         </label>
 

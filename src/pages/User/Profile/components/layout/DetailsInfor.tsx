@@ -1,4 +1,3 @@
-import { PartTitle } from "../ui/PartTitle";
 import { useState, useEffect, useRef } from "react";
 import {
   Edit3,
@@ -117,7 +116,6 @@ export const DetailsInfor = ({
     formData.append("description", user.description ?? "");
     formData.append("github", user.github ?? "");
     formData.append("phoneNumber", user.phoneNumber ?? "");
-    // formData.append("ad", user.description ?? "");
 
     mutate(formData);
   };

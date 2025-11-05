@@ -27,7 +27,7 @@ export const ProfilePage = () => {
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">
         <BasicInfor user={userData} setUserData={setUserData} />
         <DetailsInfor user={userData} setUserData={setUserData} />
-        <Resume user={userData} />
+        <Resume user={userData} setUserData={setUserData} />
         <Experiences user={userData} />
         <Study user={userData} />
         <SkillsAndLanguages user={userData} />
