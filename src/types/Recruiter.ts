@@ -1,4 +1,5 @@
 export type Recruiter = {
+  id: string;
   name: string;
   address: string;
   foundedYear: string;
