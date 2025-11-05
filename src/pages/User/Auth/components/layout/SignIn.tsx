@@ -25,6 +25,8 @@ const schema = yup
   })
   .required();
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export const SignIn = ({ ref }: { ref: any }) => {
   const [openPassword, setOpenPassword] = useState(false);
 
@@ -47,6 +49,9 @@ export const SignIn = ({ ref }: { ref: any }) => {
     },
   });
 
+  const handleLoginByGoogle = () => {
+    window.location.href = `${BACKEND_URL}/api/auth/google`;
+  };
   const {
     register,
     handleSubmit,
@@ -133,7 +138,10 @@ export const SignIn = ({ ref }: { ref: any }) => {
         <div className="text-center text-[12px] text-[#263238]">hoặc</div>
         <OutlineButton
           label={
-            <div className="w-full flex flex-row gap-2 justify-center items-center">
+            <div
+              className="w-full flex flex-row gap-2 justify-center items-center"
+              onClick={handleLoginByGoogle}
+            >
               <img src={google} alt="google" className="w-[20px] h-[20px]" />
               <span className="text-[12px]">Đăng nhập bằng Google</span>
             </div>
