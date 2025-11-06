@@ -60,17 +60,17 @@ export const DetailsInfor = ({
       const maxHeight = lineHeight * 3;
       setIsOverflowing(el.scrollHeight > maxHeight + 1);
     }
-  }, [user.introduction]);
+  }, [user?.introduction]);
 
   const DetailedInformations: DetailedInformation[] = [
-    { icon: Mail, title: "Email", content: user.email || "" },
+    { icon: Mail, title: "Email", content: user?.email || "" },
     {
       icon: Phone,
       title: "Số điện thoại",
-      content: user.phoneNumber || "Chưa có",
+      content: user?.phoneNumber || "Chưa có",
     },
-    { icon: Github, title: "Github", content: user.github || "" },
-    { icon: MapPin, title: "Địa chỉ", content: user.address || "" },
+    { icon: Github, title: "Github", content: user?.github || "" },
+    { icon: MapPin, title: "Địa chỉ", content: user?.address || "" },
   ];
   const renderInfor = () => {
     return DetailedInformations.map((infor, index) => {
@@ -112,10 +112,10 @@ export const DetailsInfor = ({
 
   const handleSubmit = () => {
     const formData = new FormData();
-    formData.append("id", user.id);
-    formData.append("description", user.description ?? "");
-    formData.append("github", user.github ?? "");
-    formData.append("phoneNumber", user.phoneNumber ?? "");
+    formData.append("id", user?.id);
+    formData.append("description", user?.description ?? "");
+    formData.append("github", user?.github ?? "");
+    formData.append("phoneNumber", user?.phoneNumber ?? "");
 
     mutate(formData);
   };
@@ -151,7 +151,7 @@ export const DetailsInfor = ({
                     <Textarea
                       id="description-1"
                       name="description"
-                      defaultValue={user.description || ""}
+                      defaultValue={user?.description || ""}
                       onChange={(e) => {
                         setUserData((prev) => ({
                           ...prev,
@@ -166,7 +166,7 @@ export const DetailsInfor = ({
                     <Input
                       id="email-1"
                       name="email"
-                      defaultValue={user.email || ""}
+                      defaultValue={user?.email || ""}
                       onChange={(e) => {
                         setUserData((prev) => ({
                           ...prev,
@@ -180,7 +180,7 @@ export const DetailsInfor = ({
                     <Input
                       id="github-1"
                       name="github"
-                      defaultValue={user.github || ""}
+                      defaultValue={user?.github || ""}
                       onChange={(e) => {
                         setUserData((prev) => ({
                           ...prev,
@@ -194,7 +194,7 @@ export const DetailsInfor = ({
                     <Input
                       id="github-1"
                       name="github"
-                      defaultValue={user.phoneNumber || ""}
+                      defaultValue={user?.phoneNumber || ""}
                       onChange={(e) => {
                         setUserData((prev) => ({
                           ...prev,
@@ -256,7 +256,7 @@ export const DetailsInfor = ({
             isExpanded ? "line-clamp-none" : "line-clamp-3"
           }`}
         >
-          {user.description}
+          {user?.description}
         </div>
         {isOverflowing && (
           <button

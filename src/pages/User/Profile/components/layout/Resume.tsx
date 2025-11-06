@@ -50,7 +50,7 @@ export const Resume = ({
     }));
 
     const formData = new FormData();
-    formData.append("id", user.id);
+    formData.append("id", user?.id);
     formData.append("resume_link", previewURL);
     formData.append("resume_name", file.name);
 
@@ -65,7 +65,7 @@ export const Resume = ({
     }));
 
     const formData = new FormData();
-    formData.append("id", user.id);
+    formData.append("id", user?.id);
     formData.append("resume_link", "");
     formData.append("resume_name", "");
 
@@ -157,9 +157,9 @@ export const Resume = ({
             className="flex flex-col items-start justify-center w-0 flex-1 cursor-pointer"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {user.resume_link ? (
+            {user?.resume_link ? (
               <a
-                href={user.resume_link}
+                href={user?.resume_link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`text-[15px] font-medium text-black transition-all duration-300 w-full break-all ${
@@ -167,9 +167,9 @@ export const Resume = ({
                     ? "line-clamp-none"
                     : "overflow-hidden text-ellipsis whitespace-nowrap"
                 }`}
-                title={user.resume_name}
+                title={user?.resume_name}
               >
-                {user.resume_name}
+                {user?.resume_name}
               </a>
             ) : (
               <span className="italic text-[15px] font-medium text-black">

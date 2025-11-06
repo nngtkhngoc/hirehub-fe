@@ -48,13 +48,14 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { CreateExperienceFormData } from "@/types/Experience";
-import { useCreateExeprience } from "@/hooks/useExperience";
+import { useCreateExperience } from "@/hooks/useExperience";
+import { useProfile } from "@/hooks/useAuth";
 
 export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> =
   yup.object({
@@ -67,14 +68,25 @@ export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> 
     description: yup.string().nullable(),
   });
 
-export const Experiences = ({ user }: { user: UserProfile }) => {
+export const Experiences = ({
+  user,
+  setUserData,
+}: {
+  user: UserProfile;
+  setUserData: React.Dispatch<React.SetStateAction<UserProfile>>;
+}) => {
+  const [lastCard, setLastCard] = useState<number>(
+    user.experiences?.length - 1
+  );
+
   const renderExperiences = () =>
     user.experiences?.map((ex, index) => (
-      <ExperienceCard
-        experience={ex}
-        lastCard={index == experiences.length - 1 ? true : false}
-      />
+      <ExperienceCard experience={ex} lastCard={index == lastCard} />
     ));
+
+  useEffect(() => {
+    setLastCard(user.experiences?.length - 1);
+  }, [user]);
 
   const { data: companies } = useRecruiter();
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -93,7 +105,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
     setPreviewURL(URL.createObjectURL(file));
     setFileName(file.name);
   };
-  const { mutate, isPending } = useCreateExeprience();
+  const { mutate, isPending } = useCreateExperience();
 
   const {
     register,

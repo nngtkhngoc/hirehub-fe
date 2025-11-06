@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createExperience } from "@/apis/experience.api";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // export const useExperience = (
 //   keyword?: string,
@@ -14,19 +15,16 @@ import { createExperience } from "@/apis/experience.api";
 //   });
 // };
 
-export const useCreateExeprience = () => {
+export const useCreateExperience = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: createExperience,
     onSuccess: () => {
       toast.success("Thêm kinh nghiệm thành công!", { duration: 2000 });
-
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
-    onError: (error) => {
+    onError: () => {
       toast.error("Thêm kinh nghiệm thất bại!", { duration: 2500 });
-      console.log(error);
     },
   });
 };
