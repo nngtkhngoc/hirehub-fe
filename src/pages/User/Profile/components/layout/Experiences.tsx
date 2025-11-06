@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 export const Experiences = ({ user }: { user: UserProfile }) => {
   const renderExperiences = () =>
@@ -60,12 +60,21 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
     ));
 
   const { data: companies } = useRecruiter();
-  console.log(companies);
   const isMedium = useMediaQuery("(min-width:768px)");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [openDialog, setOpenDialog] = useState(false);
   const [openCalendarStart, setOpenCalendarStart] = useState(false);
   const [openCalendarEnd, setOpenCalendarEnd] = useState(false);
+  const [previewURL, setPreviewURL] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreviewURL(URL.createObjectURL(file));
+    setFileName(file.name);
+  };
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
@@ -308,11 +317,13 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       <div
                         className={cn(
                           "file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                          "!text-zinc-400 flex flex-row items-center gap-1"
+                          "!text-zinc-500 flex flex-row items-center gap-1"
                         )}
                       >
                         <Link size={15} />
-                        <span className="!font-normal">Thêm ảnh mới</span>
+                        <span className="!font-normal !text-[14px]">
+                          Thêm ảnh mới
+                        </span>
                       </div>
                     </Label>
                     <Input
@@ -321,15 +332,23 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       placeholder="vd: Frontend Developer Intern"
                       type="file"
                       hidden
-                      // defaultValue={user.name || ""}
-                      // onChange={(e) => {
-                      //   setUserData((prev) => ({
-                      //     ...prev,
-                      //     name: e.target.value,
-                      //   }));
-                      // }}
+                      onChange={(e) => {
+                        handleFileChange(e);
+                      }}
                     />
                   </div>
+                  {previewURL && (
+                    <div className="flex flex-col gap-2 items-start">
+                      <img
+                        src={previewURL}
+                        className="rounded-md max-h-48 object-contain"
+                        alt="preview"
+                      />
+                      <p className="text-xs text-zinc-500 break-all">
+                        {fileName}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <DialogFooter>
