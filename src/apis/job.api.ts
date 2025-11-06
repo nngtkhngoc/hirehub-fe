@@ -1,5 +1,10 @@
 import { axiosClient } from "@/lib/axios";
-import type { CreateJobData, Job, UpdateJobData } from "@/types/Job";
+import type {
+  CreateJobData,
+  Job,
+  SaveJobData,
+  UpdateJobData,
+} from "@/types/Job";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -38,4 +43,20 @@ export const deleteJob = async (id: string) => {
   const res = await axiosClient.delete(`${BASE_URL}/api/jobs/${id}`);
 
   return res.data;
+};
+
+export const saveJob = async (data: SaveJobData) => {
+  const res = await axiosClient.post(`${BASE_URL}/api/job-interactions`, data);
+
+  return res.data;
+};
+
+export const getSavedJobByUserId = async (getSavedJobsParams: {
+  userId?: string | undefined;
+}) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/job-interactions`, {
+    params: getSavedJobsParams,
+  });
+
+  return res.data.content;
 };

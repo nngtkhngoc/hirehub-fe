@@ -1,5 +1,4 @@
 import { useParams } from "react-router";
-import { CompanySummary } from "./components/CompanySummary";
 import { JobDescription } from "./components/JobDescription";
 import { JobSummary } from "./components/JobSummary";
 import { JobTitle } from "./components/JobTitle";

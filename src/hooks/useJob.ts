@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllJobs, createJob, getJobById } from "@/apis/job.api";
+import {
+  getAllJobs,
+  createJob,
+  getJobById,
+  saveJob,
+  getSavedJobByUserId,
+} from "@/apis/job.api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const useJobs = (
   keyword?: string,
@@ -34,5 +41,40 @@ export const useCreateJob = () => {
     onError: () => {
       toast.error("Tạo job thất bại!", { duration: 2500 });
     },
+  });
+};
+
+export const useSaveJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: saveJob,
+    onSuccess: () => {
+      toast.success("Lưu job thành công!", { duration: 2000 });
+
+      queryClient.invalidateQueries({
+        queryKey: ["saved-jobs"],
+        exact: false,
+        refetchType: "active",
+      });
+    },
+    onError: () => {
+      toast.error("Lưu job thất bại!", { duration: 2500 });
+    },
+  });
+};
+
+export const useGetSavedJobs = () => {
+  const user = useAuthStore((state) => state.user);
+
+  return useQuery({
+    queryKey: ["saved-jobs", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const data = await getSavedJobByUserId({ userId: user?.id });
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+    initialData: [],
   });
 };

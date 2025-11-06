@@ -32,3 +32,18 @@ export type UpdateJobData = {
   recruiterId?: number;
   skillsId?: number[];
 };
+
+export type ApplyJobData = {
+  jobId?: string;
+  userId?: string;
+  description?: string;
+  workspace?: string;
+  recruiterId?: number;
+  skillsId?: number[];
+};
+
+export type SaveJobData = {
+  jobId: string;
+  userId: string;
+  interaction: string;
+};
