@@ -71,19 +71,19 @@ export const JobListPage = () => {
     jobs?.filter((job) => {
       const matchJobType =
         selectedFilters.jobType.length === 0 ||
-        selectedFilters.jobType.includes(job.type.toLowerCase());
+        selectedFilters.jobType.includes(job?.type?.toLowerCase());
 
       const matchLevel =
         selectedFilters.level.length === 0 ||
-        selectedFilters.level.includes(job.level.toLowerCase());
+        selectedFilters.level.includes(job?.level?.toLowerCase());
 
       const matchField =
         selectedFilters.field.length === 0 ||
-        selectedFilters.field.includes(job.recruiter.field);
+        selectedFilters.field.includes(job?.recruiter?.field);
 
       const matchWorkMode =
         selectedFilters.workMode.length === 0 ||
-        selectedFilters.workMode.includes(job.workspace.toLowerCase());
+        selectedFilters.workMode.includes(job?.workspace?.toLowerCase());
 
       return matchJobType && matchLevel && matchWorkMode && matchField;
     });
@@ -109,7 +109,7 @@ export const JobListPage = () => {
     return (
       currentJobs &&
       currentJobs.length > 0 &&
-      currentJobs?.map((job) => <JobCard key={job.id} job={job} />)
+      currentJobs?.map((job) => <JobCard key={job?.id} job={job} />)
     );
   };
 

@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createExperience } from "@/apis/experience.api";
-import { useAuthStore } from "@/stores/useAuthStore";
 
 // export const useExperience = (
 //   keyword?: string,

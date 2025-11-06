@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ExperienceCard } from "../ui/ExperienceCard";
-import { experiences } from "@/mock/experience.mock";
 import type { UserProfile } from "@/types/Auth";
 import {
   DropdownMenu,
@@ -55,7 +54,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { CreateExperienceFormData } from "@/types/Experience";
 import { useCreateExperience } from "@/hooks/useExperience";
-import { useProfile } from "@/hooks/useAuth";
 
 export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> =
   yup.object({
@@ -68,24 +66,18 @@ export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> 
     description: yup.string().nullable(),
   });
 
-export const Experiences = ({
-  user,
-  setUserData,
-}: {
-  user: UserProfile;
-  setUserData: React.Dispatch<React.SetStateAction<UserProfile>>;
-}) => {
+export const Experiences = ({ user }: { user: UserProfile }) => {
   const [lastCard, setLastCard] = useState<number>(
-    user.experiences?.length - 1
+    user?.experiences?.length - 1
   );
 
   const renderExperiences = () =>
-    user.experiences?.map((ex, index) => (
+    user?.experiences?.map((ex, index) => (
       <ExperienceCard experience={ex} lastCard={index == lastCard} />
     ));
 
   useEffect(() => {
-    setLastCard(user.experiences?.length - 1);
+    setLastCard(user?.experiences?.length - 1);
   }, [user]);
 
   const { data: companies } = useRecruiter();
@@ -413,7 +405,7 @@ export const Experiences = ({
                     label="Xác nhận"
                     loadingText="Đang tải..."
                     onClick={handleSubmit((data: CreateExperienceFormData) => {
-                      data.userId = user.id;
+                      data.userId = user?.id;
 
                       console.log("Send data:", data);
                       mutate(data, {

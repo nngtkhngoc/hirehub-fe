@@ -3,8 +3,6 @@ import { HighlightText } from "@/components/ui/User/HighlightText";
 import { PrimaryButton } from "@/components/ui/User/Button";
 import { NoteCircle } from "../ui/NoteCircle";
 
-import { jobs } from "@/mock/job.mock";
-
 import { Search } from "lucide-react";
 
 import {
@@ -14,8 +12,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useJobs } from "@/hooks/useJob";
 
 export const FeaturedJobs = () => {
+  const { data: jobs } = useJobs(undefined, undefined, 0, 10);
   return (
     <section className="flex flex-col items-center justify-center py-10 gap-5 bg-[#F7F6F8]">
       <div className="flex flex-row justify-center items-center">
@@ -43,7 +43,7 @@ export const FeaturedJobs = () => {
 
       <Carousel className="w-4/5 flex items-center justify-center pt-5">
         <CarouselContent>
-          {jobs.map((job) => (
+          {jobs?.map((job) => (
             <CarouselItem className="md:basis-1/2 h-[360px]  lg:basis-1/3">
               <JobLandingPageCard job={job} />
             </CarouselItem>

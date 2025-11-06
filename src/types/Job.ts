@@ -8,7 +8,7 @@ export type Job = {
   level: string;
   isBanned: boolean | null;
   workspace: string;
-  postingDate: Date;
+  postingDate: string;
   skilss: Skill[];
   recruiter: Recruiter;
   type: string;

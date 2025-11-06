@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/stores/useAuthStore";
+// import { useAuthStore } from "@/stores/useAuthStore";
 import { BasicInfor } from "./components/layout/BasicInfor";
 import { DetailsInfor } from "./components/layout/DetailsInfor";
 import { Experiences } from "./components/layout/Experiences";
@@ -6,7 +6,7 @@ import { RecommendedJobs } from "./components/layout/RecommendedJobs";
 import { Resume } from "./components/layout/Resume";
 import { SkillsAndLanguages } from "./components/layout/SkillsAndLanguages";
 import { Study } from "./components/layout/Study";
-import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router";
 import { RecommendedUsers } from "./components/layout/RecommendedUsers";
 import { useEffect, useState } from "react";
 import type { UserProfile } from "@/types/Auth";
@@ -18,7 +18,7 @@ export const ProfilePage = () => {
   // const setUser = useAuthStore(state => state)
   console.log(user);
 
-  const nav = useNavigate();
+  // const nav = useNavigate();
   const [userData, setUserData] = useState<UserProfile>(user!);
 
   useEffect(() => setUserData(user!), [user]);
@@ -33,7 +33,7 @@ export const ProfilePage = () => {
         <BasicInfor user={userData} setUserData={setUserData} />
         <DetailsInfor user={userData} setUserData={setUserData} />
         <Resume user={userData} setUserData={setUserData} />
-        <Experiences user={userData} setUserData={setUserData} />
+        <Experiences user={userData} />
         <Study user={userData} />
         <SkillsAndLanguages user={userData} />
       </div>

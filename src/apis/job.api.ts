@@ -16,7 +16,7 @@ export const getAllJobs = async (getAllJobQueries: {
   return res.data.content;
 };
 
-export const getJobById = async (id: string) => {
+export const getJobById = async (id?: string) => {
   const res = await axiosClient.get(`${BASE_URL}/api/jobs/${id}`);
 
   return res.data;
