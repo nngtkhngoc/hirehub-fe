@@ -7,7 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit3, PlusCircle, SquarePen } from "lucide-react";
+import {
+  ChevronDownIcon,
+  Edit3,
+  Link,
+  PlusCircle,
+  SquarePen,
+} from "lucide-react";
 import { useMediaQuery } from "@mui/material";
 import {
   Dialog,
@@ -33,7 +39,17 @@ import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import { useRecruiter } from "@/hooks/useUser";
 import { Input } from "@/components/ui/input";
 import companyDefault from "@/assets/illustration/company.png";
+import { Textarea } from "@/components/ui/textarea";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 export const Experiences = ({ user }: { user: UserProfile }) => {
   const renderExperiences = () =>
     user.experiences?.map((ex, index) => (
@@ -46,17 +62,21 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
   const { data: companies } = useRecruiter();
   console.log(companies);
   const isMedium = useMediaQuery("(min-width:768px)");
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [openCalendarStart, setOpenCalendarStart] = useState(false);
+  const [openCalendarEnd, setOpenCalendarEnd] = useState(false);
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
       <div className="flex flex-col w-full">
-        <div className="flex flex-row justify-between items-center w-full md:pr-5 py-5 border-b border-[#A6A6A6]">
+        <div className="flex flex-row justify-between items-center w-full md:pr-5 py-5 border-b border-[#A6A6A6] relative">
           <div className="font-bold text-[16px] md:text-[20px]">
             Kinh nghiệm
           </div>
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <div className=" top-0 right-0 flex flex-row items-center gap-2 text-[12px] font-regular text-primary cursor-pointer md:text-[14px]">
+              <div className=" absolute top-6 right-7 flex flex-row items-center gap-2 text-[12px] font-regular text-primary cursor-pointer md:text-[14px]">
                 <Edit3 size={isMedium ? 16 : 12} />
                 <span>Sửa</span>
               </div>
@@ -65,98 +85,21 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
+                  setOpenDialog(true);
                 }}
               >
-                <Dialog>
-                  <form>
-                    <DialogTrigger asChild>
-                      <div className="flex flex-row items-center gap-2 text-[12px] md:text-[14px] text-black cursor-pointer">
-                        <PlusCircle
-                          size={isMedium ? 16 : 12}
-                          className="text-black"
-                        />
-                        <span>Thêm mới</span>{" "}
-                      </div>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] ">
-                      <DialogHeader>
-                        <DialogTitle>
-                          <div className="px-1">Chỉnh sửa thông tin cơ bản</div>
-                        </DialogTitle>
-                        <DialogDescription>
-                          <div className="px-1 leading-[24px]">
-                            Cập nhật hồ sơ của bạn tại đây. Nhấn "Xác nhận" để
-                            ghi lại những thay đổi.
-                          </div>
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 px-1 py-4">
-                        <div className="grid gap-3">
-                          <Label htmlFor="title">Vị trí</Label>
-                          <Input
-                            id="title"
-                            name="title"
-                            placeholder="vd: Frontend Developer Intern"
-                            // defaultValue={user.name || ""}
-                            // onChange={(e) => {
-                            //   setUserData((prev) => ({
-                            //     ...prev,
-                            //     name: e.target.value,
-                            //   }));
-                            // }}
-                          />
-                        </div>
-                        <div className="grid gap-3">
-                          <Label htmlFor="username-1">Công ty</Label>
-                          <div
-                            className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-                            focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-                          >
-                            <Select
-                            // onValueChange={(v) => setProvince(v)}
-                            >
-                              <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
-                                <SelectValue placeholder="Chọn công ty" />
-                              </SelectTrigger>
-
-                              <SelectContent>
-                                <SelectGroup>
-                                  <SelectLabel>Công ty</SelectLabel>
-                                  {companies?.map((company) => (
-                                    <SelectItem
-                                      key={company.id}
-                                      value={company.id}
-                                      className="text-black group cursor-pointer"
-                                    >
-                                      <div className="flex flex-row items-center justify-start gap-2 py-1 group-hover:text-primary">
-                                        <img
-                                          src={company.avatar || companyDefault}
-                                          className="w-8 h-8 rounded-full object-cover object-center"
-                                        />
-                                        <div>{company.name}</div>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <OutlineButton label="Hủy" />
-                        </DialogClose>
-                        <PrimaryButton
-                          label="Xác nhận"
-                          // onClick={handleSubmit}
-                          // disabled={isPending}
-                          loadingText="Đang tải..."
-                        />
-                      </DialogFooter>
-                    </DialogContent>
-                  </form>
-                </Dialog>
+                <button
+                  className="flex flex-row items-center gap-2 text-[12px] md:text-[14px] text-black cursor-pointer"
+                  onClick={() => {
+                    setOpenDialog(true);
+                  }}
+                >
+                  <PlusCircle
+                    size={isMedium ? 16 : 12}
+                    className="text-black"
+                  />
+                  <span>Thêm mới</span>{" "}
+                </button>
               </DropdownMenuItem>
 
               <DropdownMenuItem
@@ -172,6 +115,240 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>{" "}
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <form>
+              <DialogContent className="sm:max-w-[425px] ">
+                <DialogHeader>
+                  <DialogTitle>
+                    <div className="px-1">Thêm kinh nghiệm</div>
+                  </DialogTitle>
+                  <DialogDescription>
+                    <div className="px-1 leading-[24px]">
+                      Thêm vị trí làm việc mới của bạn ở đây
+                    </div>
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 px-1 py-4">
+                  {/* Position */}
+                  <div className="grid gap-3">
+                    <Label htmlFor="title">
+                      <span>
+                        Vị trí <span className="text-red-600">*</span>
+                      </span>
+                    </Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      placeholder="vd: Frontend Developer Intern"
+                      // defaultValue={user.name || ""}
+                      // onChange={(e) => {
+                      //   setUserData((prev) => ({
+                      //     ...prev,
+                      //     name: e.target.value,
+                      //   }));
+                      // }}
+                    />
+                  </div>
+
+                  {/* Company */}
+                  <div className="grid gap-3">
+                    <Label htmlFor="username-1">
+                      {" "}
+                      <span>
+                        Công ty <span className="text-red-600">*</span>
+                      </span>
+                    </Label>
+                    <div
+                      className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
+                            focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                    >
+                      <Select
+                      // onValueChange={(v) => setProvince(v)}
+                      >
+                        <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
+                          <SelectValue placeholder="Chọn công ty" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Công ty</SelectLabel>
+                            {companies?.map((company) => (
+                              <SelectItem
+                                key={company.id}
+                                value={company.id}
+                                className="text-black group cursor-pointer"
+                              >
+                                <div className="flex flex-row items-center justify-start gap-2 py-1 group-hover:text-primary">
+                                  <img
+                                    src={company.avatar || companyDefault}
+                                    className="w-8 h-8 rounded-full object-cover object-center"
+                                  />
+                                  <div>{company.name}</div>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Date */}
+                  <div className="w-full flex flex-row gap-5">
+                    {/* StartDate */}
+                    <div className="flex flex-col gap-3 w-1/2">
+                      <Label htmlFor="date">
+                        <span>
+                          Ngày bắt đầu <span className="text-red-600">*</span>
+                        </span>
+                      </Label>
+                      <Popover
+                        open={openCalendarStart}
+                        onOpenChange={setOpenCalendarStart}
+                        defaultOpen
+                        // modal={false}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="input"
+                            id="date"
+                            className={cn(
+                              "w-48 justify-between font-normal w-full text-[13px]",
+                              !date && "text-muted-foreground"
+                            )}
+                          >
+                            {date ? date.toLocaleDateString() : "Chọn ngày"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="start"
+                        >
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            captionLayout="dropdown"
+                            onSelect={(date) => {
+                              setDate(date);
+                              // setOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* EndDate */}
+                    <div className="flex flex-col gap-3 w-1/2">
+                      <Label htmlFor="date">Ngày kết thúc</Label>
+                      <Popover
+                        open={openCalendarEnd}
+                        onOpenChange={setOpenCalendarEnd}
+                        defaultOpen
+                        // modal={false}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="input"
+                            id="date"
+                            className={cn(
+                              "w-48 justify-between font-normal w-full text-[13px]",
+                              !date && "text-muted-foreground"
+                            )}
+                          >
+                            {date ? date.toLocaleDateString() : "Chọn ngày"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="start"
+                        >
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            captionLayout="dropdown"
+                            onSelect={(date) => {
+                              setDate(date);
+                              // setOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="grid gap-3">
+                    <Label htmlFor="description">Mô tả</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="Mô tả về kinh nghiệm của bạn"
+                      rows={3}
+                      // defaultValue={user.name || ""}
+                      // onChange={(e) => {
+                      //   setUserData((prev) => ({
+                      //     ...prev,
+                      //     name: e.target.value,
+                      //   }));
+                      // }}
+                    />
+                  </div>
+
+                  {/* Files */}
+                  <div className="grid gap-3">
+                    <div className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
+                      Hình ảnh
+                    </div>
+                    <span className="text-xs italic text-zinc-500">
+                      Thêm hình ảnh mô tả khoảng thời gian làm việc của bạn
+                    </span>
+                    <Label htmlFor="files">
+                      <div
+                        className={cn(
+                          "file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                          "!text-zinc-400 flex flex-row items-center gap-1"
+                        )}
+                      >
+                        <Link size={15} />
+                        <span className="!font-normal">Thêm ảnh mới</span>
+                      </div>
+                    </Label>
+                    <Input
+                      id="files"
+                      name="files"
+                      placeholder="vd: Frontend Developer Intern"
+                      type="file"
+                      hidden
+                      // defaultValue={user.name || ""}
+                      // onChange={(e) => {
+                      //   setUserData((prev) => ({
+                      //     ...prev,
+                      //     name: e.target.value,
+                      //   }));
+                      // }}
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <OutlineButton
+                      label="Hủy"
+                      onClick={() => setOpenDialog(false)}
+                    />
+                  </DialogClose>
+                  <PrimaryButton
+                    label="Xác nhận"
+                    // onClick={handleSubmit}
+                    // disabled={isPending}
+                    loadingText="Đang tải..."
+                  />
+                </DialogFooter>
+              </DialogContent>
+            </form>
+          </Dialog>
         </div>
         <div className=" flex-col gap-4">{renderExperiences()}</div>
       </div>
