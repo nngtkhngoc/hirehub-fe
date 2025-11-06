@@ -22,7 +22,7 @@ export const useCreateJob = () => {
     onSuccess: () => {
       toast.success("Tạo job thành công!", { duration: 2000 });
 
-      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
     onError: () => {
       toast.error("Tạo job thất bại!", { duration: 2500 });

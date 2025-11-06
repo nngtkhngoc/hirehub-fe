@@ -1,10 +1,10 @@
 import profile from "@/assets/illustration/default_profile.webp";
 import { Button } from "@/components/ui/button";
-import type { User } from "@/types/User";
+import type { UserProfile } from "@/types/Auth";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
 
-export const RecommendedUserCard = ({ user }: { user: User }) => {
+export const RecommendedUserCard = ({ user }: { user: UserProfile }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div className="w-full flex flex-row gap-4 items-center justify-center py-4 border-b border-[#A6A6A6]">

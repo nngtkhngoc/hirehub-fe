@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { ExperienceCard } from "../ui/ExperienceCard";
 import { experiences } from "@/mock/experience.mock";
 import type { UserProfile } from "@/types/Auth";
@@ -23,7 +24,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -50,6 +50,23 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import type { CreateExperienceFormData } from "@/types/Experience";
+import { useCreateExeprience } from "@/hooks/useExperience";
+
+export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> =
+  yup.object({
+    userId: yup.string().required(),
+    companyId: yup.string().required("Vui lòng chọn công ty"),
+    position: yup.string().required("Vui lòng nhập vị trí"),
+    startDate: yup.string().required("Vui lòng chọn ngày bắt đầu"),
+    endDate: yup.string().nullable(),
+    image: yup.mixed<File>().nullable(),
+    description: yup.string().nullable(),
+  });
+
 export const Experiences = ({ user }: { user: UserProfile }) => {
   const renderExperiences = () =>
     user.experiences?.map((ex, index) => (
@@ -60,10 +77,11 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
     ));
 
   const { data: companies } = useRecruiter();
-  const isMedium = useMediaQuery("(min-width:768px)");
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [openCalendarStart, setOpenCalendarStart] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const isMedium = useMediaQuery("(min-width:768px)");
   const [openCalendarEnd, setOpenCalendarEnd] = useState(false);
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -75,6 +93,25 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
     setPreviewURL(URL.createObjectURL(file));
     setFileName(file.name);
   };
+  const { mutate, isPending } = useCreateExeprience();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateExperienceFormData>({
+    resolver: yupResolver(createExperienceSchema),
+    defaultValues: {
+      userId: user?.id ?? "",
+      companyId: "",
+      position: "",
+      startDate: "",
+      endDate: undefined,
+      image: undefined,
+      description: undefined,
+    },
+  });
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
@@ -146,23 +183,17 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       </span>
                     </Label>
                     <Input
-                      id="title"
-                      name="title"
                       placeholder="vd: Frontend Developer Intern"
-                      // defaultValue={user.name || ""}
-                      // onChange={(e) => {
-                      //   setUserData((prev) => ({
-                      //     ...prev,
-                      //     name: e.target.value,
-                      //   }));
-                      // }}
+                      {...register("position")}
                     />
+                    <p className="text-xs text-red-400 pt-2">
+                      {errors.position?.message}
+                    </p>
                   </div>
 
                   {/* Company */}
                   <div className="grid gap-3">
                     <Label htmlFor="username-1">
-                      {" "}
                       <span>
                         Công ty <span className="text-red-600">*</span>
                       </span>
@@ -171,9 +202,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
                             focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                     >
-                      <Select
-                      // onValueChange={(v) => setProvince(v)}
-                      >
+                      <Select onValueChange={(v) => setValue("companyId", v)}>
                         <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
                           <SelectValue placeholder="Chọn công ty" />
                         </SelectTrigger>
@@ -198,7 +227,10 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                             ))}
                           </SelectGroup>
                         </SelectContent>
-                      </Select>
+                      </Select>{" "}
+                      <p className="text-xs text-red-400 pt-2">
+                        {errors.companyId?.message}
+                      </p>
                     </div>
                   </div>
 
@@ -206,7 +238,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                   <div className="w-full flex flex-row gap-5">
                     {/* StartDate */}
                     <div className="flex flex-col gap-3 w-1/2">
-                      <Label htmlFor="date">
+                      <Label htmlFor="startDate">
                         <span>
                           Ngày bắt đầu <span className="text-red-600">*</span>
                         </span>
@@ -215,7 +247,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                         open={openCalendarStart}
                         onOpenChange={setOpenCalendarStart}
                         defaultOpen
-                        // modal={false}
                       >
                         <PopoverTrigger asChild>
                           <Button
@@ -223,10 +254,12 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                             id="date"
                             className={cn(
                               "w-48 justify-between font-normal w-full text-[13px]",
-                              !date && "text-muted-foreground"
+                              !startDate && "text-muted-foreground"
                             )}
                           >
-                            {date ? date.toLocaleDateString() : "Chọn ngày"}
+                            {startDate
+                              ? startDate.toLocaleDateString()
+                              : "Chọn ngày"}
                             <ChevronDownIcon />
                           </Button>
                         </PopoverTrigger>
@@ -236,15 +269,22 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                         >
                           <Calendar
                             mode="single"
-                            selected={date}
+                            selected={startDate}
                             captionLayout="dropdown"
                             onSelect={(date) => {
-                              setDate(date);
-                              // setOpen(false);
+                              setStartDate(date);
+                              setValue(
+                                "startDate",
+                                date?.toISOString().slice(0, 10) ?? ""
+                              );
                             }}
+                            {...register("startDate")}
                           />
                         </PopoverContent>
                       </Popover>
+                      <p className="text-xs text-red-400 pt-2">
+                        {errors.startDate?.message}
+                      </p>
                     </div>
 
                     {/* EndDate */}
@@ -254,7 +294,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                         open={openCalendarEnd}
                         onOpenChange={setOpenCalendarEnd}
                         defaultOpen
-                        // modal={false}
                       >
                         <PopoverTrigger asChild>
                           <Button
@@ -262,10 +301,12 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                             id="date"
                             className={cn(
                               "w-48 justify-between font-normal w-full text-[13px]",
-                              !date && "text-muted-foreground"
+                              !endDate && "text-muted-foreground"
                             )}
                           >
-                            {date ? date.toLocaleDateString() : "Chọn ngày"}
+                            {endDate
+                              ? endDate.toLocaleDateString()
+                              : "Chọn ngày"}
                             <ChevronDownIcon />
                           </Button>
                         </PopoverTrigger>
@@ -275,12 +316,16 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                         >
                           <Calendar
                             mode="single"
-                            selected={date}
+                            selected={endDate}
                             captionLayout="dropdown"
                             onSelect={(date) => {
-                              setDate(date);
-                              // setOpen(false);
+                              setEndDate(date);
+                              setValue(
+                                "endDate",
+                                date?.toISOString().slice(0, 10) ?? ""
+                              );
                             }}
+                            {...register("endDate")}
                           />
                         </PopoverContent>
                       </Popover>
@@ -291,17 +336,9 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                   <div className="grid gap-3">
                     <Label htmlFor="description">Mô tả</Label>
                     <Textarea
-                      id="description"
-                      name="description"
                       placeholder="Mô tả về kinh nghiệm của bạn"
                       rows={3}
-                      // defaultValue={user.name || ""}
-                      // onChange={(e) => {
-                      //   setUserData((prev) => ({
-                      //     ...prev,
-                      //     name: e.target.value,
-                      //   }));
-                      // }}
+                      {...register("description")}
                     />
                   </div>
 
@@ -328,12 +365,14 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                     </Label>
                     <Input
                       id="files"
-                      name="files"
                       placeholder="vd: Frontend Developer Intern"
                       type="file"
                       hidden
                       onChange={(e) => {
                         handleFileChange(e);
+                        if (e.target.files) {
+                          setValue("image", e.target.files[0]);
+                        }
                       }}
                     />
                   </div>
@@ -360,9 +399,18 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                   </DialogClose>
                   <PrimaryButton
                     label="Xác nhận"
-                    // onClick={handleSubmit}
-                    // disabled={isPending}
                     loadingText="Đang tải..."
+                    onClick={handleSubmit((data: CreateExperienceFormData) => {
+                      data.userId = user.id;
+
+                      console.log("Send data:", data);
+                      mutate(data, {
+                        onSuccess: () => {
+                          setOpenDialog(false);
+                        },
+                      });
+                    })}
+                    disabled={isPending}
                   />
                 </DialogFooter>
               </DialogContent>

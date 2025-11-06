@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { getProfile, signOut } from "@/apis/auth.api";
+import { useEffect } from "react";
 
 export const useSignOut = () => {
   const logout = useAuthStore((state) => state.logout);
@@ -26,10 +27,16 @@ export const useSignOut = () => {
 };
 
 export const useProfile = () => {
-  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
 
-  return useQuery({
-    queryKey: ["profile", user?.id],
-    queryFn: () => getProfile(),
+  const { data, ...rest } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
   });
+
+  useEffect(() => {
+    if (data) setUser(data);
+  }, [data]);
+
+  return { data, ...rest };
 };
