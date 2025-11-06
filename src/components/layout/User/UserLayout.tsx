@@ -6,6 +6,7 @@ import { Footer } from "./Footer";
 import ScrollToTop from "../ScrollToTop";
 import { Suspense } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import Chatbot from "@/components/ui/User/Chatbot";
 
 export const UserLayout = () => {
   return (
@@ -16,6 +17,7 @@ export const UserLayout = () => {
         <Footer />
         <Toaster position="top-center" />
         <ScrollToTop />
+        <Chatbot />
       </div>
     </Suspense>
   );
