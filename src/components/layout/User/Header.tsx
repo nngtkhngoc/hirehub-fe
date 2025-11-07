@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, UserCircle } from "lucide-react";
+import { BriefcaseBusiness, LogOut, UserCircle } from "lucide-react";
 import { useSignOut } from "@/hooks/useAuth";
 
 interface NavLink {
@@ -79,7 +79,16 @@ export const Header = () => {
                   className="flex flex-row items-center justify-start gap-2"
                 >
                   <UserCircle className="text-[16px]" />
-                  Profile
+                  Hồ sơ
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  to="/my-jobs"
+                  className="flex flex-row items-center justify-start gap-2"
+                >
+                  <BriefcaseBusiness className="text-[16px]" />
+                  Công việc
                 </Link>
               </DropdownMenuItem>
 
@@ -90,7 +99,7 @@ export const Header = () => {
                   disabled={isPending}
                 >
                   <LogOut className="text-[16px]" />
-                  Log out
+                  Đăng xuất
                 </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
