@@ -3,6 +3,7 @@ import type { UserProfile } from "@/types/Auth";
 import { useMediaQuery } from "@mui/material";
 import { MapPin, Send, UserPlus } from "lucide-react";
 import profile from "@/assets/illustration/default_profile.webp";
+import ConnectionButton from "@/components/ui/User/ConnectionButton";
 
 export const BasicInfor = ({ user }: { user: UserProfile }) => {
   const isMedium = useMediaQuery("(min-width:768px)");
@@ -32,14 +33,7 @@ export const BasicInfor = ({ user }: { user: UserProfile }) => {
         </div>
 
         <div className="flex flex-row gap-2 items-center">
-          <PrimaryButton
-            label={
-              <div className="flex flex-row items-center text-white gap-2">
-                <UserPlus size={isMedium ? 22 : 14} />
-                <span className="text-[12px]">Kết nối</span>
-              </div>
-            }
-          />
+          <ConnectionButton targetUser={user} variant="primary"   />
           <OutlineButton
             label={
               <div className="flex flex-row items-center text-[#5E1EE6] gap-2">

@@ -55,7 +55,9 @@ const ConnectionButton = ({
     ? "Chấp nhận lời mời"
     : "Kết nối";
 
-  const handleConnect = () => {
+  const handleConnect = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (isFriend) {
       toast.info("Bạn đã là bạn bè của người này rồi!", { duration: 2000 });
       return;
