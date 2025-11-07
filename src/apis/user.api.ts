@@ -2,7 +2,6 @@
 import { axiosClient } from "@/lib/axios";
 import type { UserProfile } from "@/types/Auth";
 import type { Recruiter } from "@/types/Recruiter";
-import type { User } from "@/types/User";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -30,7 +29,7 @@ export const getAllUsers = async (
     page?: number;
     size?: number;
   } = { role: "user" }
-): Promise<User[]> => {
+): Promise<UserProfile[]> => {
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
     params: getAllUserQueries,
   });
@@ -47,4 +46,10 @@ export const updateUser = async (data: FormData): Promise<UserProfile> => {
   });
 
   return res.data.data;
+};
+
+export const getUserById = async (userId: number): Promise<UserProfile> => {
+  const res = await axiosClient.get(`${BASE_URL}/api/users/${userId}`);
+  console.log(res.data, "!");
+  return res.data;
 };
