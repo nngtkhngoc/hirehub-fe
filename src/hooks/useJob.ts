@@ -1,6 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllJobs, createJob } from "@/apis/job.api";
+import {
+  getAllJobs,
+  createJob,
+  getJobById,
+  saveJob,
+  getSavedJobsByUserId,
+  applyJob,
+  getAppliedJobsByUserId,
+} from "@/apis/job.api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const useJobs = (
   keyword?: string,
@@ -14,6 +23,13 @@ export const useJobs = (
   });
 };
 
+export const useJobDetails = (id?: string) => {
+  return useQuery({
+    queryKey: ["job", id],
+    queryFn: () => getJobById(id),
+  });
+};
+
 export const useCreateJob = () => {
   const queryClient = useQueryClient();
 
@@ -22,10 +38,80 @@ export const useCreateJob = () => {
     onSuccess: () => {
       toast.success("Tạo job thành công!", { duration: 2000 });
 
-      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
     onError: () => {
       toast.error("Tạo job thất bại!", { duration: 2500 });
     },
+  });
+};
+
+export const useSaveJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: saveJob,
+    onSuccess: () => {
+      toast.success("Lưu job thành công!", { duration: 2000 });
+
+      queryClient.invalidateQueries({
+        queryKey: ["saved-jobs"],
+        exact: false,
+        refetchType: "active",
+      });
+    },
+    onError: () => {
+      toast.error("Lưu job thất bại!", { duration: 2500 });
+    },
+  });
+};
+
+export const useGetSavedJobs = () => {
+  const user = useAuthStore((state) => state.user);
+
+  return useQuery({
+    queryKey: ["saved-jobs", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const data = await getSavedJobsByUserId({ userId: user?.id });
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+    initialData: [],
+  });
+};
+
+export const useApplyJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: applyJob,
+    onSuccess: () => {
+      toast.success("Ứng tuyển thành công!", { duration: 2000 });
+
+      queryClient.invalidateQueries({
+        queryKey: ["applied-jobs"],
+        exact: false,
+        refetchType: "active",
+      });
+    },
+    onError: () => {
+      toast.error("Ứng tuyển thất bại!", { duration: 2500 });
+    },
+  });
+};
+
+export const useGetAppliedJobs = () => {
+  const user = useAuthStore((state) => state.user);
+
+  return useQuery({
+    queryKey: ["applied-jobs", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const data = await getAppliedJobsByUserId({ userId: user?.id });
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+    initialData: [],
   });
 };

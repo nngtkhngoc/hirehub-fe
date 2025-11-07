@@ -57,6 +57,5 @@ export const resetPassword = async (resetPasswordData: {
 
 export const getProfile = async (): Promise<UserProfile> => {
   const res = await axiosClient.get(`${BASE_URL}/api/auth/me`);
-
-  return res.data;
+  return res.data.data;
 };

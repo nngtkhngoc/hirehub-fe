@@ -5,7 +5,7 @@ import type { UserProfile } from "@/types/Auth";
 
 export const SkillsAndLanguages = ({ user }: { user: UserProfile }) => {
   const renderSkills = () =>
-    user.skills?.map((skill) => <SkillCard text={skill.name} />);
+    user?.skills?.map((skill) => <SkillCard text={skill.name} />);
 
   const renderLanguages = () =>
     user.languages?.map((language: any) => (

@@ -4,10 +4,10 @@ import type { UserProfile } from "@/types/Auth";
 
 export const Study = ({ user }: { user: UserProfile }) => {
   const renderStudies = () =>
-    user.study?.map((std, index) => (
+    user?.study?.map((std, index) => (
       <StudyCard
         study={std}
-        lastCard={index == user.study.length - 1 ? true : false}
+        lastCard={index == user?.study.length - 1 ? true : false}
       />
     ));
 

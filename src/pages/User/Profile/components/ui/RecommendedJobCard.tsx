@@ -1,8 +1,8 @@
-import { OutlineButton } from "@/components/ui/User/Button";
 import type { Job } from "@/types/Job";
 import { SendHorizonal } from "lucide-react";
 import { useState } from "react";
 import company from "@/assets/illustration/company.png";
+import { Button } from "@/components/ui/button";
 
 export const RecommendedJobCard = ({ job }: { job: Job }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -27,15 +27,12 @@ export const RecommendedJobCard = ({ job }: { job: Job }) => {
         <div className="font-regular text-[#888888] text-[12px]">
           {job.recruiter.name}
         </div>
-        <OutlineButton
-          label={
-            <div className="flex flex-row items-center text-[#5E1EE6] justify-center gap-2 ">
-              <SendHorizonal size={16} />
-              <span className="text-[12px]">Ứng tuyển</span>
-            </div>
-          }
-          paddingX=" w-[106px] md:h-[34px]"
-        />
+        <Button variant="outline">
+          <div className="flex flex-row items-center text-[#5E1EE6] justify-center gap-2 ">
+            <SendHorizonal size={16} />
+            <span className="text-[12px]">Ứng tuyển</span>
+          </div>
+        </Button>
       </div>
     </div>
   );

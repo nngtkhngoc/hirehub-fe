@@ -1,5 +1,11 @@
-import { axiosClient } from "@/lib/axios";
-import type { CreateJobData, Job, UpdateJobData } from "@/types/Job";
+import { axiosClient, axiosClientFormData } from "@/lib/axios";
+import type {
+  ApplyJobFormData,
+  CreateJobData,
+  Job,
+  SaveJobData,
+  UpdateJobData,
+} from "@/types/Job";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -16,7 +22,7 @@ export const getAllJobs = async (getAllJobQueries: {
   return res.data.content;
 };
 
-export const getJobById = async (id: string) => {
+export const getJobById = async (id?: string) => {
   const res = await axiosClient.get(`${BASE_URL}/api/jobs/${id}`);
 
   return res.data;
@@ -36,6 +42,38 @@ export const updateJob = async (data: UpdateJobData, id: string) => {
 
 export const deleteJob = async (id: string) => {
   const res = await axiosClient.delete(`${BASE_URL}/api/jobs/${id}`);
+
+  return res.data;
+};
+
+export const saveJob = async (data: SaveJobData) => {
+  const res = await axiosClient.post(`${BASE_URL}/api/job-interactions`, data);
+
+  return res.data;
+};
+
+export const getSavedJobsByUserId = async (getSavedJobsParams: {
+  userId?: string | undefined;
+}) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/job-interactions`, {
+    params: getSavedJobsParams,
+  });
+
+  return res.data.content;
+};
+
+export const applyJob = async (data: ApplyJobFormData) => {
+  const res = await axiosClientFormData.post(`${BASE_URL}/api/resumes`, data);
+
+  return res.data;
+};
+
+export const getAppliedJobsByUserId = async (getAppliedJobsParams: {
+  userId?: string | undefined;
+}) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/resumes`, {
+    params: getAppliedJobsParams,
+  });
 
   return res.data;
 };

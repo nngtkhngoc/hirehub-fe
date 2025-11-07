@@ -62,47 +62,33 @@ export const BasicInfor = ({
     }));
 
     const formData = new FormData();
-    formData.append("id", user.id);
+    formData.append("id", user?.id);
     formData.append("avatar", file);
 
     mutate(formData);
   };
+
   const { data: provinces } = useQuery({
     queryKey: ["provinces"],
     queryFn: getAllProvinces,
   });
-  // const handleBasicInforChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
 
-  //   const previewURL = URL.createObjectURL(file);
+  const handleSubmit = () => {
+    const formData = new FormData();
+    formData.append("id", user?.id);
+    formData.append("name", user?.name ?? "");
 
-  //   setUserData((prev) => ({
-  //     ...prev,
-  //     avatar: previewURL,
-  //     avatarFile: file,
-  //   }));
-
-  //   const formData = new FormData();
-  //   formData.append("id", user.id);
-  //   formData.append("name", user.name ?? "");
-  //   formData.append("avatar", file);
-
-  //   mutate(formData);
-  // };
-  // const { data: provinces } = useQuery({
-  //   queryKey: ["provinces"],
-  //   queryFn: getAllProvinces,
-  // });
+    mutate(formData);
+  };
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2]c h-[140px] flex flex-row justify-center items-center px-4 gap-4 relative md:h-[196px] md:px-10">
       <div className="relative h-[100px] md:h-[160px] w-[160px] md:w-[200px] flex items-center group">
         <label htmlFor="avatar-upload">
           <img
-            src={user.avatar || profile}
+            src={user?.avatar || profile}
             alt="profile"
-            className="w-[100px] h-[100px] md:w-[160px] md:h-[160px] object-cover rounded-full cursor-pointer"
+            className="w-[100px] h-[100px] md:w-[160px] md:h-[160px] object-cover object-center rounded-full cursor-pointer"
           />
         </label>
 
@@ -129,7 +115,7 @@ export const BasicInfor = ({
       <div className="flex flex-col justify-center gap-2 w-full">
         <div className="flex flex-row justify-between items-center w-full md:pr-5">
           <div className="font-bold text-[22px] md:text-[30px]">
-            {user.name}
+            {user?.name}
           </div>
           <Dialog>
             <form>
@@ -157,7 +143,7 @@ export const BasicInfor = ({
                     <Input
                       id="name-1"
                       name="name"
-                      defaultValue={user.name || ""}
+                      defaultValue={user?.name || ""}
                       onChange={(e) => {
                         setUserData((prev) => ({
                           ...prev,
@@ -202,7 +188,12 @@ export const BasicInfor = ({
                   <DialogClose asChild>
                     <OutlineButton label="Hủy" />
                   </DialogClose>
-                  <PrimaryButton label="Xác nhận" />
+                  <PrimaryButton
+                    label="Xác nhận"
+                    onClick={handleSubmit}
+                    disabled={isPending}
+                    loadingText="Đang tải..."
+                  />
                 </DialogFooter>
               </DialogContent>
             </form>
@@ -211,7 +202,7 @@ export const BasicInfor = ({
 
         <div className="text-[#7A7D87] text-[12px] md:text-[14px] pb-2 flex gap-1 overflow-hidden">
           <MapPin className="w-[18px]" />
-          {user.address}
+          {user?.address}
         </div>
 
         <div className="flex flex-row gap-2 items-center">

@@ -26,10 +26,16 @@ export const useSignOut = () => {
 };
 
 export const useProfile = () => {
-  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
 
-  return useQuery({
-    queryKey: ["profile", user?.id],
-    queryFn: () => getProfile(),
+  const query = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
+    select: (profile) => {
+      setUser(profile);
+      return profile;
+    },
   });
+
+  return query;
 };

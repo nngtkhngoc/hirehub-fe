@@ -8,3 +8,13 @@ export type Experience = {
   description: string;
   image: string;
 };
+
+export type CreateExperienceFormData = {
+  userId: string;
+  companyId: string;
+  position: string;
+  startDate: string;
+  endDate?: string | null;
+  image?: File | null;
+  description?: string | null;
+};

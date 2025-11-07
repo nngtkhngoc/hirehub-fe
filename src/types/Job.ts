@@ -8,7 +8,7 @@ export type Job = {
   level: string;
   isBanned: boolean | null;
   workspace: string;
-  postingDate: Date;
+  postingDate: string;
   skilss: Skill[];
   recruiter: Recruiter;
   type: string;
@@ -31,4 +31,17 @@ export type UpdateJobData = {
   workspace?: string;
   recruiterId?: number;
   skillsId?: number[];
+};
+
+export type ApplyJobFormData = {
+  jobId: string;
+  userId: string;
+  cover_letter?: string | null;
+  resumeFile: File;
+};
+
+export type SaveJobData = {
+  jobId: string;
+  userId: string;
+  interaction: string;
 };

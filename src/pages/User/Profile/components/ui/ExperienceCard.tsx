@@ -9,7 +9,9 @@ export const ExperienceCard = ({
 }) => {
   const calculateTime = () => {
     const startDate = new Date(experience.startDate);
-    const endDate = new Date(experience.endDate);
+    const endDate = experience.endDate
+      ? new Date(experience.endDate)
+      : new Date();
 
     let years = endDate.getFullYear() - startDate.getFullYear();
     let months = endDate.getMonth() - startDate.getMonth();
@@ -32,7 +34,7 @@ export const ExperienceCard = ({
     >
       <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0">
         <img
-          src={experience.company.logo}
+          src={experience.company.avatar}
           alt={experience.company.name}
           className="object-contain w-[30px] h-[30px]"
         />
@@ -51,9 +53,16 @@ export const ExperienceCard = ({
           </div>
           <div className="flex flex-row items-center justify-left gap-1 sm:gap-3">
             <div className="text-[12px] font-regular text-[#a6a6a6]">
-              T{experience.startDate.getMonth()}/
-              {experience.startDate.getFullYear()} - T
-              {experience.endDate.getMonth()}/{experience.endDate.getFullYear()}{" "}
+              T{new Date(experience.startDate).getMonth() + 1}/
+              {new Date(experience.startDate).getFullYear()} •
+              {experience.endDate ? (
+                <>
+                  T{new Date(experience.startDate).getMonth() + 1}/
+                  {new Date(experience.startDate).getFullYear()}{" "}
+                </>
+              ) : (
+                <span> Hiện tại</span>
+              )}
             </div>
             <div className="text-[12px] font-regular text-[#a6a6a6]">•</div>
             <div className="text-[12px] font-regular text-[#a6a6a6]">

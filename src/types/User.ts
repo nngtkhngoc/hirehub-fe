@@ -27,7 +27,7 @@ export type User = {
   position: string;
   github: string; // link GitHub cá nhân
   phoneNumber: string; // số điện thoại
-  resumeLink: string; // link tới CV hoặc portfolio
+  resume_link: string; // link tới CV hoặc portfolio
   languages: Language[];
   study: Study[]; // học vấn
   introduction: string;
