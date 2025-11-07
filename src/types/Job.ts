@@ -45,3 +45,38 @@ export type SaveJobData = {
   userId: string;
   interaction: string;
 };
+
+export type ApplyJob = {
+  id: number;
+  link: string;
+  status: string;
+  coverLetter: string | null;
+  createdAt: string | null;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    address: string | null;
+    avatar: string | null;
+    position: string | null;
+    status: string | null;
+    resume_name: string | null;
+  };
+  job: Job;
+};
+
+export type SavedJob = {
+  id: number;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    address: string | null;
+    avatar: string | null;
+    position: string | null;
+    status: string | null;
+    resume_name: string | null;
+  };
+  job: Job;
+  interaction: string;
+};
