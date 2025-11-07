@@ -1,6 +1,8 @@
-import type { Job } from "@/types/Job";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-refresh/only-export-components */
+import type { ApplyJobFormData, Job } from "@/types/Job";
 import companyDefault from "@/assets/illustration/company.png";
-import { Bookmark, Send, Upload } from "lucide-react";
+import { Bookmark, FolderClosed, Send, Upload } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -20,29 +22,81 @@ import { cn } from "@/lib/utils";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useGetSavedJobs, useSaveJob } from "@/hooks/useJob";
+import {
+  useApplyJob,
+  useGetAppliedJobs,
+  useGetSavedJobs,
+  useSaveJob,
+} from "@/hooks/useJob";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useState } from "react";
+import { toast } from "sonner";
 
-// export const applyJob: yup.ObjectSchema<CreateExperienceFormData> = yup.object({
-//   userId: yup.string().required(),
-//   companyId: yup.string().required("Vui lòng chọn công ty"),
-//   position: yup.string().required("Vui lòng nhập vị trí"),
-//   startDate: yup.string().required("Vui lòng chọn ngày bắt đầu"),
-//   endDate: yup.string().nullable(),
-//   image: yup.mixed<File>().nullable(),
-//   description: yup.string().nullable(),
-// });
+export const applyJobSchema: yup.ObjectSchema<ApplyJobFormData> = yup.object({
+  jobId: yup.string().required(),
+  userId: yup.string().required(),
+  cover_letter: yup.string().nullable(),
+  resumeFile: yup.mixed<File>().required("Vui lòng tải resume"),
+});
+
 export const JobTitle = ({ job }: { job: Job }) => {
-  const { data: savedJobs } = useGetSavedJobs();
-  console.log(savedJobs);
-  const isSavedJob = savedJobs?.some((savedJob) => savedJob.job.id === job.id);
   const user = useAuthStore((state) => state.user);
+
+  const { data: savedJobs } = useGetSavedJobs();
+  const { data: appliedJobs } = useGetAppliedJobs();
+
+  const isSavedJob = savedJobs?.some(
+    (savedJob: any) => savedJob?.job?.id == job?.id
+  );
+  const isAppliedJob = appliedJobs?.some(
+    (appliedJob: any) => appliedJob?.job?.id == job?.id
+  );
 
   const { mutate, isPending } = useSaveJob();
   const toggleSaveJob = (jobId: string) => {
     mutate({ jobId, userId: user?.id || "", interaction: "saved" });
   };
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<ApplyJobFormData>({
+    resolver: yupResolver(applyJobSchema),
+    defaultValues: {
+      userId: user?.id ?? "",
+      jobId: job?.id,
+      cover_letter: undefined,
+      resumeFile: undefined,
+    },
+  });
+
+  const [previewURL, setPreviewURL] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreviewURL(URL.createObjectURL(file));
+    setFileName(file.name);
+  };
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const { mutate: applyMutate, isPending: pendingApply } = useApplyJob();
+  const onSubmit = (data: ApplyJobFormData) => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập!");
+    }
+    applyMutate(data, {
+      onSuccess: () => {
+        setOpenDialog(false);
+        setPreviewURL(null);
+        setFileName(null);
+      },
+    });
+  };
   return (
     <div className="flex flex-row w-full justify-between">
       <div className="flex flex-row justify-start gap-2">
@@ -63,7 +117,8 @@ export const JobTitle = ({ job }: { job: Job }) => {
         {" "}
         <button
           className="rounded-[10px] bg-[#EFE9FD] w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-500 cursor-pointer"
-          onClick={() => toggleSaveJob(job.id)}
+          onClick={() => toggleSaveJob(job?.id)}
+          disabled={isPending}
         >
           <Bookmark
             className={`w-[20px] transition-all duration-500
@@ -75,95 +130,104 @@ export const JobTitle = ({ job }: { job: Job }) => {
     `}
           />
         </button>
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer">
-              <div className="flex flex-row items-center justify-center gap-2">
-                <span className="hidden sm:block text-white text-sm">
-                  {" "}
-                  Ứng tuyển
-                </span>{" "}
-                <Send className="w-[20px] text-white" />
-              </div>
-            </button>
-          </DialogTrigger>
-
-          <DialogContent className="sm:max-w-[425px]">
-            <form>
-              <DialogHeader>
-                <DialogTitle>
-                  <div className="px-1">Ứng tuyển</div>
-                </DialogTitle>
-                <DialogDescription>
-                  <div className="px-1 leading-[24px]">
-                    Hoàn thiện thông tin bên dưới để gửi hồ sơ ứng tuyển vị trí
-                    này.
-                  </div>
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid gap-4 px-1 py-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="description-1">Thư giới thiệu</Label>
-                  <Textarea id="description-1" className="leading-[24px]" />
-                </div>
-
-                <div className="grid gap-3">
-                  <div className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
-                    Resume
-                  </div>
-                  <span className="text-xs italic text-zinc-500">
-                    Đăng tải resume của bạn để hoàn tất quá trình ứng tuyển
+        {isAppliedJob ? (
+          <button className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer">
+            <div className="flex flex-row items-center justify-center gap-2">
+              <span className="hidden sm:block text-white text-sm">
+                Xem hồ sơ
+              </span>
+              <FolderClosed className="w-[20px] text-white" />
+            </div>
+          </button>
+        ) : (
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogTrigger asChild onClick={() => setOpenDialog(true)}>
+              <button className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer">
+                <div className="flex flex-row items-center justify-center gap-2">
+                  <span className="hidden sm:block text-white text-sm">
+                    Ứng tuyển
                   </span>
-                  <Label htmlFor="files">
-                    <div
-                      className={cn(
-                        "file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                        "!text-zinc-500 flex flex-row items-center gap-1"
-                      )}
-                    >
-                      <Upload size={15} />
-                      <span className="!font-normal !text-[14px]">
-                        Tải resume
-                      </span>
-                    </div>
-                  </Label>
-                  <Input
-                    id="files"
-                    placeholder="vd: Frontend Developer Intern"
-                    type="file"
-                    hidden
-                    // onChange={(e) => {
-                    //   handleFileChange(e);
-                    //   if (e.target.files) {
-                    //     setValue("image", e.target.files[0]);
-                    //   }
-                    // }}
-                  />
+                  <Send className="w-[20px] text-white" />
                 </div>
-                {/* {previewURL && (
-                  <div className="flex flex-col gap-2 items-start">
-                    <img
-                      src={previewURL}
-                      className="rounded-md max-h-48 object-contain"
-                      alt="preview"
+              </button>
+            </DialogTrigger>
+
+            <DialogContent className="sm:max-w-[425px]">
+              <form>
+                <DialogHeader>
+                  <DialogTitle>
+                    <div className="px-1">Ứng tuyển</div>
+                  </DialogTitle>
+                  <DialogDescription>
+                    <div className="px-1 leading-[24px]">
+                      Hoàn thiện thông tin bên dưới để gửi hồ sơ ứng tuyển vị
+                      trí này.
+                    </div>
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="grid gap-4 px-1 py-4">
+                  <div className="grid gap-3">
+                    <Label htmlFor="description-1">Thư giới thiệu</Label>
+                    <Textarea
+                      className="leading-[24px]"
+                      {...register("cover_letter")}
                     />
-                    <p className="text-xs text-zinc-500 break-all">
-                      {fileName}
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
+                      <span>Resume</span>{" "}
+                      <span className="text-red-600">*</span>
+                    </div>
+                    <span className="text-xs italic text-zinc-500">
+                      Đăng tải resume của bạn để hoàn tất quá trình ứng tuyển
+                    </span>
+                    <Label htmlFor="files">
+                      <div
+                        className={cn(
+                          "file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                          "!text-zinc-500 flex flex-row items-center gap-1"
+                        )}
+                      >
+                        <Upload size={15} />
+                        <span className="!font-normal !text-[14px]">
+                          {previewURL ? fileName : "Tải resume"}
+                        </span>
+                      </div>
+                    </Label>
+                    <Input
+                      id="files"
+                      type="file"
+                      hidden
+                      onChange={(e) => {
+                        handleFileChange(e);
+                        if (e.target.files) {
+                          setValue("resumeFile", e.target.files[0]);
+                        }
+                      }}
+                    />
+                    <p className="text-xs text-red-400 pt-2">
+                      {errors.resumeFile?.message}
                     </p>
                   </div>
-                )} */}
-              </div>
+                </div>
 
-              <DialogFooter>
-                <DialogClose asChild>
-                  <OutlineButton label="Hủy" />
-                </DialogClose>
-                <PrimaryButton label="Xác nhận" loadingText="Đang tải..." />
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <OutlineButton label="Hủy" />
+                  </DialogClose>
+                  <PrimaryButton
+                    label="Xác nhận"
+                    loadingText="Đang tải..."
+                    disabled={pendingApply}
+                    onClick={handleSubmit(onSubmit)}
+                  />
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );

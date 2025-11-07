@@ -33,13 +33,11 @@ export type UpdateJobData = {
   skillsId?: number[];
 };
 
-export type ApplyJobData = {
-  jobId?: string;
-  userId?: string;
-  description?: string;
-  workspace?: string;
-  recruiterId?: number;
-  skillsId?: number[];
+export type ApplyJobFormData = {
+  jobId: string;
+  userId: string;
+  cover_letter?: string | null;
+  resumeFile: File;
 };
 
 export type SaveJobData = {

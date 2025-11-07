@@ -1,4 +1,4 @@
-import { axiosClient } from "@/lib/axios";
+import { axiosClientFormData } from "@/lib/axios";
 import type { CreateExperienceFormData } from "@/types/Experience";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -10,12 +10,9 @@ export const createExperience = async (data: CreateExperienceFormData) => {
     companyId: data.companyId.toString(),
   };
 
-  const res = await axiosClient.post(
+  const res = await axiosClientFormData.post(
     `${BASE_URL}/api/experiences`,
-    formatData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
+    formatData
   );
 
   return res.data;

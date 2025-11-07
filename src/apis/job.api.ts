@@ -1,5 +1,6 @@
-import { axiosClient } from "@/lib/axios";
+import { axiosClient, axiosClientFormData } from "@/lib/axios";
 import type {
+  ApplyJobFormData,
   CreateJobData,
   Job,
   SaveJobData,
@@ -51,7 +52,7 @@ export const saveJob = async (data: SaveJobData) => {
   return res.data;
 };
 
-export const getSavedJobByUserId = async (getSavedJobsParams: {
+export const getSavedJobsByUserId = async (getSavedJobsParams: {
   userId?: string | undefined;
 }) => {
   const res = await axiosClient.get(`${BASE_URL}/api/job-interactions`, {
@@ -59,4 +60,20 @@ export const getSavedJobByUserId = async (getSavedJobsParams: {
   });
 
   return res.data.content;
+};
+
+export const applyJob = async (data: ApplyJobFormData) => {
+  const res = await axiosClientFormData.post(`${BASE_URL}/api/resumes`, data);
+
+  return res.data;
+};
+
+export const getAppliedJobsByUserId = async (getAppliedJobsParams: {
+  userId?: string | undefined;
+}) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/resumes`, {
+    params: getAppliedJobsParams,
+  });
+
+  return res.data;
 };

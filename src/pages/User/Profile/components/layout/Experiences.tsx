@@ -155,7 +155,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
-                  // handleSelectFile();
                 }}
               >
                 <div className="flex flex-row items-center gap-2 text-[12px] font-regular cursor-pointer md:text-[13px]">
@@ -396,10 +395,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
 
                 <DialogFooter>
                   <DialogClose asChild>
-                    <OutlineButton
-                      label="Hủy"
-                      onClick={() => setOpenDialog(false)}
-                    />
+                    <OutlineButton label="Hủy" />
                   </DialogClose>
                   <PrimaryButton
                     label="Xác nhận"
@@ -407,7 +403,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                     onClick={handleSubmit((data: CreateExperienceFormData) => {
                       data.userId = user?.id;
 
-                      console.log("Send data:", data);
                       mutate(data, {
                         onSuccess: () => {
                           setOpenDialog(false);

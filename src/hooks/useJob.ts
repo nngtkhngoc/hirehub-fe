@@ -4,7 +4,9 @@ import {
   createJob,
   getJobById,
   saveJob,
-  getSavedJobByUserId,
+  getSavedJobsByUserId,
+  applyJob,
+  getAppliedJobsByUserId,
 } from "@/apis/job.api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -71,7 +73,42 @@ export const useGetSavedJobs = () => {
     queryKey: ["saved-jobs", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const data = await getSavedJobByUserId({ userId: user?.id });
+      const data = await getSavedJobsByUserId({ userId: user?.id });
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+    initialData: [],
+  });
+};
+
+export const useApplyJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: applyJob,
+    onSuccess: () => {
+      toast.success("Ứng tuyển thành công!", { duration: 2000 });
+
+      queryClient.invalidateQueries({
+        queryKey: ["applied-jobs"],
+        exact: false,
+        refetchType: "active",
+      });
+    },
+    onError: () => {
+      toast.error("Ứng tuyển thất bại!", { duration: 2500 });
+    },
+  });
+};
+
+export const useGetAppliedJobs = () => {
+  const user = useAuthStore((state) => state.user);
+
+  return useQuery({
+    queryKey: ["applied-jobs", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const data = await getAppliedJobsByUserId({ userId: user?.id });
       return data ?? [];
     },
     enabled: !!user?.id,
