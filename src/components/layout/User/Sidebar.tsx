@@ -33,6 +33,7 @@ export const Sidebar = () => {
     { label: "Trang chủ", link: "/" },
     { label: "Việc làm", link: "/jobs" },
     { label: "Công ty", link: "/companies" },
+    { label: "Công việc đã lưu", link: "/my-jobs" },
     { label: "Kết nối", link: "/connect" },
   ];
 

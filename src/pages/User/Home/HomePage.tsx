@@ -9,7 +9,7 @@ export const HomePage = () => {
   return (
     <div className="">
       <HeroSection />
-      <Marquee />
+      {/* <Marquee /> */}
       <HowItWorks />
       <PopularCategory />
       <FeaturedJobs />

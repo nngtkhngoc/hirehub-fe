@@ -86,8 +86,14 @@ export const useApplyJob = () => {
 
   return useMutation({
     mutationFn: applyJob,
+    onMutate: () => {
+      toast.loading("Đang tải dữ liệu", {
+        id: "loading-toast-apply",
+      });
+    },
     onSuccess: () => {
       toast.success("Ứng tuyển thành công!", { duration: 2000 });
+      toast.dismiss("loading-toast-apply");
 
       queryClient.invalidateQueries({
         queryKey: ["applied-jobs"],

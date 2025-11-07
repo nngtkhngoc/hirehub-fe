@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserPlus } from "lucide-react";
 import { OutlineButton, PrimaryButton } from "./Button";
 import { useMediaQuery } from "@mui/material";
@@ -117,7 +118,7 @@ const ConnectionButton = ({
         <PrimaryButton
           onClick={handleConnect}
           label={
-            <div className="flex flex-row items-center text-white gap-2">
+            <div className="flex flex-row items-center text-white gap-2 ">
               <UserPlus size={isMedium ? 22 : 14} />
               <span className="text-[12px]">Kết nối</span>
             </div>

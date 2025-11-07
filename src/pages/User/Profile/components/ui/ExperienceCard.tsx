@@ -7,11 +7,16 @@ export const ExperienceCard = ({
   experience: Experience;
   lastCard: boolean;
 }) => {
+  // Convert dates safely
+  const startDate = experience.startDate
+    ? new Date(experience.startDate)
+    : null;
+  const endDate = experience.endDate
+    ? new Date(experience.endDate)
+    : new Date();
+
   const calculateTime = () => {
-    const startDate = new Date(experience.startDate);
-    const endDate = experience.endDate
-      ? new Date(experience.endDate)
-      : new Date();
+    if (!startDate) return "N/A";
 
     let years = endDate.getFullYear() - startDate.getFullYear();
     let months = endDate.getMonth() - startDate.getMonth();
@@ -26,6 +31,9 @@ export const ExperienceCard = ({
     return `${years} năm ${months} tháng`;
   };
 
+  const formatDate = (date: Date | null) =>
+    date ? `T${date.getMonth() + 1}/${date.getFullYear()}` : "N/A";
+
   return (
     <div
       className={`w-full py-6 flex flex-row items-center gap-4 justify-left ${
@@ -34,40 +42,32 @@ export const ExperienceCard = ({
     >
       <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0">
         <img
-          src={experience.company.avatar}
-          alt={experience.company.name}
+          src={experience?.company?.avatar || ""}
+          alt={experience?.company?.name || ""}
           className="object-contain w-[30px] h-[30px]"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <div className="flex flex row items-center gap-4 justify-start text-[18px] font-bold">
-          <div>{experience.company.name}</div>
+        <div className="flex flex-row items-center gap-4 justify-start text-[18px] font-bold">
+          <div>{experience?.company?.name}</div>
           <div className="px-3 py-1 bg-[#DFDEDE] rounded-[30px] flex items-center justify-center text-[10px] font-light">
             Fulltime
           </div>
         </div>
+
         <div className="flex flex-col gap-1">
           <div className="text-[14px] text-[#888888] font-regular">
-            {experience.position}
+            {experience?.position}
           </div>
-          <div className="flex flex-row items-center justify-left gap-1 sm:gap-3">
-            <div className="text-[12px] font-regular text-[#a6a6a6]">
-              T{new Date(experience.startDate).getMonth() + 1}/
-              {new Date(experience.startDate).getFullYear()} •
-              {experience.endDate ? (
-                <>
-                  T{new Date(experience.startDate).getMonth() + 1}/
-                  {new Date(experience.startDate).getFullYear()}{" "}
-                </>
-              ) : (
-                <span> Hiện tại</span>
-              )}
-            </div>
-            <div className="text-[12px] font-regular text-[#a6a6a6]">•</div>
-            <div className="text-[12px] font-regular text-[#a6a6a6]">
-              {calculateTime()}
-            </div>
+
+          <div className="flex flex-row items-center gap-1 sm:gap-3 text-[12px] text-[#a6a6a6]">
+            <span>
+              {formatDate(startDate)} •{" "}
+              {experience.endDate ? formatDate(endDate) : "Hiện tại"}
+            </span>
+            <span>•</span>
+            <span>{calculateTime()}</span>
           </div>
         </div>
       </div>

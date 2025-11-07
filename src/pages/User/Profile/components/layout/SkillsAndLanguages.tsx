@@ -8,7 +8,7 @@ export const SkillsAndLanguages = ({ user }: { user: UserProfile }) => {
     user?.skills?.map((skill) => <SkillCard text={skill.name} />);
 
   const renderLanguages = () =>
-    user.languages?.map((language: any) => (
+    user?.languages?.map((language: any) => (
       <LanguageCard language={language} />
     ));
 

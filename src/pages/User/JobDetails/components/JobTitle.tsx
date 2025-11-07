@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
-import type { ApplyJobFormData, Job } from "@/types/Job";
+import type { ApplyJob, ApplyJobFormData, Job } from "@/types/Job";
 import companyDefault from "@/assets/illustration/company.png";
 import { Bookmark, FolderClosed, Send, Upload } from "lucide-react";
 import {
@@ -50,6 +50,9 @@ export const JobTitle = ({ job }: { job: Job }) => {
   );
   const isAppliedJob = appliedJobs?.some(
     (appliedJob: any) => appliedJob?.job?.id == job?.id
+  );
+  const matchedAppliedJob = appliedJobs?.find(
+    (appliedJob: ApplyJob) => appliedJob?.job?.id === job?.id
   );
 
   const { mutate, isPending } = useSaveJob();
@@ -131,14 +134,17 @@ export const JobTitle = ({ job }: { job: Job }) => {
           />
         </button>
         {isAppliedJob ? (
-          <button className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer">
+          <a
+            href={matchedAppliedJob.link}
+            className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer"
+          >
             <div className="flex flex-row items-center justify-center gap-2">
               <span className="hidden sm:block text-white text-sm">
                 Xem hồ sơ
               </span>
               <FolderClosed className="w-[20px] text-white" />
             </div>
-          </button>
+          </a>
         ) : (
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             <DialogTrigger asChild onClick={() => setOpenDialog(true)}>

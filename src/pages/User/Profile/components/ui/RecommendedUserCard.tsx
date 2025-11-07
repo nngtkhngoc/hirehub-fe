@@ -2,11 +2,15 @@ import profile from "@/assets/illustration/default_profile.webp";
 import ConnectionButton from "@/components/ui/User/ConnectionButton";
 import type { UserProfile } from "@/types/Auth";
 import { useState } from "react";
+import { Link } from "react-router";
 
 export const RecommendedUserCard = ({ user }: { user: UserProfile }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
-    <div className="w-full flex flex-row gap-4 items-center justify-center py-4 border-b border-[#A6A6A6]">
+    <Link
+      to={`/user/${user.id}`}
+      className="w-full flex flex-row gap-4 items-center justify-center py-4 border-b border-[#A6A6A6]"
+    >
       <img
         src={user.avatar || profile}
         alt="avatar"
@@ -28,6 +32,6 @@ export const RecommendedUserCard = ({ user }: { user: UserProfile }) => {
         </div>
         <ConnectionButton targetUser={user} variant="outline" />
       </div>
-    </div>
+    </Link>
   );
 };
