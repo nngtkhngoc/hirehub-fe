@@ -33,6 +33,10 @@ export const getAllUsers = async (
     role?: string;
     page?: number;
     size?: number;
+<<<<<<< HEAD
+  } = { role: "user" }
+): Promise<UserProfile[]> => {
+=======
   } = {}
 ): Promise<Recruiter[]> => {
   const finalParams = {
@@ -40,6 +44,7 @@ export const getAllUsers = async (
     ...getAllJobQueries,
   };
 
+>>>>>>> e0a404beac1132527c2007169aa4985dae732479
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
     params: finalParams,
   });
@@ -57,4 +62,10 @@ export const updateUser = async (data: FormData): Promise<UserProfile> => {
   );
 
   return res.data.data;
+};
+
+export const getUserById = async (userId: number): Promise<UserProfile> => {
+  const res = await axiosClient.get(`${BASE_URL}/api/users/${userId}`);
+  console.log(res.data, "!");
+  return res.data;
 };

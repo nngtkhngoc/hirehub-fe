@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 interface ButtonProps {
   label?: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   outlineColor?: string;
   bgColor?: string;
   textColor?: string;

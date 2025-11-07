@@ -63,6 +63,12 @@ export const DetailsInfor = ({
   }, [user?.introduction]);
 
   const DetailedInformations: DetailedInformation[] = [
+<<<<<<< HEAD
+    { icon: Mail, title: "Email", content: user.email },
+    { icon: Phone, title: "Số điện thoại", content: user.phoneNumber },
+    { icon: Github, title: "Github", content: user.github },
+    { icon: MapPin, title: "Địa chỉ", content: user.address || "" },
+=======
     { icon: Mail, title: "Email", content: user?.email || "" },
     {
       icon: Phone,
@@ -71,6 +77,7 @@ export const DetailsInfor = ({
     },
     { icon: Github, title: "Github", content: user?.github || "" },
     { icon: MapPin, title: "Địa chỉ", content: user?.address || "" },
+>>>>>>> e0a404beac1132527c2007169aa4985dae732479
   ];
   const renderInfor = () => {
     return DetailedInformations.map((infor, index) => {

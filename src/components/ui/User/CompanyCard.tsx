@@ -10,7 +10,7 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
   const isLarge = useMediaQuery("(min-width:1024px)");
 
   return (
-    <div className="w-[345px] h-[155px] rounded-[30px] border border-[#E0E0E0] bg-white flex flex-col px-5 py-4 flex items-center justify-center lg:w-[510px] lg:h-[215px] group hover:bg-primary transition-all duration-300 hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02]">
+    <div className="w-[345px] h-[155px] rounded-[30px] border border-[#E0E0E0] bg-white flex-col px-5 py-4 flex items-center justify-center lg:w-[510px] lg:h-[215px] group hover:bg-primary transition-all duration-300 hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02]">
       <div className=" flex flex-row gap-5 items-center">
         <div className="w-[85px] h-[85px] rounded-[10px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)] flex items-center justify-center  object-cover overflow-hidden lg:w-[130px] lg:h-[130px] bg-white">
           {company.avatar ? (

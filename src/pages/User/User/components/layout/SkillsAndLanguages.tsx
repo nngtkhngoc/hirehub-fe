@@ -1,11 +1,11 @@
 import { PartTitle } from "../ui/PartTitle";
-import { SkillCard } from "../ui/SkillCard";
-import { LanguageCard } from "../ui/LanguageCard";
+import { SkillCard } from "@/pages/User/Profile/components/ui/SkillCard";
+import { LanguageCard } from "@/pages/User/Profile/components/ui/LanguageCard";
 import type { UserProfile } from "@/types/Auth";
 
 export const SkillsAndLanguages = ({ user }: { user: UserProfile }) => {
   const renderSkills = () =>
-    user?.skills?.map((skill) => <SkillCard text={skill.name} />);
+    user.skills?.map((skill) => <SkillCard text={skill.name} />);
 
   const renderLanguages = () =>
     user.languages?.map((language: any) => (

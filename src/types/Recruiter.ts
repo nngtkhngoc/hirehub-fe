@@ -7,4 +7,5 @@ export type Recruiter = {
   numberOfEmployees: string;
   avatar: string;
   field: string;
+  logo: string;
 };

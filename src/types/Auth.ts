@@ -25,9 +25,10 @@ export type UserProfile = {
   experiences: Experience[];
   github: string;
   phoneNumber: string;
+  resumeLink: string;
+  languages: any;
   resume_link: string;
   resume_name: string;
-  languages: Language[];
   study: Study[];
   introduction: string;
   position: string;

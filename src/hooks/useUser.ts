@@ -1,4 +1,9 @@
-import { getAllRecruiters, getAllUsers, updateUser } from "@/apis/user.api";
+import {
+  getAllRecruiters,
+  getAllUsers,
+  getUserById,
+  updateUser,
+} from "@/apis/user.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -34,5 +39,12 @@ export const useUpdateUser = () => {
     onError: () => {
       toast.error("Cập nhật thất bại!");
     },
+  });
+};
+
+export const useUserById = (userId: number) => {
+  return useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => getUserById(userId),
   });
 };
