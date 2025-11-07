@@ -1,10 +1,10 @@
-import type { User } from "@/types/User";
-import { UserPlus } from "lucide-react";
-import { OutlineButton } from "./Button";
 import profile from "@/assets/illustration/default_profile.webp";
 
+import ConnectionButton from "./ConnectionButton";
+import type { UserProfile } from "@/types/Auth";
+
 interface UserCardProps {
-  user: User;
+  user: UserProfile;
 }
 
 export const UserCard = ({ user }: UserCardProps) => {
@@ -50,16 +50,7 @@ export const UserCard = ({ user }: UserCardProps) => {
 
       <div className="border-b border-[#DBDBDB] my-2  w-1/2"></div>
 
-      <OutlineButton
-        paddingX="px-[80px]"
-        paddingY="py-[8px]"
-        label={
-          <div className="flex flex-row justify-center items-center gap-3 text-[#5E1EE6] text-[12px] font-title font-medium">
-            <UserPlus size={22} />
-            <span>Kết nối</span>
-          </div>
-        }
-      />
+      <ConnectionButton targetUser={user} variant="primary" />
     </div>
   );
 };

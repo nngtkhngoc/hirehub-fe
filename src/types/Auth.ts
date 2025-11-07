@@ -26,7 +26,7 @@ export type UserProfile = {
   github: string;
   phoneNumber: string;
   resumeLink: string;
-  languages: Language[];
+  languages: any;
   study: Study[];
   introduction: string;
   position: string;

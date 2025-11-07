@@ -28,7 +28,7 @@ export const DetailsInfor = ({ user }: { user: UserProfile }) => {
     { icon: Mail, title: "Email", content: user.email },
     { icon: Phone, title: "Số điện thoại", content: user.phoneNumber },
     { icon: Github, title: "Github", content: user.github },
-    { icon: MapPin, title: "Địa chỉ", content: user.address },
+    { icon: MapPin, title: "Địa chỉ", content: user.address || "" },
   ];
   const renderInfor = () => {
     return DetailedInformations.map((infor, index) => {

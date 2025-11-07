@@ -21,6 +21,7 @@ export const ProfilePage = () => {
   const [userData, setUserData] = useState<UserProfile>(user!);
 
   useEffect(() => setUserData(user!), [user]);
+  console.log(userData, "@@");
 
   return (
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] h-full gap-15">

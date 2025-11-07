@@ -44,7 +44,6 @@ export const UserListPage = () => {
     setCurrentPage(page);
     userListRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   return (
     <div className="bg-[#F8F9FB] flex flex-col items-center justify-center ">
       <Banner

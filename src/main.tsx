@@ -18,6 +18,7 @@ import { CompanyListPage } from "./pages/User/CompanyList/CompanyListPage.tsx";
 import { UserListPage } from "./pages/User/UserList/UserListPage.tsx";
 import { ProfilePage } from "./pages/User/Profile/ProfilePage.tsx";
 import { ResetPasswordPage } from "./pages/User/ResetPassword/ResetPasswordPage.tsx";
+import { User } from "./pages/User/User/User.tsx";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/company-list" element={<CompanyListPage />} />
             <Route path="/user-list" element={<UserListPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/user/:userId" element={<User />} />
           </Route>
 
           <Route path="/auth" element={<AuthLayout />}>
