@@ -33,10 +33,6 @@ export const getAllUsers = async (
     role?: string;
     page?: number;
     size?: number;
-<<<<<<< HEAD
-  } = { role: "user" }
-): Promise<UserProfile[]> => {
-=======
   } = {}
 ): Promise<Recruiter[]> => {
   const finalParams = {
@@ -44,7 +40,6 @@ export const getAllUsers = async (
     ...getAllJobQueries,
   };
 
->>>>>>> e0a404beac1132527c2007169aa4985dae732479
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
     params: finalParams,
   });
