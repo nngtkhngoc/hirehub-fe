@@ -61,15 +61,21 @@ export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> 
     userId: yup.string().required(),
     companyId: yup.string().required("Vui lòng chọn công ty"),
     position: yup.string().required("Vui lòng nhập vị trí"),
+    type: yup.string().required("Vui lòng chọn loại công việc"),
     startDate: yup.string().required("Vui lòng chọn ngày bắt đầu"),
     endDate: yup.string().nullable(),
     image: yup.mixed<File>().nullable(),
     description: yup.string().nullable(),
   });
 
+interface Type {
+  label: string;
+  value: string;
+}
+
 export const Experiences = ({ user }: { user: UserProfile }) => {
   const renderExperiences = () =>
-    user.experiences?.map((ex, index) => (
+    user?.experiences?.map((ex, index) => (
       <ExperienceCard
         experience={ex}
         lastCard={index == experiences.length - 1 ? true : false}
@@ -108,11 +114,19 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
       companyId: "",
       position: "",
       startDate: "",
+      type: "",
       endDate: undefined,
       image: undefined,
       description: undefined,
     },
   });
+
+  const types: Type[] = [
+    { label: "Part-time", value: "part-time" },
+    { label: "Full-time", value: "full-time" },
+    { label: "Thực tập", value: "internship" },
+    { label: "Tình nguyện", value: "voluntary" },
+  ];
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
@@ -152,7 +166,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
-                  // handleSelectFile();
                 }}
               >
                 <div className="flex flex-row items-center gap-2 text-[12px] font-regular cursor-pointer md:text-[13px]">
@@ -187,9 +200,50 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       placeholder="vd: Frontend Developer Intern"
                       {...register("position")}
                     />
-                    <p className="text-xs text-red-400 pt-2">
-                      {errors.position?.message}
-                    </p>
+                    {errors.position?.message && (
+                      <p className="text-xs text-red-400 pt-2">
+                        {errors.position?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Type */}
+                  <div className="grid gap-3">
+                    <Label htmlFor="username-1">
+                      <span>
+                        Loại hình <span className="text-red-600">*</span>
+                      </span>
+                    </Label>
+                    <div
+                      className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
+                            focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                    >
+                      <Select onValueChange={(v) => setValue("type", v)}>
+                        <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
+                          <SelectValue placeholder="Chọn loại hình" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Loại hình</SelectLabel>
+                            {types?.map((type, indx) => (
+                              <SelectItem
+                                key={indx}
+                                value={type.value}
+                                className="text-black group cursor-pointer"
+                              >
+                                <div>{type.label}</div>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>{" "}
+                      {errors.type?.message && (
+                        <p className="text-xs text-red-400 pt-2">
+                          {errors.type?.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Company */}
@@ -418,7 +472,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
             </form>
           </Dialog>
         </div>
-        <div className=" flex-col gap-4">{renderExperiences()}</div>
+        <div className="flex-col gap-4">{renderExperiences()}</div>
       </div>
     </div>
   );

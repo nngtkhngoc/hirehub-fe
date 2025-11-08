@@ -9,12 +9,11 @@ export const ExperienceCard = ({
   lastCard: boolean;
   key: number;
 }) => {
-  // Convert dates safely
-  const startDate = experience.startDate
-    ? new Date(experience.startDate)
+  const startDate = experience?.startDate
+    ? new Date(experience?.startDate)
     : null;
-  const endDate = experience.endDate
-    ? new Date(experience.endDate)
+  const endDate = experience?.endDate
+    ? new Date(experience?.endDate)
     : new Date();
 
   const calculateTime = () => {
@@ -67,7 +66,7 @@ export const ExperienceCard = ({
           <div className="flex flex-row items-center gap-1 sm:gap-3 text-[12px] text-[#a6a6a6]">
             <span>
               {formatDate(startDate)} •{" "}
-              {experience.endDate ? formatDate(endDate) : "Hiện tại"}
+              {experience?.endDate ? formatDate(endDate) : "Hiện tại"}
             </span>
             <span>•</span>
             <span>{calculateTime()}</span>

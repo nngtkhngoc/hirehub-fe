@@ -22,6 +22,7 @@ export type CreateJobData = {
   workspace: string;
   recruiterId: number;
   skillsId: number[];
+  type?: string;
 };
 
 export type UpdateJobData = {
@@ -31,6 +32,7 @@ export type UpdateJobData = {
   workspace?: string;
   recruiterId?: number;
   skillsId?: number[];
+  type?: string;
 };
 
 export type ApplyJobFormData = {
