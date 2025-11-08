@@ -1,4 +1,5 @@
 import type { Experience } from "@/types/Experience";
+import { SquarePen, Trash2 } from "lucide-react";
 
 export const ExperienceCard = ({
   experience,
@@ -37,11 +38,15 @@ export const ExperienceCard = ({
 
   return (
     <div
-      className={`w-full py-6 flex flex-row items-center gap-4 justify-left ${
+      className={`w-full py-6 flex flex-row items-center gap-4 justify-left relative ${
         lastCard ? "" : "border-b border-[#BCBCBC]"
       }`}
       key={key}
     >
+      <div className="absolute top-6 right-0 flex flex-row items-center gap-1 ">
+        <SquarePen className="w-[17px]" />
+        <Trash2 className="text-red-600 w-[17px]" />
+      </div>
       <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0">
         <img
           src={experience?.company?.avatar || ""}
@@ -65,7 +70,7 @@ export const ExperienceCard = ({
 
           <div className="flex flex-row items-center gap-1 sm:gap-3 text-[12px] text-[#a6a6a6]">
             <span>
-              {formatDate(startDate)} •{" "}
+              {formatDate(startDate)} -{" "}
               {experience?.endDate ? formatDate(endDate) : "Hiện tại"}
             </span>
             <span>•</span>

@@ -9,7 +9,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  CheckIcon,
   ChevronDownIcon,
+  ChevronsUpDownIcon,
   Edit3,
   Link,
   PlusCircle,
@@ -40,7 +42,14 @@ import { useRecruiter } from "@/hooks/useUser";
 import { Input } from "@/components/ui/input";
 import companyDefault from "@/assets/illustration/company.png";
 import { Textarea } from "@/components/ui/textarea";
-
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
@@ -92,6 +101,8 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
   const [openCalendarEnd, setOpenCalendarEnd] = useState(false);
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [openCompany, setOpenCompany] = useState(false);
+  const [company, setCompany] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -176,18 +187,26 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
             </DropdownMenuContent>
           </DropdownMenu>{" "}
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            <form>
-              <DialogContent className="sm:max-w-[425px] ">
-                <DialogHeader>
-                  <DialogTitle>
-                    <div className="px-1">Thêm kinh nghiệm</div>
-                  </DialogTitle>
-                  <DialogDescription>
-                    <div className="px-1 leading-[24px]">
-                      Thêm vị trí làm việc mới của bạn ở đây
-                    </div>
-                  </DialogDescription>
-                </DialogHeader>
+            <DialogContent className="sm:max-w-[425px] ">
+              <DialogHeader>
+                <DialogTitle>
+                  <div className="px-1">Thêm kinh nghiệm</div>
+                </DialogTitle>
+                <DialogDescription>
+                  <div className="px-1 leading-[24px]">
+                    Thêm vị trí làm việc mới của bạn ở đây
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                onSubmit={handleSubmit((data: CreateExperienceFormData) => {
+                  data.userId = user.id;
+                  console.log("Send data:", data);
+                  mutate(data, {
+                    onSuccess: () => setOpenDialog(false),
+                  });
+                })}
+              >
                 <div className="grid gap-4 px-1 py-4">
                   {/* Position */}
                   <div className="grid gap-3">
@@ -201,24 +220,32 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       {...register("position")}
                     />
                     {errors.position?.message && (
-                      <p className="text-xs text-red-400 pt-2">
+                      <span className="text-xs text-red-400">
                         {errors.position?.message}
-                      </p>
+                      </span>
                     )}
                   </div>
 
                   {/* Type */}
                   <div className="grid gap-3">
-                    <Label htmlFor="username-1">
+                    <Label htmlFor="type">
                       <span>
                         Loại hình <span className="text-red-600">*</span>
                       </span>
                     </Label>
+
                     <div
                       className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
                             focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                     >
-                      <Select onValueChange={(v) => setValue("type", v)}>
+                      <Select
+                        onValueChange={(v) =>
+                          setValue("type", v, {
+                            shouldValidate: true,
+                          })
+                        }
+                        {...register("type")}
+                      >
                         <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
                           <SelectValue placeholder="Chọn loại hình" />
                         </SelectTrigger>
@@ -238,55 +265,99 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                           </SelectGroup>
                         </SelectContent>
                       </Select>{" "}
-                      {errors.type?.message && (
-                        <p className="text-xs text-red-400 pt-2">
-                          {errors.type?.message}
-                        </p>
-                      )}
                     </div>
+                    {errors.type?.message && (
+                      <span className="text-xs text-red-400 ">
+                        {errors.type?.message}
+                      </span>
+                    )}
                   </div>
 
                   {/* Company */}
                   <div className="grid gap-3">
-                    <Label htmlFor="username-1">
+                    <Label>
                       <span>
                         Công ty <span className="text-red-600">*</span>
                       </span>
                     </Label>
-                    <div
-                      className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-                            focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-                    >
-                      <Select onValueChange={(v) => setValue("companyId", v)}>
-                        <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
-                          <SelectValue placeholder="Chọn công ty" />
-                        </SelectTrigger>
 
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Công ty</SelectLabel>
-                            {companies?.map((company) => (
-                              <SelectItem
-                                key={company.id}
-                                value={company.id}
-                                className="text-black group cursor-pointer"
-                              >
-                                <div className="flex flex-row items-center justify-start gap-2 py-1 group-hover:text-primary">
+                    <Popover open={openCompany} onOpenChange={setOpenCompany}>
+                      <PopoverTrigger asChild>
+                        <div
+                          role="combobox"
+                          aria-expanded={openCompany}
+                          className="cursor-pointer !font-primary flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
+                            focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                        >
+                          {company ? (
+                            <div className="flex flex-row items-center gap-1 text-[13px] text-black">
+                              <img
+                                src={
+                                  companies?.find((c) => c.id === company)
+                                    ?.avatar || companyDefault
+                                }
+                                className="w-6 h-6 rounded-full object-cover mr-2"
+                                alt=""
+                              />{" "}
+                              {companies?.find((c) => c.id === company)?.name}
+                            </div>
+                          ) : (
+                            "Chọn công ty"
+                          )}
+                          <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </div>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Tìm kiếm công ty..."
+                            className="text-[13px]"
+                            {...register("companyId")}
+                          />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy công ty.</CommandEmpty>
+                            <CommandGroup>
+                              {companies?.map((c) => (
+                                <CommandItem
+                                  key={c.id}
+                                  value={c.id}
+                                  onSelect={() => {
+                                    setCompany(c.id);
+                                    setValue("companyId", c.id, {
+                                      shouldValidate: true,
+                                    });
+                                    setOpenCompany(false);
+                                  }}
+                                  className="text-[13px]"
+                                >
                                   <img
-                                    src={company.avatar || companyDefault}
-                                    className="w-8 h-8 rounded-full object-cover object-center"
+                                    src={c.avatar || companyDefault}
+                                    className="w-6 h-6 rounded-full object-cover mr-2"
+                                    alt=""
                                   />
-                                  <div>{company.name}</div>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>{" "}
-                      <p className="text-xs text-red-400 pt-2">
+                                  {c.name}
+                                  <CheckIcon
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      company === c.id
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    {errors.companyId?.message && (
+                      <span className="text-xs text-red-400 pt-1">
                         {errors.companyId?.message}
-                      </p>
-                    </div>
+                      </span>
+                    )}
                   </div>
 
                   {/* Date */}
@@ -301,7 +372,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       <Popover
                         open={openCalendarStart}
                         onOpenChange={setOpenCalendarStart}
-                        defaultOpen
                       >
                         <PopoverTrigger asChild>
                           <Button
@@ -330,16 +400,21 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                               setStartDate(date);
                               setValue(
                                 "startDate",
-                                date?.toISOString().slice(0, 10) ?? ""
+                                date?.toISOString().slice(0, 10) ?? "",
+                                {
+                                  shouldValidate: true,
+                                }
                               );
                             }}
                             {...register("startDate")}
                           />
                         </PopoverContent>
                       </Popover>
-                      <p className="text-xs text-red-400 pt-2">
-                        {errors.startDate?.message}
-                      </p>
+                      {errors.startDate?.message && (
+                        <span className="text-xs text-red-400 pt-2">
+                          {errors.startDate?.message}
+                        </span>
+                      )}
                     </div>
 
                     {/* EndDate */}
@@ -377,7 +452,10 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                               setEndDate(date);
                               setValue(
                                 "endDate",
-                                date?.toISOString().slice(0, 10) ?? ""
+                                date?.toISOString().slice(0, 10) ?? "",
+                                {
+                                  shouldValidate: true,
+                                }
                               );
                             }}
                             {...register("endDate")}
@@ -426,7 +504,9 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                       onChange={(e) => {
                         handleFileChange(e);
                         if (e.target.files) {
-                          setValue("image", e.target.files[0]);
+                          setValue("image", e.target.files[0], {
+                            shouldValidate: true,
+                          });
                         }
                       }}
                     />
@@ -438,9 +518,9 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                         className="rounded-md max-h-48 object-contain"
                         alt="preview"
                       />
-                      <p className="text-xs text-zinc-500 break-all">
+                      <span className="text-xs text-zinc-500 break-all">
                         {fileName}
-                      </p>
+                      </span>
                     </div>
                   )}
                 </div>
@@ -453,23 +533,24 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                     />
                   </DialogClose>
                   <PrimaryButton
+                    type="submit"
                     label="Xác nhận"
                     loadingText="Đang tải..."
-                    onClick={handleSubmit((data: CreateExperienceFormData) => {
-                      data.userId = user.id;
+                    // onClick={handleSubmitExperience((data: CreateExperienceFormData) => {
+                    //   data.userId = user.id;
 
-                      console.log("Send data:", data);
-                      mutate(data, {
-                        onSuccess: () => {
-                          setOpenDialog(false);
-                        },
-                      });
-                    })}
+                    //   console.log("Send data:", data);
+                    //   mutate(data, {
+                    //     onSuccess: () => {
+                    //       setOpenDialog(false);
+                    //     },
+                    //   });
+                    // })}
                     disabled={isPending}
                   />
                 </DialogFooter>
-              </DialogContent>
-            </form>
+              </form>
+            </DialogContent>
           </Dialog>
         </div>
         <div className="flex-col gap-4">{renderExperiences()}</div>

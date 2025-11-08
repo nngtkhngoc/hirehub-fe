@@ -128,6 +128,7 @@ export const SignIn = ({ ref }: { ref: any }) => {
           Quên mật khẩu?
         </Link>
         <PrimaryButton
+          type="submit"
           label={isPending ? "Đang đăng nhập..." : "Đăng nhập"}
           disabled={isPending}
           paddingX="w-full"

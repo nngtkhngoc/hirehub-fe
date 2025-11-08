@@ -2,19 +2,20 @@ import type { ReactNode } from "react";
 
 interface ButtonProps {
   label?: ReactNode;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: () => void;
   outlineColor?: string;
   bgColor?: string;
+  hoverBgColor?: string;
   textColor?: string;
-  textSize?: string;
   paddingX?: string;
   paddingY?: string;
-  hoverBgColor?: string;
   disabled?: boolean;
   disabledColor?: string;
   loading?: boolean;
   loadingColor?: string;
   loadingText?: string;
+  textSize?: string;
+  type?: "button" | "submit" | "reset"; // thêm type
 }
 
 export const PrimaryButton = ({
@@ -32,16 +33,17 @@ export const PrimaryButton = ({
   loadingColor = "bg-gradient-to-r from-[#38128A] to-[#260C5C] cursor-progress",
   loadingText = "Loading...",
   textSize = "text-[12px] sm:text-[14px]",
+  type = "button", // default button
 }: ButtonProps) => {
   const buttonClass = `${outlineColor ? outlineColor : ""}
     ${paddingX} ${paddingY} ${textSize}
     ${textColor} rounded-[30px] transition-all duration-500 shadow-[0_4px_4px_#DFD2FA]
     ${disabled ? disabledColor : loading ? loadingColor : bgColor} 
-    ${!disabled && !loading ? hoverBgColor : ""}
-  `;
+    ${!disabled && !loading ? hoverBgColor : ""}`;
 
   return (
     <button
+      type={type}
       onClick={!disabled && !loading ? onClick : undefined}
       disabled={disabled}
       className={buttonClass}
