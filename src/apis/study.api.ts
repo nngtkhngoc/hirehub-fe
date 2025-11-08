@@ -21,3 +21,9 @@ export const createStudy = async (data: CreateStudyData) => {
 
   return res.data;
 };
+
+export const deleteStudy = async (id: string) => {
+  const res = await axiosClient.delete(`${BASE_URL}/api/studies/${id}`);
+
+  return res.data;
+};
