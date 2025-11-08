@@ -22,3 +22,13 @@ export type CreateExperienceFormData = {
   image?: File | null;
   description?: string | null;
 };
+
+export type UpdateExperienceFormData = {
+  companyId?: string;
+  position?: string;
+  type?: string;
+  startDate?: string;
+  endDate?: string | null | undefined;
+  image?: File | string | null | undefined;
+  description?: string | null | undefined;
+};

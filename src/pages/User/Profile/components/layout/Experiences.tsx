@@ -88,7 +88,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
       <ExperienceCard
         experience={ex}
         lastCard={index == activeExperiences?.length - 1 ? true : false}
-        key={ex.id}
+        key={ex?.id || index}
       />
     ));
 

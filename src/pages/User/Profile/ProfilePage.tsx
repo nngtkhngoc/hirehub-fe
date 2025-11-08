@@ -18,7 +18,7 @@ export const ProfilePage = () => {
   // const setUser = useAuthStore(state => state)
 
   // const nav = useNavigate();
-  const [userData, setUserData] = useState<UserProfile>(user);
+  const [userData, setUserData] = useState<UserProfile>(user!);
 
   useEffect(() => setUserData(user!), [user]);
   if (isLoading) return <Spinner />;
