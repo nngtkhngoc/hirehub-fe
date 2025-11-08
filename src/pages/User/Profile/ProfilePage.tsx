@@ -16,10 +16,9 @@ import { Spinner } from "@/components/ui/spinner";
 export const ProfilePage = () => {
   const { data: user, isLoading } = useProfile();
   // const setUser = useAuthStore(state => state)
-  console.log(user);
 
   // const nav = useNavigate();
-  const [userData, setUserData] = useState<UserProfile>(user!);
+  const [userData, setUserData] = useState<UserProfile>(user);
 
   useEffect(() => setUserData(user!), [user]);
   if (isLoading) return <Spinner />;

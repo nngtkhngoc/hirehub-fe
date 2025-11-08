@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ExperienceCard } from "../ui/ExperienceCard";
-import { experiences } from "@/mock/experience.mock";
 import type { UserProfile } from "@/types/Auth";
 import {
   DropdownMenu,
@@ -83,11 +82,12 @@ interface Type {
 }
 
 export const Experiences = ({ user }: { user: UserProfile }) => {
+  const activeExperiences = user?.experiences?.filter((ex) => !ex.deleted);
   const renderExperiences = () =>
-    user?.experiences?.map((ex, index) => (
+    activeExperiences?.map((ex, index) => (
       <ExperienceCard
         experience={ex}
-        lastCard={index == experiences.length - 1 ? true : false}
+        lastCard={index == activeExperiences?.length - 1 ? true : false}
         key={ex.id}
       />
     ));
@@ -187,7 +187,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
             </DropdownMenuContent>
           </DropdownMenu>{" "}
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            <DialogContent className="sm:max-w-[425px] ">
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>
                   <div className="px-1">Thêm kinh nghiệm</div>
@@ -308,7 +308,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                         </div>
                       </PopoverTrigger>
 
-                      <PopoverContent className="w-full p-0">
+                      <PopoverContent className="w-full p-0" align="start">
                         <Command>
                           <CommandInput
                             placeholder="Tìm kiếm công ty..."
@@ -536,16 +536,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                     type="submit"
                     label="Xác nhận"
                     loadingText="Đang tải..."
-                    // onClick={handleSubmitExperience((data: CreateExperienceFormData) => {
-                    //   data.userId = user.id;
-
-                    //   console.log("Send data:", data);
-                    //   mutate(data, {
-                    //     onSuccess: () => {
-                    //       setOpenDialog(false);
-                    //     },
-                    //   });
-                    // })}
                     disabled={isPending}
                   />
                 </DialogFooter>

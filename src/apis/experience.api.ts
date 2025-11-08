@@ -1,4 +1,4 @@
-import { axiosClientFormData } from "@/lib/axios";
+import { axiosClient, axiosClientFormData } from "@/lib/axios";
 import type { CreateExperienceFormData } from "@/types/Experience";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -14,6 +14,12 @@ export const createExperience = async (data: CreateExperienceFormData) => {
     `${BASE_URL}/api/experiences`,
     formatData
   );
+
+  return res.data;
+};
+
+export const deleteExperience = async (id: string) => {
+  const res = await axiosClient.delete(`${BASE_URL}/api/experiences/${id}`);
 
   return res.data;
 };

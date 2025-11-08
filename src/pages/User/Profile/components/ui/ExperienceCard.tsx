@@ -1,5 +1,17 @@
 import type { Experience } from "@/types/Experience";
 import { SquarePen, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useDeleteExperience } from "@/hooks/useExperience";
 
 export const ExperienceCard = ({
   experience,
@@ -36,6 +48,11 @@ export const ExperienceCard = ({
   const formatDate = (date: Date | null) =>
     date ? `T${date.getMonth() + 1}/${date.getFullYear()}` : "N/A";
 
+  const { mutate: deleteMutate, isPending: isDeleting } = useDeleteExperience();
+
+  const handleDeleteExperience = () => {
+    deleteMutate(experience?.id?.toString());
+  };
   return (
     <div
       className={`w-full py-6 flex flex-row items-center gap-4 justify-left relative ${
@@ -43,9 +60,33 @@ export const ExperienceCard = ({
       }`}
       key={key}
     >
-      <div className="absolute top-6 right-0 flex flex-row items-center gap-1 ">
+      <div className="absolute top-6 right-0 flex flex-row items-center gap-3 ">
         <SquarePen className="w-[17px]" />
-        <Trash2 className="text-red-600 w-[17px]" />
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Trash2 className="text-red-600 w-[17px] cursor-pointer" />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="!font-primary">
+                Bạn có chắc muốn xóa kinh nghiệm này?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="font-primary">
+                Hành động này không thể hoàn tác. Kinh nghiệm sẽ bị xóa vĩnh
+                viễn.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isDeleting}
+                onClick={handleDeleteExperience}
+              >
+                Tiếp tục
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0">
         <img

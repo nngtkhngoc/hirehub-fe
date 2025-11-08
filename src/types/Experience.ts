@@ -9,6 +9,7 @@ export type Experience = {
   description: string;
   image: string;
   type: string;
+  deleted: boolean;
 };
 
 export type CreateExperienceFormData = {

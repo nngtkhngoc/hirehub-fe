@@ -22,6 +22,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         input:
           "border border-input border-1 bg-background dark:bg-input/30 dark:border-input dark:hover:bg-input/50  text-black",
+        primarycustom:
+          "rounded-[30px] text-white transition-all duration-500 shadow-[0_4px_4px_#DFD2FA] bg-gradient-to-r from-[#7749DA] to-[#38128A] hover:bg-gradient-to-r hover:from-[#260C5C] hover:to-[#38128A] cursor-pointer disabled:cursor-not-allowed",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
