@@ -17,7 +17,7 @@ const ConnectionButton = ({
   targetUser,
   variant = "primary",
 }: {
-  targetUser: UserProfile;
+  targetUser: UserProfile | undefined;
   variant?: ButtonVariant;
 }) => {
   const isMedium = useMediaQuery("(min-width:768px)");
@@ -29,7 +29,7 @@ const ConnectionButton = ({
   const { mutate: createRelationship } = useCreateRelationship();
   const { mutate: updateRelationshipStatus } = useUpdateRelationshipStatus();
   const isFriend = friends?.some(
-    (friend: any) => friend.user.id === targetUser?.id
+    (friend: any) => friend.user?.id === targetUser?.id
   );
 
   const isSender = relationships?.some((rel: any) => {
@@ -66,7 +66,7 @@ const ConnectionButton = ({
     if (!isFriend && !isSender && !isReceiver) {
       createRelationship({
         senderId: Number(user?.id),
-        receiverId: Number(targetUser.id),
+        receiverId: Number(targetUser?.id),
       });
       return;
     }
@@ -74,7 +74,7 @@ const ConnectionButton = ({
       const relationship = relationships.find(
         (rel: any) =>
           rel.receiver.id === Number(user?.id) &&
-          rel.sender.id === Number(targetUser.id)
+          rel.sender.id === Number(targetUser?.id)
       );
       toast.success("Đã chấp nhận lời mời kết bạn!", { duration: 2000 });
       updateRelationshipStatus({

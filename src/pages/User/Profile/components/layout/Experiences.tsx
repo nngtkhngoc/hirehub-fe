@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ExperienceCard } from "../ui/ExperienceCard";
+import { experiences } from "@/mock/experience.mock";
 import type { UserProfile } from "@/types/Auth";
 import {
   DropdownMenu,
@@ -47,7 +48,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -67,18 +68,14 @@ export const createExperienceSchema: yup.ObjectSchema<CreateExperienceFormData> 
   });
 
 export const Experiences = ({ user }: { user: UserProfile }) => {
-  const [lastCard, setLastCard] = useState<number>(
-    user?.experiences?.length - 1
-  );
-
   const renderExperiences = () =>
-    user?.experiences?.map((ex, index) => (
-      <ExperienceCard experience={ex} lastCard={index == lastCard} />
+    user.experiences?.map((ex, index) => (
+      <ExperienceCard
+        experience={ex}
+        lastCard={index == experiences.length - 1 ? true : false}
+        key={ex.id}
+      />
     ));
-
-  useEffect(() => {
-    setLastCard(user?.experiences?.length - 1);
-  }, [user]);
 
   const { data: companies } = useRecruiter();
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -155,6 +152,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
+                  // handleSelectFile();
                 }}
               >
                 <div className="flex flex-row items-center gap-2 text-[12px] font-regular cursor-pointer md:text-[13px]">
@@ -395,14 +393,18 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
 
                 <DialogFooter>
                   <DialogClose asChild>
-                    <OutlineButton label="Hủy" />
+                    <OutlineButton
+                      label="Hủy"
+                      onClick={() => setOpenDialog(false)}
+                    />
                   </DialogClose>
                   <PrimaryButton
                     label="Xác nhận"
                     loadingText="Đang tải..."
                     onClick={handleSubmit((data: CreateExperienceFormData) => {
-                      data.userId = user?.id;
+                      data.userId = user.id;
 
+                      console.log("Send data:", data);
                       mutate(data, {
                         onSuccess: () => {
                           setOpenDialog(false);

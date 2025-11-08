@@ -4,15 +4,19 @@ import type { UserProfile } from "@/types/Auth";
 import { useState } from "react";
 import { Link } from "react-router";
 
-export const RecommendedUserCard = ({ user }: { user: UserProfile }) => {
+export const RecommendedUserCard = ({
+  user,
+}: {
+  user: UserProfile | undefined;
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <Link
-      to={`/user/${user.id}`}
+      to={`/user/${user?.id}`}
       className="w-full flex flex-row gap-4 items-center justify-center py-4 border-b border-[#A6A6A6]"
     >
       <img
-        src={user.avatar || profile}
+        src={user?.avatar || profile}
         alt="avatar"
         className="object-cover shrink-0 h-[80px] w-[80px] rounded-full"
       />
@@ -25,10 +29,10 @@ export const RecommendedUserCard = ({ user }: { user: UserProfile }) => {
             setIsExpanded(!isExpanded);
           }}
         >
-          {user.name}
+          {user?.name}
         </div>
         <div className="font-regular text-[#888888] text-[12px]">
-          {user.position}
+          {user?.position}
         </div>
         <ConnectionButton targetUser={user} variant="outline" />
       </div>

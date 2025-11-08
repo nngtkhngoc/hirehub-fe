@@ -3,9 +3,11 @@ import type { Experience } from "@/types/Experience";
 export const ExperienceCard = ({
   experience,
   lastCard,
+  key,
 }: {
   experience: Experience;
   lastCard: boolean;
+  key: number;
 }) => {
   // Convert dates safely
   const startDate = experience.startDate
@@ -39,6 +41,7 @@ export const ExperienceCard = ({
       className={`w-full py-6 flex flex-row items-center gap-4 justify-left ${
         lastCard ? "" : "border-b border-[#BCBCBC]"
       }`}
+      key={key}
     >
       <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0">
         <img

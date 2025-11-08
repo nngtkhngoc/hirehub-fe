@@ -3,15 +3,15 @@ import { Bookmark, Building } from "lucide-react";
 import { Link } from "react-router";
 
 export const FlexibleJobCard = ({ job }: { job: Job }) => {
-  const daysAgo = Math.floor(
-    (new Date().getTime() - new Date(job.postingDate).getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
+  // const daysAgo = Math.floor(
+  //   (new Date().getTime() - new Date(job.postingDate).getTime()) /
+  //     (1000 * 60 * 60 * 24)
+  // );
 
-  let postedText = "";
-  if (daysAgo === 0) postedText = "Đã đăng hôm nay";
-  else if (daysAgo === 1) postedText = "Đã đăng hôm qua";
-  else postedText = `Đã đăng ${daysAgo} ngày trước`;
+  // let postedText = "";
+  // if (daysAgo === 0) postedText = "Đã đăng hôm nay";
+  // else if (daysAgo === 1) postedText = "Đã đăng hôm qua";
+  // else postedText = `Đã đăng ${daysAgo} ngày trước`;
 
   return (
     <Link to={`/job-details/${job.id}`}>

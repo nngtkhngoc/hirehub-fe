@@ -1,6 +1,7 @@
 import type { Recruiter } from "./Recruiter";
 
 export type Experience = {
+  id: number;
   company: Recruiter;
   position: string;
   startDate: Date;
