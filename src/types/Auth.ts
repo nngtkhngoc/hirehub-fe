@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Experience } from "./Experience";
 import type { Skill } from "./Skill";
-import type { Language, Study } from "./User";
+import type { Study } from "./Study";
+import type { Language } from "./User";
 
 export type SignInData = {
   email: string;
@@ -29,7 +31,7 @@ export type UserProfile = {
   languages: any;
   resume_link: string;
   resume_name: string;
-  study: Study[];
+  studies: Study[];
   introduction: string;
   position: string;
   avatarFile?: File | undefined;

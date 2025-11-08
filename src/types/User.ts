@@ -1,18 +1,10 @@
 import type { Experience } from "./Experience";
 import type { Skill } from "./Skill";
+import type { Study } from "./Study";
 
 export type Language = {
   name: string;
   level: string; // ví dụ: "Beginner" | "Intermediate" | "Advanced" | "Fluent"
-};
-
-export type Study = {
-  university: string;
-  logo: string;
-  startDate: Date; // format: "YYYY-MM" hoặc "DD/MM/YYYY"
-  endDate: Date; // hoặc "Present" nếu đang học
-  major?: string; // optional: ngành học
-  degree?: string; // optional: cử nhân, thạc sĩ,...
 };
 
 export type User = {
@@ -25,11 +17,11 @@ export type User = {
   skills: Skill[];
   experience: Experience[];
   position: string;
-  github: string; // link GitHub cá nhân
-  phoneNumber: string; // số điện thoại
-  resume_link: string; // link tới CV hoặc portfolio
+  github: string;
+  phoneNumber: string;
+  resume_link: string;
   languages: Language[];
-  study: Study[]; // học vấn
+  studies: Study[];
   introduction: string;
   description: string;
 };
