@@ -68,6 +68,7 @@ import { cn } from "@/lib/utils";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useDeleteStudy } from "@/hooks/useStudy";
 export const StudyCard = ({
   study,
   lastCard,
@@ -77,10 +78,10 @@ export const StudyCard = ({
 }) => {
   const startDate = study?.startDate ? new Date(study?.startDate) : undefined;
   const endDate = study?.endDate ? new Date(study?.endDate) : new Date();
-  const { mutate: deleteMutate, isPending: isDeleting } = useDeleteExperience();
+  const { mutate: deleteMutate, isPending: isDeleting } = useDeleteStudy();
 
   const handleDeleteExperience = () => {
-    deleteMutate(experience?.id?.toString());
+    deleteMutate(study?.id?.toString());
   };
 
   // const { data: companies } = useRecruiter();
@@ -133,11 +134,11 @@ export const StudyCard = ({
   // ];
   return (
     <div
-      className={`w-full py-6 flex flex-row items-center gap-4 justify-left ${
+      className={`w-full py-6 flex flex-row items-center gap-4 justify-left relative ${
         lastCard ? "" : "border-b border-[#BCBCBC]"
       }`}
     >
-      <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0 relative">
+      <div className="absolute top-6 right-0 flex flex-row items-center gap-3 ">
         {" "}
         {/* Edit experience */}
         {/*<Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -507,8 +508,7 @@ export const StudyCard = ({
                 Bạn có chắc muốn xóa học vấn này?
               </AlertDialogTitle>
               <AlertDialogDescription className="font-primary">
-                Hành động này không thể hoàn tác. Kinh nghiệm sẽ bị xóa vĩnh
-                viễn.
+                Hành động này không thể hoàn tác. Học vấn sẽ bị xóa vĩnh viễn.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -522,6 +522,8 @@ export const StudyCard = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      </div>
+      <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0 ">
         <img
           src={study?.university?.logo || universityDefault}
           alt={study?.university?.name}
