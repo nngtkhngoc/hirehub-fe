@@ -1,5 +1,5 @@
-import { axiosClient, axiosClientFormData } from "@/lib/axios";
-import type { CreateStudyData } from "@/types/Study";
+import { axiosClient } from "@/lib/axios";
+import type { CreateStudyData, UpdateStudyData } from "@/types/Study";
 import type { University } from "@/types/University";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -24,6 +24,12 @@ export const createStudy = async (data: CreateStudyData) => {
 
 export const deleteStudy = async (id: string) => {
   const res = await axiosClient.delete(`${BASE_URL}/api/studies/${id}`);
+
+  return res.data;
+};
+
+export const updateStudy = async (data: UpdateStudyData, id: string) => {
+  const res = await axiosClient.put(`${BASE_URL}/api/studies/${id}`, data);
 
   return res.data;
 };

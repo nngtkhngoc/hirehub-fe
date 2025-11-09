@@ -1,6 +1,6 @@
-import type { Study } from "@/types/Study";
+/* eslint-disable react-refresh/only-export-components */
+import type { Study, UpdateStudyData } from "@/types/Study";
 import universityDefault from "@/assets/illustration/univeristy.png";
-import type { Experience, UpdateExperienceFormData } from "@/types/Experience";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,16 +12,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  useDeleteExperience,
-  useUpdateExperience,
-} from "@/hooks/useExperience";
+
 import {
   CheckIcon,
   ChevronDownIcon,
   ChevronsUpDownIcon,
-  Link,
-  SquarePen,
   Trash2,
 } from "lucide-react";
 import {
@@ -44,9 +39,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
-import { useRecruiter } from "@/hooks/useUser";
 import { Input } from "@/components/ui/input";
-import companyDefault from "@/assets/illustration/company.png";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Command,
@@ -68,7 +61,30 @@ import { cn } from "@/lib/utils";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDeleteStudy } from "@/hooks/useStudy";
+import {
+  useDeleteStudy,
+  useUniversity,
+  useUpdateStudy,
+} from "@/hooks/useStudy";
+import type { University } from "@/types/University";
+
+export const updateStudySchema: yup.ObjectSchema<UpdateStudyData> = yup.object({
+  universityId: yup.string().required("Vui lòng chọn trường học"),
+  major: yup.string().nullable(),
+  degree: yup.string().required("Vui lòng chọn bằng cấp"),
+  startDate: yup.string().required("Vui lòng chọn ngày bắt đầu"),
+  endDate: yup.string().nullable(),
+});
+
+const degreeOptions = [
+  "Tốt nghiệp THPT",
+  "Trung cấp",
+  "Cao đẳng",
+  "Đại học",
+  "Thạc sĩ",
+  "Tiến sĩ",
+];
+
 export const StudyCard = ({
   study,
   lastCard,
@@ -84,54 +100,40 @@ export const StudyCard = ({
     deleteMutate(study?.id?.toString());
   };
 
-  // const { data: companies } = useRecruiter();
-  // const [openCalendarStart, setOpenCalendarStart] = useState(false);
-  // const [openCalendarEnd, setOpenCalendarEnd] = useState(false);
-  // const [openDialog, setOpenDialog] = useState(false);
-  // const [previewURL, setPreviewURL] = useState<string | null>(null);
-  // const [fileName, setFileName] = useState<string | null>(null);
-  // const [openCompany, setOpenCompany] = useState(false);
-  // const [company, setCompany] = useState(experience.company);
-  // const [updateStartDate, setUpdateStartDate] = useState<Date | undefined>(
-  //   startDate
-  // );
-  // const [updateEndDate, setUpdateEndDate] = useState<Date | undefined>(
-  //   experience?.endDate ? new Date(experience?.endDate) : undefined
-  // );
-  // console.log(updateEndDate, "hello");
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
+  const { data: universities } = useUniversity();
 
-  //   setPreviewURL(URL.createObjectURL(file));
-  //   setFileName(file.name);
-  // };
-  // const { mutate, isPending } = useUpdateExperience();
+  const [updateStartDate, setUpdateStartDate] = useState<Date | undefined>(
+    startDate
+  );
+  const [updateEndDate, setUpdateEndDate] = useState<Date | undefined>(
+    study?.endDate ? endDate : undefined
+  );
+  const [openCalendarStart, setOpenCalendarStart] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [openCalendarEnd, setOpenCalendarEnd] = useState(false);
+  const [openUniversity, setOpenUniversity] = useState(false);
+  const [university, setUniversity] = useState<University | undefined>(
+    undefined
+  );
 
-  // const {
-  //   register,
-  //   handleSubmit,
-  //   setValue,
-  //   formState: { errors },
-  // } = useForm<UpdateExperienceFormData>({
-  //   resolver: yupResolver(updateExperienceSchema),
-  //   defaultValues: {
-  //     companyId: experience?.company?.id,
-  //     position: experience?.position,
-  //     startDate: updateStartDate?.toISOString().split("T")[0],
-  //     type: experience?.type,
-  //     endDate: updateEndDate?.toISOString().split("T")[0],
-  //     image: experience?.image,
-  //     description: experience?.description,
-  //   },
-  // });
+  const { mutate, isPending } = useUpdateStudy();
 
-  // const types: Type[] = [
-  //   { label: "Part-time", value: "part-time" },
-  //   { label: "Full-time", value: "full-time" },
-  //   { label: "Thực tập", value: "internship" },
-  //   { label: "Tình nguyện", value: "voluntary" },
-  // ];
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<UpdateStudyData>({
+    resolver: yupResolver(updateStudySchema),
+    defaultValues: {
+      universityId: study?.university?.id?.toString() || "",
+      major: study?.major || "",
+      degree: study?.degree || "",
+      startDate: updateStartDate?.toISOString().split("T")[0],
+      endDate: updateEndDate?.toISOString().split("T")[0],
+    },
+  });
+
   return (
     <div
       className={`w-full py-6 flex flex-row items-center gap-4 justify-left relative ${
@@ -139,9 +141,8 @@ export const StudyCard = ({
       }`}
     >
       <div className="absolute top-6 right-0 flex flex-row items-center gap-3 ">
-        {" "}
         {/* Edit experience */}
-        {/*<Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>
@@ -154,110 +155,52 @@ export const StudyCard = ({
               </DialogDescription>
             </DialogHeader>
             <form
-              onSubmit={handleSubmit((data: UpdateExperienceFormData) => {
-                console.log("Send data:", data);
+              onSubmit={handleSubmit((data: UpdateStudyData) => {
                 mutate(
-                  { id: experience?.id?.toString() || "", data },
+                  { id: study?.id?.toString() || "", data },
                   { onSuccess: () => setOpenDialog(false) }
                 );
               })}
             >
               <div className="grid gap-4 px-1 py-4">
-                {/* Position 
-                <div className="grid gap-3">
-                  <Label htmlFor="title">
-                    <span>
-                      Vị trí <span className="text-red-600">*</span>
-                    </span>
-                  </Label>
-                  <Input
-                    placeholder="vd: Frontend Developer Intern"
-                    {...register("position")}
-                  />
-                  {errors.position?.message && (
-                    <span className="text-xs text-red-400">
-                      {errors.position?.message}
-                    </span>
-                  )}
-                </div>
-
-                {/* Type 
-                <div className="grid gap-3">
-                  <Label htmlFor="type">
-                    <span>
-                      Loại hình <span className="text-red-600">*</span>
-                    </span>
-                  </Label>
-
-                  <div
-                    className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-                                  focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-                  >
-                    <Select
-                      onValueChange={(v) =>
-                        setValue("type", v, {
-                          shouldValidate: true,
-                        })
-                      }
-                      {...register("type")}
-                    >
-                      <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
-                        <SelectValue placeholder="Chọn loại hình" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Loại hình</SelectLabel>
-                          {types?.map((type, indx) => (
-                            <SelectItem
-                              key={indx}
-                              value={type.value}
-                              className="text-black group cursor-pointer"
-                            >
-                              <div>{type.label}</div>
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>{" "}
-                  </div>
-                  {errors.type?.message && (
-                    <span className="text-xs text-red-400 ">
-                      {errors.type?.message}
-                    </span>
-                  )}
-                </div>
-
-                {/* Company 
+                {/* University */}{" "}
                 <div className="grid gap-3">
                   <Label>
                     <span>
-                      Công ty <span className="text-red-600">*</span>
+                      Trường <span className="text-red-600">*</span>
                     </span>
                   </Label>
 
-                  <Popover open={openCompany} onOpenChange={setOpenCompany}>
+                  <Popover
+                    open={openUniversity}
+                    onOpenChange={setOpenUniversity}
+                  >
                     <PopoverTrigger asChild>
                       <div
                         role="combobox"
-                        aria-expanded={openCompany}
+                        aria-expanded={openUniversity}
                         className="cursor-pointer !font-primary flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-                                  focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                            focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                       >
-                        {company ? (
+                        {university ? (
                           <div className="flex flex-row items-center gap-1 text-[13px] text-black">
                             <img
                               src={
-                                companies?.find((c) => c.id === company.id)
-                                  ?.avatar || companyDefault
+                                universities?.find(
+                                  (u) => u?.id === university?.id
+                                )?.logo || universityDefault
                               }
                               className="w-6 h-6 rounded-full object-cover mr-2"
                               alt=""
                             />{" "}
-                            {companies?.find((c) => c.id === company.id)?.name}
+                            {
+                              universities?.find(
+                                (u) => u?.id === university?.id
+                              )?.name
+                            }
                           </div>
                         ) : (
-                          "Chọn công ty"
+                          "Chọn trường học"
                         )}
                         <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </div>
@@ -266,36 +209,38 @@ export const StudyCard = ({
                     <PopoverContent className="w-full p-0" align="start">
                       <Command>
                         <CommandInput
-                          placeholder="Tìm kiếm công ty..."
+                          placeholder="Tìm kiếm trường học..."
                           className="text-[13px]"
-                          {...register("companyId")}
+                          {...register("universityId")}
                         />
                         <CommandList>
-                          <CommandEmpty>Không tìm thấy công ty.</CommandEmpty>
+                          <CommandEmpty>
+                            Không tìm thấy trường học.
+                          </CommandEmpty>
                           <CommandGroup>
-                            {companies?.map((c) => (
+                            {universities?.map((u) => (
                               <CommandItem
-                                key={c.id}
-                                value={c.id}
+                                key={u.id}
+                                value={u.name}
                                 onSelect={() => {
-                                  setCompany(c);
-                                  setValue("companyId", c.id, {
+                                  setUniversity(u);
+                                  setValue("universityId", u.id?.toString(), {
                                     shouldValidate: true,
                                   });
-                                  setOpenCompany(false);
+                                  setOpenUniversity(false);
                                 }}
                                 className="text-[13px]"
                               >
                                 <img
-                                  src={c.avatar || companyDefault}
+                                  src={u.logo || universityDefault}
                                   className="w-6 h-6 rounded-full object-cover mr-2"
-                                  alt=""
+                                  alt={u.name}
                                 />
-                                {c.name}
+                                {u.name}
                                 <CheckIcon
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    company.id === c.id
+                                    university?.id === u.id
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
@@ -308,16 +253,74 @@ export const StudyCard = ({
                     </PopoverContent>
                   </Popover>
 
-                  {errors.companyId?.message && (
+                  {errors.universityId?.message && (
                     <span className="text-xs text-red-400 pt-1">
-                      {errors.companyId?.message}
+                      {errors.universityId?.message}
                     </span>
                   )}
                 </div>
+                {/* Major */}{" "}
+                <div className="grid gap-3">
+                  <Label>Chuyên ngành</Label>
+                  <Input
+                    placeholder="vd: Software Engineer"
+                    {...register("major")}
+                  />
+                  {errors.major?.message && (
+                    <span className="text-xs text-red-400">
+                      {errors.major?.message}
+                    </span>
+                  )}
+                </div>
+                {/* Degree */}
+                <div className="grid gap-3">
+                  <Label htmlFor="degree">
+                    <span>
+                      Bằng cấp <span className="text-red-600">*</span>
+                    </span>
+                  </Label>
 
-                {/* Date 
+                  <div
+                    className="flex flex-row items-center gap-2 px-2 text-[#888888] file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
+                                           focus-visible:border-ring focus-visible:ring-primary focus-visible:ring-[1px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                  >
+                    <Select
+                      onValueChange={(v) =>
+                        setValue("degree", v, {
+                          shouldValidate: true,
+                        })
+                      }
+                      {...register("degree")}
+                    >
+                      <SelectTrigger className="!border-none !shadow-none !px-0 text-[13px] text-black">
+                        <SelectValue placeholder="Chọn bằng cấp" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Loại hình</SelectLabel>
+                          {degreeOptions?.map((degree, indx) => (
+                            <SelectItem
+                              key={indx}
+                              value={degree}
+                              className="text-black group cursor-pointer"
+                            >
+                              <div>{degree}</div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>{" "}
+                  </div>
+                  {errors.degree?.message && (
+                    <span className="text-xs text-red-400 ">
+                      {errors.degree?.message}
+                    </span>
+                  )}
+                </div>
+                {/* Date */}
                 <div className="w-full flex flex-row gap-5">
-                  {/* StartDate 
+                  {/* StartDate */}
                   <div className="flex flex-col gap-3 w-1/2">
                     <Label htmlFor="startDate">
                       <span>
@@ -372,7 +375,7 @@ export const StudyCard = ({
                     )}
                   </div>
 
-                  {/* EndDate 
+                  {/* EndDate */}
                   <div className="flex flex-col gap-3 w-1/2">
                     <Label htmlFor="date">Ngày kết thúc</Label>
                     <Popover
@@ -419,67 +422,7 @@ export const StudyCard = ({
                     </Popover>
                   </div>
                 </div>
-
-                {/* Description 
-                <div className="grid gap-3">
-                  <Label htmlFor="description">Mô tả</Label>
-                  <Textarea
-                    placeholder="Mô tả về kinh nghiệm của bạn"
-                    rows={3}
-                    {...register("description")}
-                  />
-                </div>
-
-                {/* Files 
-                <div className="grid gap-3">
-                  <div className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
-                    Hình ảnh
-                  </div>
-                  <span className="text-xs italic text-zinc-500">
-                    Thêm hình ảnh mô tả khoảng thời gian làm việc của bạn
-                  </span>
-                  <Label htmlFor="files">
-                    <div
-                      className={cn(
-                        "file:text-foreground placeholder:text-zinc-400 selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                        "!text-zinc-500 flex flex-row items-center gap-1"
-                      )}
-                    >
-                      <Link size={15} />
-                      <span className="!font-normal !text-[14px]">
-                        Thêm ảnh mới
-                      </span>
-                    </div>
-                  </Label>
-                  <Input
-                    id="files"
-                    placeholder="vd: Frontend Developer Intern"
-                    type="file"
-                    hidden
-                    onChange={(e) => {
-                      handleFileChange(e);
-                      if (e.target.files) {
-                        setValue("image", e.target.files[0], {
-                          shouldValidate: true,
-                        });
-                      }
-                    }}
-                  />
-                </div>
-                {previewURL && (
-                  <div className="flex flex-col gap-2 items-start">
-                    <img
-                      src={previewURL}
-                      className="rounded-md max-h-48 object-contain"
-                      alt="preview"
-                    />
-                    <span className="text-xs text-zinc-500 break-all">
-                      {fileName}
-                    </span>
-                  </div>
-                )}
               </div>
-
               <DialogFooter>
                 <DialogClose asChild>
                   <OutlineButton
@@ -496,7 +439,7 @@ export const StudyCard = ({
               </DialogFooter>
             </form>
           </DialogContent>
-        </Dialog> */}
+        </Dialog>
         {/* Delete experience */}
         <AlertDialog>
           <AlertDialogTrigger asChild>

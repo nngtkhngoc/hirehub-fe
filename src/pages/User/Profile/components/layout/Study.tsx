@@ -52,7 +52,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -122,6 +122,11 @@ export const Study = ({ user }: { user: UserProfile }) => {
       endDate: undefined,
     },
   });
+  useEffect(() => {
+    if (user?.id) {
+      setValue("userId", user.id);
+    }
+  }, [user, setValue]);
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
       <div className="flex flex-col w-full">
@@ -181,13 +186,18 @@ export const Study = ({ user }: { user: UserProfile }) => {
               </DialogHeader>
 
               <form
-                onSubmit={handleSubmit((data: CreateStudyData) => {
-                  data.userId = user.id;
-                  mutate(data, {
-                    onSuccess: () => setOpenDialog(false),
-                  });
-                })}
+                onSubmit={handleSubmit(
+                  (data: CreateStudyData) => {
+                    mutate(data, {
+                      onSuccess: () => setOpenDialog(false),
+                    });
+                  },
+                  (errors) => {
+                    console.log("Validation errors:", errors);
+                  }
+                )}
               >
+                <input type="hidden" {...register("userId")} />
                 <div className="grid gap-4 px-1 py-4">
                   {/* University */}{" "}
                   <div className="grid gap-3">

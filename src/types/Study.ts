@@ -17,3 +17,11 @@ export type CreateStudyData = {
   startDate: string;
   endDate?: string | null;
 };
+
+export type UpdateStudyData = {
+  universityId: string;
+  major?: string | null;
+  degree: string;
+  startDate: string;
+  endDate?: string | null;
+};

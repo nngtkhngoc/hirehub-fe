@@ -1,4 +1,10 @@
-import { createStudy, deleteStudy, getAllUniversities } from "@/apis/study.api";
+import {
+  createStudy,
+  deleteStudy,
+  getAllUniversities,
+  updateStudy,
+} from "@/apis/study.api";
+import type { UpdateStudyData } from "@/types/Study";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -30,33 +36,28 @@ export const useCreateStudy = () => {
   });
 };
 
-// export const useUpdateExperience = () => {
-//   const queryClient = useQueryClient();
+export const useUpdateStudy = () => {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: ({
-//       id,
-//       data,
-//     }: {
-//       id: string;
-//       data: UpdateExperienceFormData;
-//     }) => updateExperience(data, id),
-//     onMutate: () => {
-//       toast.loading("Đang tải dữ liệu", {
-//         id: "loading-toast-update-experience",
-//       });
-//     },
-//     onSuccess: () => {
-//       toast.success("Cập nhật kinh nghiệm thành công!", { duration: 2000 });
-//       queryClient.invalidateQueries({ queryKey: ["profile"] });
-//       toast.dismiss("loading-toast-update-experience");
-//     },
-//     onError: () => {
-//       toast.error("Cập nhật kinh nghiệm thất bại!", { duration: 2500 });
-//       toast.dismiss("loading-toast-update-experience");
-//     },
-//   });
-// };
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateStudyData }) =>
+      updateStudy(data, id),
+    onMutate: () => {
+      toast.loading("Đang tải dữ liệu", {
+        id: "loading-toast-update-study",
+      });
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật học vấn thành công!", { duration: 2000 });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      toast.dismiss("loading-toast-update-study");
+    },
+    onError: () => {
+      toast.error("Cập nhật học vấn thất bại!", { duration: 2500 });
+      toast.dismiss("loading-toast-update-study");
+    },
+  });
+};
 
 export const useDeleteStudy = () => {
   const queryClient = useQueryClient();
