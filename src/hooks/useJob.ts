@@ -51,9 +51,14 @@ export const useSaveJob = () => {
 
   return useMutation({
     mutationFn: saveJob,
+    onMutate: () => {
+      toast.loading("Đang tải...", {
+        id: "loading-save-job",
+      });
+    },
     onSuccess: () => {
-      toast.success("Lưu job thành công!", { duration: 2000 });
-
+      toast.success("Thành công!", { duration: 2000 });
+      toast.dismiss("loading-save-job");
       queryClient.invalidateQueries({
         queryKey: ["saved-jobs"],
         exact: false,
@@ -61,7 +66,7 @@ export const useSaveJob = () => {
       });
     },
     onError: () => {
-      toast.error("Lưu job thất bại!", { duration: 2500 });
+      toast.error("Thao tác thất bại!", { duration: 2500 });
     },
   });
 };

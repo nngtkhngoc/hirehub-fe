@@ -1,7 +1,7 @@
 import type { Job } from "@/types/Job";
-import { OutlineButton } from "./Button";
 import companyDefault from "@/assets/illustration/company.png";
 import { Link } from "react-router-dom";
+import { Button } from "../button";
 
 export const JobLandingPageCard = ({ job }: { job: Job }) => {
   return (
@@ -37,13 +37,9 @@ export const JobLandingPageCard = ({ job }: { job: Job }) => {
           {job?.description}
         </div>
         <div className="float-right">
-          <OutlineButton
-            label="Ứng tuyển ngay"
-            textSize="text-[14px]"
-            paddingX="px-4"
-            paddingY="py-1.5"
-            hoverBgColor="hover:bg-[#DFD2FA]"
-          />
+          <Button variant="outline" className="py-5">
+            Ứng tuyển ngay
+          </Button>
         </div>
       </div>
     </Link>

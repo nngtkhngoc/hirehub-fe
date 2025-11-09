@@ -23,7 +23,7 @@ export const Category = ({
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            className={`flex-1 py-3 px-2 text-left transition-all duration-300 flex items-center text-sm
+            className={`cursor-pointer flex-1 py-3 px-2 text-left transition-all duration-300 flex items-center text-sm
               ${
                 categoryTab === tab.key
                   ? "border-l-4 border-[#5E1EE6] text-primary bg-[#F0E8FF] "

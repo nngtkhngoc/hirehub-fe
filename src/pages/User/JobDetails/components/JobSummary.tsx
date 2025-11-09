@@ -49,7 +49,7 @@ export const JobSummary = ({ job }: { job: Job }) => {
   };
 
   return (
-    <div className="rounded-[10px] border-2 border-[#f2f2f2] px-3 py-3 w-full">
+    <div className="rounded-[10px] border-2 border-[#f2f2f2] px-3 py-3 w-full bg-white">
       <div className="flex flex-col justify-start gap-4  sm:px-5 sm:py-5 md:px-3 md:py-3">
         <div className="flex flex-col justify-start gap-4">
           <div className="font-bold text-black text-lg sm:text-2xl md:text-lg">

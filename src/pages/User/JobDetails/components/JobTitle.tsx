@@ -101,7 +101,7 @@ export const JobTitle = ({ job }: { job: Job }) => {
     });
   };
   return (
-    <div className="flex flex-row w-full justify-between">
+    <div className="flex flex-row w-full justify-between bg-white rounded-[10px] border-2 border-[#f2f2f2] py-8 md:px-10">
       <div className="flex flex-row justify-start gap-2">
         <img
           src={job?.recruiter?.avatar || companyDefault}
@@ -135,6 +135,7 @@ export const JobTitle = ({ job }: { job: Job }) => {
         </button>
         {isAppliedJob ? (
           <a
+            target="_blank"
             href={matchedAppliedJob.link}
             className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer"
           >

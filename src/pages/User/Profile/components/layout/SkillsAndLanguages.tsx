@@ -1,6 +1,6 @@
 import type { UserProfile } from "@/types/Auth";
 import { Skills } from "./Skills";
-import { Languages } from "./Languages";
+// import { Languages } from "./Languages";
 
 export const SkillsAndLanguages = ({ user }: { user: UserProfile }) => {
   return (
@@ -8,7 +8,7 @@ export const SkillsAndLanguages = ({ user }: { user: UserProfile }) => {
       {/* Skills */}
       <Skills user={user} />
       {/* Languages */}
-      <Languages user={user} />
+      {/* <Languages user={user} /> */}
     </div>
   );
 };
