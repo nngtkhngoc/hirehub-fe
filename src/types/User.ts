@@ -3,8 +3,8 @@ import type { Skill } from "./Skill";
 import type { Study } from "./Study";
 
 export type Language = {
-  name: string;
-  level: string; // ví dụ: "Beginner" | "Intermediate" | "Advanced" | "Fluent"
+  level: string;
+  language: Language;
 };
 
 export type User = {
