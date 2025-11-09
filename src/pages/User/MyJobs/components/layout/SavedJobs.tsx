@@ -17,35 +17,37 @@ export const SavedJobs = () => {
 
   const renderJobs = () => {
     return savedJobs.map((job: SavedJob) => (
-      <LinkRoute
-        to={`/job-details/${job.job.id}`}
-        className="border-[#f2f2f2] border-t flex flex-row justify-between w-full py-4 hover:bg-zinc-100 transition-all duration-500 cursor-pointer"
-      >
-        {" "}
-        <div className=" flex flex-row gap-3 ">
-          <img
-            src={job?.job?.recruiter?.avatar || defaultCompany}
-            className="w-[50px] h-[50px] sm:w-[80px] sm:h-[80px] rounded-full object-cover object-center"
-          />
-          <div className="flex flex-col justify-center gap-1 md:justify-start md:py-2 ">
-            <div className="font-bold text-primary text-lg">
-              {job?.job?.title}
+      <div className="w-full relative">
+        <LinkRoute
+          to={`/job-details/${job.job.id}`}
+          className="border-[#f2f2f2] border-t flex flex-row justify-between w-full py-4 hover:bg-zinc-100 transition-all duration-500 cursor-pointer"
+        >
+          {" "}
+          <div className=" flex flex-row gap-3 ">
+            <img
+              src={job?.job?.recruiter?.avatar || defaultCompany}
+              className="w-[50px] h-[50px] sm:w-[80px] sm:h-[80px] rounded-full object-cover object-center"
+            />
+            <div className="flex flex-col justify-center gap-1 md:justify-start md:py-2 ">
+              <div className="font-bold text-primary text-lg">
+                {job?.job?.title}
+              </div>
+              <div className="text-xs text-zinc-500 sm:text-sm">
+                {job?.job?.recruiter?.name}
+              </div>{" "}
             </div>
-            <div className="text-xs text-zinc-500 sm:text-sm">
-              {job?.job?.recruiter?.name}
-            </div>{" "}
           </div>
-        </div>
-        <div className="">
-          <div className="w-[50px] h-[50px] object-cover rounded-full overflow-hidden cursor-pointer">
+        </LinkRoute>
+        <div className="absolute right-0 top-4 z-30">
+          <div className="w-[30px] h-[30px] object-cover rounded-full overflow-hidden cursor-pointer flex items-center justify-center hover:bg-zinc-200 transition-all duration-300">
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Ellipsis />
-              </DropdownMenuTrigger>{" "}
+              </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
                   <button
-                    className="flex flex-row items-center justify-start gap-2"
+                    className="flex flex-row items-center justify-start gap-2 cursor-pointer"
                     onClick={() => {
                       navigator.clipboard.writeText(
                         `/job-details/${job?.job?.id}`
@@ -61,7 +63,7 @@ export const SavedJobs = () => {
             </DropdownMenu>
           </div>
         </div>
-      </LinkRoute>
+      </div>
     ));
   };
   return <div className="flex flex-col w-full">{renderJobs()}</div>;
