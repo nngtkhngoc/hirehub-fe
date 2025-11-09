@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   CheckIcon,
+  CheckLine,
   ChevronDownIcon,
   ChevronsUpDownIcon,
   Edit3,
@@ -82,6 +83,7 @@ interface Type {
 }
 
 export const Experiences = ({ user }: { user: UserProfile }) => {
+  const [editable, setEditable] = useState(false);
   const activeExperiences = user?.experiences?.filter((ex) => !ex.deleted);
   const renderExperiences = () =>
     activeExperiences?.map((ex, index) => (
@@ -89,6 +91,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
         experience={ex}
         lastCard={index == activeExperiences?.length - 1 ? true : false}
         key={ex?.id || index}
+        editable={editable}
       />
     ));
 
@@ -146,6 +149,17 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
           <div className="font-bold text-[16px] md:text-[20px]">
             Kinh nghiệm
           </div>
+          {editable && (
+            <div
+              onClick={() => {
+                setEditable(false);
+              }}
+              className="absolute top-6 right-23 flex flex-row items-center gap-2 text-[12px] font-regular text-zinc-500 cursor-pointer md:text-[14px]"
+            >
+              <CheckLine />
+              <span>Hoàn tất</span>
+            </div>
+          )}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <div className=" absolute top-6 right-7 flex flex-row items-center gap-2 text-[12px] font-regular text-primary cursor-pointer md:text-[14px]">
@@ -177,6 +191,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
+                  setEditable(true);
                 }}
               >
                 <div className="flex flex-row items-center gap-2 text-[12px] font-regular cursor-pointer md:text-[13px]">
@@ -185,7 +200,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>{" "}
+          </DropdownMenu>
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>

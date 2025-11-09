@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   CheckIcon,
+  CheckLine,
   ChevronDownIcon,
   ChevronsUpDownIcon,
   Edit3,
@@ -81,12 +82,15 @@ const degreeOptions = [
 ];
 
 export const Study = ({ user }: { user: UserProfile }) => {
+  const [editable, setEditable] = useState(false);
+
   const renderStudies = () =>
     user?.studies?.map((std, index) => (
       <StudyCard
         study={std}
         lastCard={index == user?.studies.length - 1 ? true : false}
         key={std?.id}
+        editable={editable}
       />
     ));
 
@@ -131,7 +135,18 @@ export const Study = ({ user }: { user: UserProfile }) => {
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
       <div className="flex flex-col w-full">
         <div className="flex flex-row justify-between items-center w-full md:pr-5 py-5 border-b border-[#A6A6A6] relative">
-          <div className="font-bold text-[16px] md:text-[20px]">Học vấn</div>
+          <div className="font-bold text-[16px] md:text-[20px]">Học vấn</div>{" "}
+          {editable && (
+            <div
+              onClick={() => {
+                setEditable(false);
+              }}
+              className="absolute top-6 right-23 flex flex-row items-center gap-2 text-[12px] font-regular text-zinc-500 cursor-pointer md:text-[14px]"
+            >
+              <CheckLine />
+              <span>Hoàn tất</span>
+            </div>
+          )}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <div className=" absolute top-6 right-7 flex flex-row items-center gap-2 text-[12px] font-regular text-primary cursor-pointer md:text-[14px]">
@@ -163,6 +178,7 @@ export const Study = ({ user }: { user: UserProfile }) => {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
+                  setEditable(true);
                 }}
               >
                 <div className="flex flex-row items-center gap-2 text-[12px] font-regular cursor-pointer md:text-[13px]">
