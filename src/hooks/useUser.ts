@@ -5,7 +5,7 @@ import {
   updateUser,
 } from "@/apis/user.api";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useRecruiter = (
@@ -29,15 +29,28 @@ export const useUsers = (page?: number, size?: number) => {
 
 export const useUpdateUser = () => {
   const setUser = useAuthStore((state) => state.setUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (formData: FormData) => updateUser(formData),
+    onMutate: () => {
+      toast.loading("Đang tải dữ liệu", {
+        id: "loading-toast-update-user",
+      });
+    },
     onSuccess: (user) => {
       setUser(user);
       toast.success("Cập nhật thành công!");
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+
+      toast.dismiss("loading-toast-update-user");
     },
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
       toast.error("Cập nhật thất bại!");
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+
+      toast.dismiss("loading-toast-update-user");
     },
   });
 };

@@ -4,8 +4,6 @@ import { useMediaQuery } from "@mui/material";
 import { Camera, Edit3, MapPin, Send, UserPlus } from "lucide-react";
 import profile from "@/assets/illustration/default_profile.webp";
 import { useUpdateUser } from "@/hooks/useUser";
-import { toast } from "sonner";
-import { useEffect } from "react";
 import {
   Dialog,
   DialogClose,
@@ -38,16 +36,6 @@ export const BasicInfor = ({
 }) => {
   const isMedium = useMediaQuery("(min-width:768px)");
   const { mutate, isPending } = useUpdateUser();
-
-  useEffect(() => {
-    if (isPending) {
-      toast.loading("Đang tải dữ liệu...", {
-        id: "loading-toast",
-      });
-    } else {
-      toast.dismiss("loading-toast");
-    }
-  }, [isPending]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
