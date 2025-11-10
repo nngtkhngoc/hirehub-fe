@@ -56,3 +56,10 @@ export type UserFormData = {
   languages?: Language[];
   study?: Study[];
 };
+
+export type SignUpCandidateData = {
+  email: string;
+  name: string;
+  password: string;
+  confirmPassword: string;
+};

@@ -59,3 +59,16 @@ export const getProfile = async (): Promise<UserProfile> => {
   const res = await axiosClient.get(`${BASE_URL}/api/auth/me`);
   return res.data.data;
 };
+
+export const signUpCandidate = async (signUpCandidateData: {
+  email: string;
+  name?: string;
+  password: string;
+}) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/auth/login`,
+    signUpCandidateData
+  );
+
+  return res.data;
+};
