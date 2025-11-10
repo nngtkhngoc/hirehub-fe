@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { getProfile, signOut, signUpCandidate } from "@/apis/auth.api";
+import { getProfile, signOut, signUp } from "@/apis/auth.api";
 import type { AxiosError } from "axios";
 
 export const useSignOut = () => {
@@ -43,9 +43,9 @@ export const useProfile = () => {
   return query;
 };
 
-export const useSignUpCandidate = () => {
+export const useSignUp = () => {
   return useMutation({
-    mutationFn: signUpCandidate,
+    mutationFn: signUp,
     onSuccess: () => {
       toast.success("Đăng kí thành công!", { duration: 1500 });
     },
