@@ -4,16 +4,16 @@ import { Eye, EyeOff } from "lucide-react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { SignUpData } from "@/types/Auth";
-import { useSignUp } from "@/hooks/useAuth";
+import type { SignUpCandidateData } from "@/types/Auth";
+import { useSignUpCandidate } from "@/hooks/useAuth";
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import google from "@/assets/icons/google.png";
 
-type SignUpCandidateFormData = SignUpData & {
+type SignUpCandidateFormData = SignUpCandidateData & {
   confirmPassword: string;
 };
 
-const schema: yup.ObjectSchema<any> = yup
+const schema: yup.ObjectSchema<SignUpCandidateFormData> = yup
   .object({
     email: yup
       .string()
@@ -55,7 +55,7 @@ export const SignUpCandidate = ({
     mode: "onBlur",
   });
 
-  const { mutate, isPending, isSuccess } = useSignUp();
+  const { mutate, isPending, isSuccess } = useSignUpCandidate();
 
   const onSubmit: SubmitHandler<SignUpCandidateFormData> = (data) => {
     const payload = (({ email, name, password }) => ({

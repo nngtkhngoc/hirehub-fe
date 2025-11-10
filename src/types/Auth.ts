@@ -57,11 +57,16 @@ export type UserFormData = {
   study?: Study[];
 };
 
-export type SignUpData = {
+export type SignUpCandidateData = {
   email: string;
   name: string;
-  foundedYear?: number;
-  numberOfEmployee?: string;
   password: string;
-  roleId: number;
+};
+
+export type SignUpRecruiterData = {
+  email: string;
+  name: string;
+  foundedYear: number | undefined;
+  numberOfEmployees: string | undefined;
+  password: string;
 };

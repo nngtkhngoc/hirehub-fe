@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/axios";
-import type { SignUpData, UserProfile } from "@/types/Auth";
+import type { UserProfile } from "@/types/Auth";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -60,9 +60,29 @@ export const getProfile = async (): Promise<UserProfile> => {
   return res.data.data;
 };
 
-export const signUp = async (data: SignUpData) => {
+export const signUpCandidate = async (signUpCandidateData: {
+  email: string;
+  name?: string;
+  password: string;
+  roleId?: number;
+}) => {
   const res = await axiosClient.post(`${BASE_URL}/api/auth/sign-up`, {
-    ...data,
+    ...signUpCandidateData,
+  });
+
+  return res.data;
+};
+
+export const signUpRecruiter = async (signUpCandidateData: {
+  email: string;
+  name?: string;
+  password: string;
+  roleId?: number;
+  foundedYear: number | undefined;
+  numberOfEmployees: string | undefined;
+}) => {
+  const res = await axiosClient.post(`${BASE_URL}/api/auth/sign-up`, {
+    ...signUpCandidateData,
   });
 
   return res.data;

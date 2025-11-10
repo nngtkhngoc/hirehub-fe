@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState, useEffect } from "react";
-
-import { ChevronDownIcon, Eye, EyeOff } from "lucide-react";
-
+import { Eye, EyeOff } from "lucide-react";
+import { useForm, type Resolver, type SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import {
   Select,
   SelectContent,
@@ -10,22 +10,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { SignUpRecruiterData } from "@/types/Auth";
+import { useSignUpRecruiter } from "@/hooks/useAuth";
+import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
+import google from "@/assets/icons/google.png";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
+type SignUpRecruiterFormData = SignUpRecruiterData & {
+  confirmPassword: string;
+};
 
-export const SignUpRecruiter = ({ ref }: { ref: any }) => {
+const schema = yup
+  .object({
+    email: yup
+      .string()
+      .email("Email không hợp lệ")
+      .required("Vui lòng nhập email"),
+    name: yup.string().required("Vui lòng nhập tên công ty"),
+    foundedYear: yup
+      .number()
+      .typeError("Vui lòng nhập năm hợp lệ")
+      .min(1900, "Năm phải lớn hơn 1900")
+      .max(new Date().getFullYear(), "Năm không được lớn hơn hiện tạin")
+      .default(undefined),
+    numberOfEmployees: yup.string().default(undefined),
+    password: yup
+      .string()
+      .required("Vui lòng nhập mật khẩu")
+      .min(6, "Mật khẩu ít nhất 6 ký tự"),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], "Mật khẩu xác nhận không khớp")
+      .required("Vui lòng xác nhận mật khẩu"),
+  })
+  .required();
+
+export const SignUpRecruiter = ({
+  ref,
+}: {
+  ref?: React.RefObject<HTMLInputElement>;
+}) => {
   const [openPassword, setOpenPassword] = useState(false);
   const [openCfPassword, setOpenCfPassword] = useState(false);
 
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(undefined);
   const emailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,80 +60,114 @@ export const SignUpRecruiter = ({ ref }: { ref: any }) => {
     }
   }, [ref]);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<SignUpRecruiterFormData>({
+    resolver: yupResolver(
+      schema
+    ) as unknown as Resolver<SignUpRecruiterFormData>,
+    mode: "onBlur",
+  });
+  const { mutate, isPending } = useSignUpRecruiter();
+
+  const onSubmit: SubmitHandler<SignUpRecruiterFormData> = (data) => {
+    const payload = (({
+      email,
+      name,
+      password,
+      foundedYear,
+      numberOfEmployees,
+    }) => ({
+      email,
+      name,
+      password,
+      foundedYear,
+      numberOfEmployees,
+    }))(data);
+    mutate({ ...payload, roleId: 3 });
+  };
+
   return (
-    <form className="flex flex-col gap-5">
-      <div className="flex flex-col ">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      {/* Email */}
+      <div className="flex flex-col">
         <label htmlFor="email" className="text-[14px] font-semibold">
           Email
         </label>
         <input
-          type="text"
           id="email"
-          className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
+          type="text"
           placeholder="example@gmail.com"
-          required
-          ref={ref}
+          className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
+          {...register("email")}
+          ref={(el) => {
+            register("email").ref(el);
+            if (ref && el) ref.current = el;
+          }}
         />
+        {errors.email && (
+          <span className="text-xs text-red-400 pt-2">
+            {errors.email.message}
+          </span>
+        )}
       </div>
 
-      <div className="flex flex-col ">
-        <label htmlFor="fname" className="text-[14px] font-semibold">
+      {/* Company name */}
+      <div className="flex flex-col">
+        <label htmlFor="name" className="text-[14px] font-semibold">
           Tên công ty
         </label>
         <input
+          id="name"
           type="text"
-          id="fname"
+          placeholder="Công ty TNHH ABC"
           className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
-          placeholder="Công ty TNHH Abc"
-          required
+          {...register("name")}
         />
+        {errors.name && (
+          <span className="text-xs text-red-400 pt-2">
+            {errors.name.message}
+          </span>
+        )}
       </div>
 
+      {/* Năm & nhân viên */}
       <div className="flex flex-row items-center justify-between gap-2">
         <div className="flex flex-col gap-3 w-1/2">
-          <label htmlFor="date" className="text-[13px] font-semibold">
-            Ngày thành lập
+          <label htmlFor="foundedYear" className="text-[13px] font-semibold">
+            Năm thành lập
           </label>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className={cn(
-                  "w-48 justify-between font-normal w-full text-[13px]",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                {date ? date.toLocaleDateString() : "Chọn ngày"}
-                <ChevronDownIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={date}
-                captionLayout="dropdown"
-                onSelect={(date) => {
-                  setDate(date);
-                  setOpen(false);
-                }}
-              />
-            </PopoverContent>
-          </Popover>
+          <input
+            id="foundedYear"
+            type="number"
+            placeholder="VD: 2015"
+            className="border-b border-primary font-light text-[14px] py-2 focus:outline-none"
+            {...register("foundedYear")}
+          />
+          {errors.foundedYear && (
+            <span className="text-xs text-red-400 pt-2">
+              {errors.foundedYear.message}
+            </span>
+          )}
         </div>
+
         <div className="flex flex-col gap-3 w-1/2">
-          <label htmlFor="employees" className="text-[13px] font-semibold">
+          <label
+            htmlFor="numberOfEmployees"
+            className="text-[13px] font-semibold"
+          >
             Số lượng nhân viên
           </label>
-          <Select>
-            <SelectTrigger className="w-full">
-              <SelectValue
-                placeholder="Chọn số lượng"
-                className="text-[13px]"
-              />
+          <Select
+            onValueChange={(value) =>
+              setValue("numberOfEmployees", value, { shouldValidate: true })
+            }
+          >
+            <SelectTrigger className="w-full text-[13px]">
+              <SelectValue placeholder="Chọn số lượng" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="small" className="text-[13px]">
@@ -116,80 +176,109 @@ export const SignUpRecruiter = ({ ref }: { ref: any }) => {
               <SelectItem value="medium" className="text-[13px]">
                 {"> 50 & < 100"}
               </SelectItem>
-              <SelectItem value="large" className="text-[13px]">
+              <SelectItem value="big" className="text-[13px]">
                 {"> 100"}
               </SelectItem>
             </SelectContent>
           </Select>
+          {errors.numberOfEmployees && (
+            <span className="text-xs text-red-400 pt-2">
+              {errors.numberOfEmployees.message}
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Password */}
       <div className="flex flex-col">
         <label htmlFor="password" className="text-[14px] font-semibold">
           Mật khẩu
         </label>
         <div className="relative">
           <input
+            id="password"
             type={openPassword ? "text" : "password"}
-            className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
             placeholder="********"
-            required
-            id="pasword"
+            className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
+            {...register("password")}
           />
           {openPassword ? (
             <Eye
               strokeWidth={0.75}
               className="absolute top-2 right-0 cursor-pointer"
               size={16}
-              onClick={() => {
-                setOpenPassword(false);
-              }}
+              onClick={() => setOpenPassword(false)}
             />
           ) : (
             <EyeOff
               strokeWidth={0.75}
               className="absolute top-2 right-0 cursor-pointer"
               size={16}
-              onClick={() => {
-                setOpenPassword(true);
-              }}
+              onClick={() => setOpenPassword(true)}
             />
           )}
         </div>
+        {errors.password && (
+          <span className="text-xs text-red-400 pt-2">
+            {errors.password.message}
+          </span>
+        )}
       </div>
 
+      {/* Confirm Password */}
       <div className="flex flex-col">
-        <label htmlFor="cfPassword" className="text-[14px] font-semibold">
+        <label htmlFor="confirmPassword" className="text-[14px] font-semibold">
           Xác nhận mật khẩu
         </label>
         <div className="relative">
           <input
+            id="confirmPassword"
             type={openCfPassword ? "text" : "password"}
-            className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
             placeholder="********"
-            required
-            id="cfPasword"
+            className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
+            {...register("confirmPassword")}
           />
           {openCfPassword ? (
             <Eye
               strokeWidth={0.75}
               className="absolute top-2 right-0 cursor-pointer"
               size={16}
-              onClick={() => {
-                setOpenCfPassword(false);
-              }}
+              onClick={() => setOpenCfPassword(false)}
             />
           ) : (
             <EyeOff
               strokeWidth={0.75}
               className="absolute top-2 right-0 cursor-pointer"
               size={16}
-              onClick={() => {
-                setOpenCfPassword(true);
-              }}
+              onClick={() => setOpenCfPassword(true)}
             />
           )}
         </div>
+        {errors.confirmPassword && (
+          <span className="text-xs text-red-400 pt-2">
+            {errors.confirmPassword.message}
+          </span>
+        )}
+      </div>
+
+      <div className="w-full flex flex-col gap-3">
+        <PrimaryButton
+          label="Đăng ký"
+          paddingX="w-full"
+          type="submit"
+          loadingText="Đang tải..."
+          disabled={isPending}
+          loading={isPending}
+        />
+        <div className="text-center text-[12px] text-[#263238]">hoặc</div>
+        <OutlineButton
+          label={
+            <div className="w-full flex flex-row gap-2 justify-center items-center">
+              <img src={google} alt="google" className="w-[20px] h-[20px]" />
+              <span className="text-[12px]">Đăng ký bằng Google</span>
+            </div>
+          }
+        />
       </div>
     </form>
   );
