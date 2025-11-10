@@ -64,11 +64,12 @@ export const signUpCandidate = async (signUpCandidateData: {
   email: string;
   name?: string;
   password: string;
+  roleId?: number;
 }) => {
-  const res = await axiosClient.post(
-    `${BASE_URL}/api/auth/login`,
-    signUpCandidateData
-  );
+  const res = await axiosClient.post(`${BASE_URL}/api/auth/sign-up`, {
+    ...signUpCandidateData,
+    roleId: signUpCandidateData.roleId ?? 1,
+  });
 
   return res.data;
 };

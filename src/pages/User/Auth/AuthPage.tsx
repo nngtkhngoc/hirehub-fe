@@ -25,9 +25,9 @@ export const AuthPage = () => {
     },
   };
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    inputRef.current?.focus();
+    ref.current?.focus();
   }, [authTab]);
 
   const renderTabContents = () => {
@@ -77,9 +77,9 @@ export const AuthPage = () => {
           </div>
 
           {authTab === "sign-in" ? (
-            <SignIn ref={inputRef} />
+            <SignIn ref={ref} />
           ) : (
-            <SignUp ref={inputRef} />
+            <SignUp ref={ref} setAuthTab={setAuthTab} />
           )}
         </div>
         <img

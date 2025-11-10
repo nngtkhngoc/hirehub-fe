@@ -84,7 +84,9 @@ export const SignIn = ({ ref }: { ref: any }) => {
                 (ref as React.RefObject<HTMLInputElement | null>).current = el;
             }}
           />{" "}
-          <p className="text-xs text-red-400 pt-2">{errors.email?.message}</p>
+          <span className="text-xs text-red-400 pt-2">
+            {errors.email?.message}
+          </span>
         </div>
 
         {/* Password */}
@@ -99,9 +101,9 @@ export const SignIn = ({ ref }: { ref: any }) => {
               className="border-b border-primary font-light text-[14px] py-2 focus:outline-none w-full"
               placeholder="********"
             />
-            <p className="text-xs text-red-400 pt-2">
+            <span className="text-xs text-red-400 pt-2">
               {errors.password?.message}
-            </p>
+            </span>
 
             {openPassword ? (
               <Eye

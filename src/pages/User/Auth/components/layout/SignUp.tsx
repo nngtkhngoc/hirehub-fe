@@ -1,20 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 
-import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SignUpCandidate } from "./SignUpCandidate";
 import { SignUpRecruiter } from "./SignUpRecruiter";
-import google from "@/assets/icons/google.png";
 
-export const SignUp = ({ ref }: { ref: any }) => {
+export const SignUp = ({
+  ref,
+  setAuthTab,
+}: {
+  ref: any;
+  setAuthTab: React.Dispatch<React.SetStateAction<"sign-in" | "sign-up">>;
+}) => {
   const [typeAccount, setTypeAccount] = useState<"candidate" | "recruiter">(
     "candidate"
   );
 
   return (
     <div className="bg-white rounded-[10px] shadow-[0_2px_10px_0_#DFD2FA] w-full px-6 md:px-8 py-10 gap-6 flex flex-col">
-      <form className="flex flex-col gap-5 text-[14px]">
+      <div className="flex flex-col gap-5 text-[14px]">
         {/* Loại tài khoản */}
         <div className="flex flex-col gap-3 w-full">
           <label className="font-semibold">Loại tài khoản:</label>
@@ -51,25 +55,13 @@ export const SignUp = ({ ref }: { ref: any }) => {
         </div>
 
         {typeAccount == "candidate" ? (
-          <SignUpCandidate ref={ref} />
+          <SignUpCandidate ref={ref} setAuthTab={setAuthTab} />
         ) : (
           <SignUpRecruiter ref={ref} />
         )}
-      </form>
+      </div>
 
       {/* Buttons */}
-      <div className="w-full flex flex-col gap-3">
-        <PrimaryButton label="Đăng ký" paddingX="w-full" />
-        <div className="text-center text-[12px] text-[#263238]">hoặc</div>
-        <OutlineButton
-          label={
-            <div className="w-full flex flex-row gap-2 justify-center items-center">
-              <img src={google} alt="google" className="w-[20px] h-[20px]" />
-              <span className="text-[12px]">Đăng ký bằng Google</span>
-            </div>
-          }
-        />
-      </div>
     </div>
   );
 };
