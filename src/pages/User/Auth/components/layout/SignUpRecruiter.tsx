@@ -92,7 +92,6 @@ export const SignUpRecruiter = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-      {/* Email */}
       <div className="flex flex-col">
         <label htmlFor="email" className="text-[14px] font-semibold">
           Email
