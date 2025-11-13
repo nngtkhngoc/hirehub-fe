@@ -5,7 +5,7 @@ import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
-const SOCKET_URL = BASE_URL + "/ws-chat";
+const SOCKET_URL = BASE_URL + "/ws";
 
 export const useStomp = () => {
   const [connected, setConnected] = useState(false);
@@ -38,6 +38,8 @@ export const useStomp = () => {
       "/user/queue/messages",
       (msg: any) => {
         const body = JSON.parse(msg.body);
+        console.log("Received:", msg.body);
+
         callback && callback(body);
       }
     );
