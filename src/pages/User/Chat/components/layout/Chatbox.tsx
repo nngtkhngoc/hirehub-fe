@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react";
 import type { UserProfile } from "@/types/Auth";
 import { useStomp } from "@/hooks/useStomp";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useChat } from "@/hooks/useChat";
+import type { Message } from "@/types/Chat";
 
 export const Chatbox = ({
   receiver,
@@ -12,27 +14,27 @@ export const Chatbox = ({
   receiver: UserProfile | undefined;
 }) => {
   // user?.email: current user (string), receiver?.email: recipient user?.email
-  const [messages, setMessages] = useState([]);
   const inputRef = useRef<any>(null);
   const { connected, subscribePrivate, sendPrivate } = useStomp();
   const { user } = useAuthStore();
+  const { data: history, isLoading } = useChat(
+    parseInt(receiver?.id!),
+    parseInt(user?.id!)
+  );
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    // load history
-    axios
-      .get(`/api/chat/history?userA=${user?.id}&userB=${receiver?.id}`)
-      .then((res) => setMessages(res.data || []))
-      .catch((err) => console.error(err));
-  }, [user?.isBanned, receiver?.id]);
+    if (history) setMessages(history);
+    console.log("chaof", messages);
+  }, [history]);
 
   useEffect(() => {
     if (!connected) return;
     const sub = subscribePrivate((msg: any) => {
-      // msg: { sender, recipient, content, timestamp }
-      // push message only if sender==receiver?.email or recipient==receiver?.email
       if (
-        (msg.sender === receiver?.email && msg.recipient === user?.email) ||
-        (msg.sender === user?.email && msg.recipient === receiver?.email)
+        (msg.senderEmail == receiver?.email &&
+          msg.receiverEmail === user?.email) ||
+        (msg.senderEmail == user?.email && msg.receiverEmail == receiver?.email)
       ) {
         setMessages((prev) => [...prev, msg]);
       }
@@ -42,11 +44,13 @@ export const Chatbox = ({
 
   const handleSend = () => {
     const content = inputRef.current.value.trim();
+    if (!content || !user?.email || !receiver?.email) return;
+
     if (!content) return;
     const payload = {
-      sender: user?.email,
-      recipient: receiver?.email,
-      content,
+      senderEmail: user?.email,
+      receiverEmail: receiver?.email,
+      message: content,
     };
     sendPrivate(payload);
     inputRef.current.value = "";
@@ -66,16 +70,16 @@ export const Chatbox = ({
           padding: 8,
         }}
       >
-        {/* {messages?.map((m, idx) => (
+        {messages?.map((m, idx) => (
           <div
             key={idx}
             style={{
-              textAlign: m?.sender === user?.email ? "right" : "left",
+              textAlign: m?.sender?.email == user?.email ? "right" : "left",
               margin: "6px 0",
             }}
           >
             <div>
-              <small>{m?.sender}</small>
+              <small>{m?.sender?.name}</small>
             </div>
             <div
               style={{
@@ -85,13 +89,13 @@ export const Chatbox = ({
                 background: "#f1f1f1",
               }}
             >
-              {m?.content}
+              {m?.message}
             </div>
             <div>
-              <small>{new Date(m?.timestamp).toLocaleString()}</small>
+              <small>{new Date(m?.createdAt).toLocaleString()}</small>
             </div>
           </div>
-        ))} */}
+        ))}
       </div>
       <div style={{ marginTop: 8 }}>
         <input
