@@ -9,10 +9,16 @@ export const ChatboxPage = () => {
   const { data: receiver, isLoading } = useUserById(parseInt(id!));
 
   return (
-    <div className="flex flex-row pt-50">
-      <UserList />
-      <Chatbox receiver={receiver} />
-      <UserDetail />
+    <div className="flex flex-row  px-4 pt-[100px] bg-white  pb-[50px] ">
+      <div className="w-1/4">
+        <UserList />
+      </div>
+      <div className="w-1/2">
+        <Chatbox receiver={receiver} />
+      </div>
+      <div className="w-1/4">
+        <UserDetail />
+      </div>
     </div>
   );
 };

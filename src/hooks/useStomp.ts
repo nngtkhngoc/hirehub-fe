@@ -10,7 +10,7 @@ const SOCKET_URL = BASE_URL + "/ws";
 export const useStomp = () => {
   const [connected, setConnected] = useState(false);
 
-  const clientRef = useRef<any>(null); // Tham chiếu tới client STOMP để không bị tạo nhiều client khi component re-render
+  const clientRef = useRef<any>(null);
   useEffect(() => {
     const socket = new SockJS(SOCKET_URL);
     const stompClient = new Client({
