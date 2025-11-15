@@ -33,12 +33,11 @@ export const useStomp = () => {
 
   const subscribePrivate = (callback: any) => {
     if (!clientRef.current || !clientRef.current.connected) return;
-    // subscribe user destination - server sends to /user/{username}/queue/messages
     const sub = clientRef.current.subscribe(
       "/user/queue/messages",
       (msg: any) => {
         const body = JSON.parse(msg.body);
-        console.log("Received:", msg.body);
+        // console.log("Received:", msg.body);
 
         callback && callback(body);
       }
