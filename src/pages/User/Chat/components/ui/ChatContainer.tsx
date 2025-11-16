@@ -1,6 +1,7 @@
 import profile from "@/assets/illustration/profile.png";
 import type { Message } from "@/types/Chat";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { Link, useParams } from "react-router";
 
 export const ChatContainer = ({
   message,
@@ -12,8 +13,16 @@ export const ChatContainer = ({
     user?.email == message?.receiver?.email
       ? message?.sender
       : message?.receiver;
+
+  const { id } = useParams();
+
   return (
-    <div className="w-full ">
+    <Link
+      to={`/chat/${otherUser?.id}`}
+      className={`w-full hover:bg-zinc-100 py-2 rounded-xl cursor-pointer ${
+        id == otherUser?.id && "bg-zinc-100"
+      }`}
+    >
       <div className="flex flex-row gap-3 px-3 overflow-hidden">
         <img
           src={otherUser?.avatar || profile}
@@ -29,6 +38,6 @@ export const ChatContainer = ({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

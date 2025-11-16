@@ -67,13 +67,13 @@ export const Chatbox = ({
   };
 
   return (
-    <div className="w-full h-full flex flex-col border border-zinc-300 rounded-xl bg-white shadow-sm">
+    <div className="w-full  h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white ">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[70px]">
+      <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[62px]">
         <img
           src={receiver?.avatar || profile}
           alt="avatar"
-          className="w-12 h-12 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex flex-col">
           <span className="font-semibold text-zinc-800">{receiver?.name}</span>
@@ -82,7 +82,7 @@ export const Chatbox = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm  overflow-y-scroll">
         {messages?.map((m, idx) => {
           const isMine = m?.sender?.email == user?.email;
 
@@ -131,7 +131,7 @@ export const Chatbox = ({
         <input
           ref={inputRef}
           placeholder="Nhập tin nhắn..."
-          className="flex-1 px-4 py-2 rounded-full border border-zinc-300 focus:outline-none bg-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          className="flex-1 px-4 py-2 rounded-full border border-zinc-300 focus:outline-none bg-white focus:ring-1 focus:ring-primary focus:border-transparent"
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />
 

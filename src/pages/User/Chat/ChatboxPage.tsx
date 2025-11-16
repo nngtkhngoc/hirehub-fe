@@ -19,7 +19,7 @@ export const ChatboxPage = () => {
             <Chatbox receiver={receiver} />
           </div>
           <div className="w-1/4">
-            <UserDetail />
+            <UserDetail receiver={receiver} />
           </div>
         </div>
       </div>

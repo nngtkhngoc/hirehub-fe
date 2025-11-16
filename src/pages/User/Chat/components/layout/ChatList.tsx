@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { ChatContainer } from "../ui/ChatContainer";
 import type { Message } from "@/types/Chat";
 import { Search } from "lucide-react";
+import { useParams } from "react-router";
 
 export const ChatList = () => {
   const { user } = useAuthStore();
@@ -22,12 +23,13 @@ export const ChatList = () => {
         Trò chuyện{" "}
       </div>
       <div className="flex flex-row justify-around items-center bg-white rounded-[30px] w-9/10 h-[50px]  bg-zinc-100">
-        <div className="text-[12px] lg:text-[14px] text-[#7A7D87] lg:flex lg:flex-row lg:items-center ">
-          Tìm kiếm tin nhắn với<span className="hidden lg:block">...</span>
-        </div>
+        <input
+          className="text-[12px] lg:text-[14px] text-[#7A7D87] lg:flex lg:flex-row lg:items-center focus:outline-none"
+          placeholder="Tìm kiếm tin nhắn với..."
+        />
         <Search size={18} className="hover:cursor-pointer" />
       </div>
-      <div className=" overflow-y-scroll flex flex-col items-center gap-5 w-full px-2 h-full">
+      <div className=" overflow-y-scroll flex flex-col items-center w-full px-2 h-full">
         {renderChats()}
       </div>
     </div>
