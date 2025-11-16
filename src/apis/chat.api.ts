@@ -11,3 +11,11 @@ export const getHistory = async (getHistoryParams: {
   });
   return res.data;
 };
+
+export const getChatList = async (getChatListParams: { userId: number }) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/messages/chat-list`, {
+    params: getChatListParams,
+  });
+
+  return res.data;
+};

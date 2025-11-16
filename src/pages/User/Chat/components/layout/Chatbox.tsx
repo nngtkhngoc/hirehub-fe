@@ -9,7 +9,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat } from "@/hooks/useChat";
 import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { Send, SendHorizonal } from "lucide-react";
+import { Send } from "lucide-react";
 
 export const Chatbox = ({
   receiver,
@@ -41,7 +41,13 @@ export const Chatbox = ({
           msg.receiverEmail == user?.email) ||
         (msg.senderEmail == user?.email && msg.receiverEmail == receiver?.email)
       ) {
-        setMessages((prev) => [...prev, msg]);
+        const newMsg = {
+          receiver,
+          sender: user,
+          createdAt: new Date().toISOString(),
+          message: msg.message,
+        };
+        setMessages((prev) => [...prev, newMsg]);
       }
     });
     return () => sub && sub.unsubscribe();

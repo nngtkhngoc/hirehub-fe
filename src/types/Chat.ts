@@ -1,9 +1,9 @@
 import type { UserProfile } from "./Auth";
 
 export type Message = {
-  id: string;
+  id?: string;
   message: string;
   createdAt: string;
-  sender: UserProfile;
-  receiver: UserProfile;
+  sender: UserProfile | undefined | null;
+  receiver: UserProfile | undefined | null;
 };
