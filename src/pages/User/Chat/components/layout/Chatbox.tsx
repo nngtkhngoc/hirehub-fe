@@ -69,7 +69,7 @@ export const Chatbox = ({
   return (
     <div className="w-full h-full flex flex-col border border-zinc-300 rounded-xl bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl ">
+      <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[70px]">
         <img
           src={receiver?.avatar || profile}
           alt="avatar"
@@ -82,7 +82,7 @@ export const Chatbox = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
         {messages?.map((m, idx) => {
           const isMine = m?.sender?.email == user?.email;
 
@@ -127,7 +127,7 @@ export const Chatbox = ({
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl">
+      <div className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm">
         <input
           ref={inputRef}
           placeholder="Nhập tin nhắn..."

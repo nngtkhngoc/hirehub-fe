@@ -8,7 +8,7 @@ export const useChat = (userA: number, userB: number) => {
   });
 };
 
-export const useChatList = (userId: number) => {
+export const useChatList = (userId: number | null) => {
   return useQuery({
     queryKey: ["chat-list", userId],
     queryFn: () => getChatList({ userId: userId }),
