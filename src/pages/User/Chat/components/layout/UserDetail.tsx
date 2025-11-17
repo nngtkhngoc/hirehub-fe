@@ -60,7 +60,7 @@ export const UserDetail = ({
               Hình ảnh
             </div>
             <div className=" w-full flex flex-row items-center gap-2 justify-left py-3 rounded-xl hover:bg-zinc-100 px-3 cursor-pointer">
-              <Files strokeWidth="1.4" />
+              <Files strokeWidth="1.5" />
               File
             </div>
           </CollapsibleContent>
