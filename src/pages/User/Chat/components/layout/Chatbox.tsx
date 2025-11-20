@@ -2,14 +2,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import type { UserProfile } from "@/types/Auth";
 import { useStomp } from "@/hooks/useStomp";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat } from "@/hooks/useChat";
 import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { Send } from "lucide-react";
+import { Check, Send } from "lucide-react";
 
 export const Chatbox = ({
   receiver,
@@ -17,7 +17,13 @@ export const Chatbox = ({
   receiver: UserProfile | undefined;
 }) => {
   const inputRef = useRef<any>(null);
-  const { connected, subscribePrivate, sendPrivate } = useStomp();
+  const {
+    connected,
+    subscribePrivateMessage,
+    sendPrivate,
+    subscribeSeenMessage,
+    sendSeen,
+  } = useStomp();
   const { user } = useAuthStore();
 
   const { data: history } = useChat(
@@ -29,13 +35,11 @@ export const Chatbox = ({
 
   useEffect(() => {
     if (history) setMessages(history);
-    console.log(history);
   }, [history]);
 
   useEffect(() => {
     if (!connected) return;
-    const sub = subscribePrivate((msg: any) => {
-      console.log("hello", msg);
+    const sub = subscribePrivateMessage((msg: any) => {
       if (
         (msg.senderEmail == receiver?.email &&
           msg.receiverEmail == user?.email) ||
@@ -53,6 +57,28 @@ export const Chatbox = ({
     return () => sub && sub.unsubscribe();
   }, [connected, receiver?.email, user?.email]);
 
+  const isSeen = useMemo(() => {
+    const seenUsers = messages[messages?.length - 1]?.seenUsers;
+
+    if (seenUsers && seenUsers.length >= 0) {
+      return seenUsers.some((user) => user.id == receiver?.id);
+    }
+
+    return false;
+  }, [messages, receiver]);
+
+  useEffect(() => {
+    if (!connected) return;
+
+    const sub = subscribeSeenMessage((messageId) => {
+      setMessages((prev) =>
+        prev.map((m) => (m?.id == messageId ? { ...m, seen: true } : m))
+      );
+    });
+
+    return () => sub?.unsubscribe();
+  }, [connected]);
+
   const handleSend = () => {
     const content = inputRef.current.value.trim();
     if (!content || !user?.email || !receiver?.email) return;
@@ -65,6 +91,19 @@ export const Chatbox = ({
 
     inputRef.current.value = "";
   };
+
+  useEffect(() => {
+    if (!messages.length || !connected) return;
+
+    const lastMsg = messages[messages.length - 1];
+
+    if (lastMsg?.sender?.email == receiver?.email) {
+      sendSeen({
+        userId: parseInt(user?.id!),
+        messageId: lastMsg?.id && parseInt(lastMsg.id),
+      });
+    }
+  }, [messages, connected]);
 
   return (
     <div className="w-full  h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white ">
@@ -88,7 +127,7 @@ export const Chatbox = ({
 
           return (
             <div
-              key={idx}
+              key={m?.id}
               className={`flex flex-col ${
                 isMine ? "ml-auto text-right" : "mr-auto text-left"
               }`}
@@ -115,12 +154,15 @@ export const Chatbox = ({
                 >
                   {m?.message}
                 </div>
+              </div>{" "}
+              <div className="text-[10px] text-zinc-400 mt-1 flex-row flex items-end justify-end">
+                {idx == messages.length - 1 && isMine && (
+                  <span>{isSeen ? "Đã gửi" : "Đã xem"}</span>
+                )}
               </div>
-
-              {/* Thời gian */}
-              <span className="text-[10px] text-zinc-400 mt-1">
+              {/* <span className="text-[10px] text-zinc-400 mt-1">
                 {new Date(m?.createdAt).toLocaleString()}
-              </span>
+              </span> */}
             </div>
           );
         })}

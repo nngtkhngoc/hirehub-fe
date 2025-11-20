@@ -6,4 +6,5 @@ export type Message = {
   createdAt: string;
   sender: UserProfile | undefined | null;
   receiver: UserProfile | undefined | null;
+  seenUsers: UserProfile[];
 };

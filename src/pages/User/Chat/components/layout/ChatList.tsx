@@ -3,7 +3,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { ChatContainer } from "../ui/ChatContainer";
 import type { Message } from "@/types/Chat";
 import { Search } from "lucide-react";
-import { useParams } from "react-router";
 
 export const ChatList = () => {
   const { user } = useAuthStore();

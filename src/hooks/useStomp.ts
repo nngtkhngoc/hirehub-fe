@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
@@ -9,19 +8,31 @@ const SOCKET_URL = BASE_URL + "/ws";
 
 export const useStomp = () => {
   const [connected, setConnected] = useState(false);
+  const clientRef = useRef<Client | null>(null);
 
-  const clientRef = useRef<any>(null);
+  // INIT STOMP CLIENT
   useEffect(() => {
     const socket = new SockJS(SOCKET_URL);
+
     const stompClient = new Client({
       webSocketFactory: () => socket,
-      debug: (str) => console.log("error", str),
-      reconnectDelay: 5000,
-      onConnect: () => setConnected(true),
-      onDisconnect: () => setConnected(false),
+      reconnectDelay: 3000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      debug: (msg) => console.log("[STOMP]", msg),
+
+      onConnect: () => {
+        setConnected(true);
+        console.log("STOMP Connected");
+      },
+
+      onDisconnect: () => {
+        setConnected(false);
+        console.log("STOMP Disconnected");
+      },
     });
 
-    stompClient.onStompError = (frame) => console.error("Broker error", frame);
+    stompClient.onStompError = (frame) => console.error("[STOMP ERROR]", frame);
 
     stompClient.activate();
     clientRef.current = stompClient;
@@ -29,29 +40,69 @@ export const useStomp = () => {
     return () => {
       stompClient.deactivate();
     };
-  }, [SOCKET_URL]);
+  }, []);
 
-  const subscribePrivate = (callback: any) => {
-    if (!clientRef.current || !clientRef.current.connected) return;
-    const sub = clientRef.current.subscribe(
-      "/user/queue/messages",
-      (msg: any) => {
-        const body = JSON.parse(msg.body);
-        // console.log("Received:", msg.body);
+  // GENERIC SEND
+  const safeSend = useCallback((destination: string, payload: any) => {
+    const client = clientRef.current;
 
-        callback && callback(body);
-      }
-    );
-    return sub;
-  };
+    if (!client || !client.connected) {
+      console.warn("STOMP not connected → cannot send.");
+      return;
+    }
 
-  const sendPrivate = (payload: any) => {
-    if (!clientRef.current || !clientRef.current.connected) return;
-    clientRef.current.publish({
-      destination: "/app/chat/private",
+    client.publish({
+      destination,
       body: JSON.stringify(payload),
     });
-  };
+  }, []);
 
-  return { connected, subscribePrivate, sendPrivate };
+  // SEND MESSAGE
+  const sendPrivate = useCallback(
+    (payload: any) => safeSend("/app/chat/private", payload),
+    [safeSend]
+  );
+
+  // SEND SEEN EVENT
+  const sendSeen = useCallback(
+    (payload: { userId: number; messageId: number | "" | undefined }) =>
+      safeSend("/app/message/seen", payload),
+    [safeSend]
+  );
+
+  // SUBSCRIBE TO PRIVATE MESSAGES
+  const subscribePrivateMessage = useCallback(
+    (callback: (msg: any) => void) => {
+      const client = clientRef.current;
+      if (!client || !client.connected) return;
+
+      return client.subscribe("/user/queue/messages", (frame) => {
+        const body = JSON.parse(frame.body);
+        callback(body);
+      });
+    },
+    []
+  );
+
+  // SUBSCRIBE TO SEEN EVENT
+  const subscribeSeenMessage = useCallback(
+    (callback: (messageId: number | undefined) => void) => {
+      const client = clientRef.current;
+      if (!client || !client.connected) return;
+
+      return client.subscribe("/user/queue/message-seen", (frame) => {
+        const msgId = JSON.parse(frame.body);
+        callback(msgId);
+      });
+    },
+    []
+  );
+
+  return {
+    connected,
+    sendPrivate,
+    sendSeen,
+    subscribePrivateMessage,
+    subscribeSeenMessage,
+  };
 };
