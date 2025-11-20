@@ -9,7 +9,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat } from "@/hooks/useChat";
 import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { Check, Send } from "lucide-react";
+import { Send } from "lucide-react";
 
 export const Chatbox = ({
   receiver,
@@ -157,7 +157,7 @@ export const Chatbox = ({
               </div>{" "}
               <div className="text-[10px] text-zinc-400 mt-1 flex-row flex items-end justify-end">
                 {idx == messages.length - 1 && isMine && (
-                  <span>{isSeen ? "Đã gửi" : "Đã xem"}</span>
+                  <span>{isSeen ? "Đã xem" : "Đã gửi"}</span>
                 )}
               </div>
               {/* <span className="text-[10px] text-zinc-400 mt-1">
