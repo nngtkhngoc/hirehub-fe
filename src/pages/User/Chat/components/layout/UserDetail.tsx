@@ -21,13 +21,13 @@ export const UserDetail = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-[550px] py-5">
+    <div className="relative flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-[550px] py-5">
       <img
         src={receiver?.avatar || profile}
         className="h-25 w-25 rounded-full object-cover object-center"
       />
       <div className="font-bold text-xl">{receiver?.name}</div>
-      <div className="flex flex-col items-center text-sm w-full px-2">
+      <div className="flex flex-col items-center text-sm w-full px-5">
         <div className=" w-full flex flex-row items-center gap-2 justify-left py-3 rounded-xl hover:bg-zinc-100 px-3 cursor-pointer">
           <UserCircleIcon strokeWidth="1.4" />
           Xem trang cá nhân

@@ -10,6 +10,7 @@ import { useChat } from "@/hooks/useChat";
 import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
 import { Send } from "lucide-react";
+import Picker from "emoji-picker-react";
 
 export const Chatbox = ({
   receiver,
@@ -40,24 +41,32 @@ export const Chatbox = ({
   useEffect(() => {
     if (!connected) return;
     const sub = subscribePrivateMessage((msg: any) => {
+      let newMsg: Message = {
+        receiver,
+        sender: user,
+        createdAt: new Date().toISOString(),
+        message: msg.message,
+        seenUsers: [],
+      };
+
       if (
-        (msg.senderEmail == receiver?.email &&
-          msg.receiverEmail == user?.email) ||
-        (msg.senderEmail == user?.email && msg.receiverEmail == receiver?.email)
+        msg.senderEmail == receiver?.email &&
+        msg.receiverEmail == user?.email
       ) {
-        const newMsg = {
-          receiver,
-          sender: user,
+        newMsg = {
+          receiver: user,
+          sender: receiver,
           createdAt: new Date().toISOString(),
           message: msg.message,
+          seenUsers: [],
         };
-        setMessages((prev) => [...prev, newMsg]);
       }
+      setMessages((prev) => [...prev, newMsg]);
     });
     return () => sub && sub.unsubscribe();
   }, [connected, receiver?.email, user?.email]);
 
-  const isSeen = useMemo(() => {
+  const isSeen = () => {
     const seenUsers = messages[messages?.length - 1]?.seenUsers;
 
     if (seenUsers && seenUsers.length >= 0) {
@@ -65,7 +74,7 @@ export const Chatbox = ({
     }
 
     return false;
-  }, [messages, receiver]);
+  };
 
   useEffect(() => {
     if (!connected) return;
@@ -105,6 +114,12 @@ export const Chatbox = ({
     }
   }, [messages, connected]);
 
+  console.log("outside", messages);
+  const messageEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
     <div className="w-full  h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white ">
       {/* Header */}
@@ -119,9 +134,8 @@ export const Chatbox = ({
           <span className="text-xs text-zinc-500">Đang trò chuyện</span>
         </div>
       </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm  overflow-y-scroll">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm  overflow-y-scroll flex flex-col">
+        {/* Messages */}
         {messages?.map((m, idx) => {
           const isMine = m?.sender?.email == user?.email;
 
@@ -146,7 +160,7 @@ export const Chatbox = ({
                 )}
 
                 <div
-                  className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words w-fit max-w-[70%] ${
+                  className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words w-fit ${
                     isMine
                       ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
                       : "bg-zinc-200 text-zinc-800 rounded-bl-none"
@@ -154,12 +168,13 @@ export const Chatbox = ({
                 >
                   {m?.message}
                 </div>
-              </div>{" "}
+              </div>
               <div className="text-[10px] text-zinc-400 mt-1 flex-row flex items-end justify-end">
                 {idx == messages.length - 1 && isMine && (
                   <span>{isSeen ? "Đã xem" : "Đã gửi"}</span>
                 )}
               </div>
+
               {/* <span className="text-[10px] text-zinc-400 mt-1">
                 {new Date(m?.createdAt).toLocaleString()}
               </span> */}
@@ -167,9 +182,11 @@ export const Chatbox = ({
           );
         })}
       </div>
-
       {/* Input */}
-      <div className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm">
+      <div
+        className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm"
+        ref={messageEndRef}
+      >
         <input
           ref={inputRef}
           placeholder="Nhập tin nhắn..."

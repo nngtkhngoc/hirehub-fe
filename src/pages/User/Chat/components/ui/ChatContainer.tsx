@@ -42,6 +42,7 @@ export const ChatContainer = ({
           <div className="font-medium text-sm  text-ellipsis">
             {otherUser?.name}
           </div>
+
           <div
             className={`text-xs text-ellipsis ${
               !isSeen ? "font-medium" : "font-light"
