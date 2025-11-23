@@ -70,6 +70,16 @@ export const useStomp = () => {
     [safeSend]
   );
 
+  // SEND REACT EVENT
+  const sendReact = useCallback(
+    (payload: {
+      userId: number;
+      messageId: number | "" | undefined;
+      emoji: string;
+    }) => safeSend("/app/message/react", payload),
+    [safeSend]
+  );
+
   // SUBSCRIBE TO PRIVATE MESSAGES
   const subscribePrivateMessage = useCallback(
     (callback: (msg: any) => void) => {
@@ -98,11 +108,33 @@ export const useStomp = () => {
     []
   );
 
+  // SUBSCRIBE TO REACT EVENT
+  const subscribeReactMessage = useCallback(
+    (callback: (messageData: any) => void) => {
+      const client = clientRef.current;
+      if (!client || !client.connected) return;
+
+      return client.subscribe("/user/queue/message-react", (frame) => {
+        try {
+          const data = JSON.parse(frame.body);
+          console.log("Raw frame.body:", frame.body);
+          console.log("Parsed data:", data);
+          callback(data);
+        } catch (err) {
+          console.error("Failed to parse react message:", err, frame.body);
+        }
+      });
+    },
+    []
+  );
+
   return {
     connected,
     sendPrivate,
     sendSeen,
+    sendReact,
     subscribePrivateMessage,
     subscribeSeenMessage,
+    subscribeReactMessage,
   };
 };
