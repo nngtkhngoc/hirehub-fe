@@ -66,7 +66,7 @@ export const Chatbox = ({
     return () => sub && sub.unsubscribe();
   }, [connected, receiver?.email, user?.email]);
 
-  const isSeen = () => {
+  const isSeen = useMemo(() => {
     const seenUsers = messages[messages?.length - 1]?.seenUsers;
 
     if (seenUsers && seenUsers.length >= 0) {
@@ -74,7 +74,7 @@ export const Chatbox = ({
     }
 
     return false;
-  };
+  }, [receiver, user, messages]);
 
   useEffect(() => {
     if (!connected) return;
@@ -120,6 +120,10 @@ export const Chatbox = ({
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const [hoveredMsgId, setHoveredMsgId] = useState<string | null | undefined>(
+    null
+  );
+
   return (
     <div className="w-full  h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white ">
       {/* Header */}
@@ -142,9 +146,11 @@ export const Chatbox = ({
           return (
             <div
               key={m?.id}
-              className={`flex flex-col ${
+              className={`flex flex-col relative ${
                 isMine ? "ml-auto text-right" : "mr-auto text-left"
               }`}
+              onMouseEnter={() => setHoveredMsgId(m.id?.toString())}
+              onMouseLeave={() => setHoveredMsgId(null)}
             >
               <div
                 className={`flex items-end gap-2 ${
@@ -168,13 +174,24 @@ export const Chatbox = ({
                 >
                   {m?.message}
                 </div>
-              </div>
-              <div className="text-[10px] text-zinc-400 mt-1 flex-row flex items-end justify-end">
+              </div>{" "}
+              {hoveredMsgId == m.id && (
+                <div className="absolute -bottom-10 right-0 z-50">
+                  <Picker
+                    onEmojiClick={(e) => (inputRef.current.value += e.emoji)}
+                    reactionsDefaultOpen={true}
+                    style={{
+                      transform: "scale(0.8)",
+                      transformOrigin: "bottom right",
+                    }}
+                  />
+                </div>
+              )}
+              <div className="text-[10px] text-zinc-400 mt-1 flex-row flex items-end justify-end absolute -bottom-5 right-0">
                 {idx == messages.length - 1 && isMine && (
                   <span>{isSeen ? "Đã xem" : "Đã gửi"}</span>
                 )}
               </div>
-
               {/* <span className="text-[10px] text-zinc-400 mt-1">
                 {new Date(m?.createdAt).toLocaleString()}
               </span> */}
@@ -182,6 +199,7 @@ export const Chatbox = ({
           );
         })}
       </div>
+
       {/* Input */}
       <div
         className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm"
