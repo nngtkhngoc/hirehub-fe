@@ -184,9 +184,6 @@ export const Chatbox = ({
   }, [messages, connected]);
 
   const messageEndRef = useRef<HTMLDivElement>(null);
-  // useEffect(() => {
-  //   messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [messages]);
 
   const [openPickerFor, setOpenPickerFor] = useState<string | null>(null);
 
