@@ -189,9 +189,9 @@ export const Chatbox = ({
 
   const togglePicker = (msgId?: string) => {
     if (openPickerFor === msgId) {
-      setOpenPickerFor(null); // đóng picker
+      setOpenPickerFor(null);
     } else {
-      setOpenPickerFor(msgId || null); // mở picker cho msg này
+      setOpenPickerFor(msgId || null);
     }
   };
 
