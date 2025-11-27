@@ -140,7 +140,6 @@ export const Chatbox = ({
     });
   };
 
-  // SEEN MSG
   useEffect(() => {
     if (!connected) return;
 
