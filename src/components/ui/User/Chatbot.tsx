@@ -13,6 +13,9 @@ import { toast } from "sonner";
 import { applyJob } from "@/apis/job.api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ca } from "date-fns/locale";
+import { AxiosError } from "axios";
+import VoiceInput from "./VoiceInput";
 interface messageInterface {
   sender: "user" | "bot";
   text?: string;
@@ -31,6 +34,15 @@ const messageList = [
   "Những công việc này có thể là lựa chọn tốt cho bạn:",
   "Hãy xem các công việc sau đây mà mình đã tìm được cho bạn:",
 ];
+const messageToApplyJob = [
+  "Để tôi nộp resume dùm bạn nhé",
+  "Mình sẽ gửi hồ sơ giúp bạn ngay bây giờ",
+  "Hãy để tôi hoàn tất việc nộp CV cho bạn",
+  "Đang chuẩn bị nộp hồ sơ, bạn đợi một chút nhé",
+  "CV của bạn sẽ được gửi đi ngay lập tức",
+  "Mình sẽ giúp bạn apply công việc này nhanh chóng",
+];
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<messageInterface[]>([]);
@@ -38,6 +50,7 @@ export default function Chatbot() {
   const { user } = useAuthStore();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  console.log(user);
   const handleUserInput = async () => {
     if (!user) {
       toast.error("Vui lòng đăng nhập");
@@ -49,12 +62,10 @@ export default function Chatbot() {
       ...prevMessages,
       { sender: "bot", text: "..." },
     ]);
-    console.log("WTF");
     setSelectedFile(null);
     const messageType = await classifyMessage(userInput);
     console.log(messageType);
 
-    console.log("WTF2");
     if (messageType == ClassificationType.ANALYZE_CV) {
       let form = new FormData();
 
@@ -75,7 +86,6 @@ export default function Chatbot() {
           text: botResponse,
           type: ClassificationType.ANALYZE_CV,
         });
-        console.log(botResponse, "!!");
         return updatedMessages;
       });
     } else if (messageType == ClassificationType.FIND_JOBS) {
@@ -92,17 +102,56 @@ export default function Chatbot() {
         return updatedMessages;
       });
     } else {
-      let match = userInput.match(/\d+/);
+      let match = userInput.match(/\d+/g);
+
       let form = new FormData();
+      console.log(match, "!");
       form.append("userId", user!!.id);
+
       if (selectedFile) {
         form.append("resumeFile", selectedFile);
+      } else if (user?.resume_link && user?.openAiResumeId) {
+        form.append("link", user?.resume_link);
+        form.append("openAiResumeId", user.openAiResumeId);
+      } else {
+        toast.error(
+          "Bạn chưa có resume. Vui lòng upload 1 file CV hoặc cập nhập profile"
+        );
       }
-      for (let id in match) {
-        form.set("jobId", id);
-        await applyJob(form);
+
+      if (match) {
+        setMessages((prevMessages) => {
+          const updatedMessages = [...prevMessages];
+          updatedMessages.pop();
+          updatedMessages.push({
+            sender: "bot",
+            text: messageToApplyJob[
+              Math.floor(Math.random() * messageToApplyJob.length)
+            ],
+            type: ClassificationType.APPLY_JOB,
+          });
+          return updatedMessages;
+        });
+        for (let id of match) {
+          console.log(id);
+          form.set("jobId", id);
+          try {
+            await applyJob(form);
+            toast.success(`Nộp cv cho công việc ${id} thành công`);
+          } catch (error) {
+            if (error instanceof AxiosError) {
+              toast.error(
+                `Nộp cv cho công việc ${id} thất bại. Lỗi: ${error.response?.data?.message}`
+              );
+            } else {
+              toast.error(
+                `Nộp cv cho công việc ${id} thất bại. Vui lòng thử lại sau.`
+              );
+            }
+          }
+        }
       }
-      toast.success("Nộp resume thành công");
+      // toast.success("Nộp resume thành công");
     }
   };
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,6 +236,10 @@ export default function Chatbot() {
                             </div>
                           </div>
                         )}
+                      {msg.sender == "bot" &&
+                        msg?.type == ClassificationType.APPLY_JOB && (
+                          <div>{msg.text}</div>
+                        )}
                     </div>
                   ))}
                 </div>
@@ -194,6 +247,7 @@ export default function Chatbot() {
             </div>
             <div className="bg-zinc-100 flex items-center border-t-1 rounded-b-lg mt-auto py-2 px-5 justify-between flex-row gap-3">
               <div className="flex-1 w-[100%]">{selectedFile?.name}</div>
+              <VoiceInput setText={setUserInput} />
               <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center flex-shrink-0 flex-grow-0 cursor-pointer">
                 <input
                   type="file"

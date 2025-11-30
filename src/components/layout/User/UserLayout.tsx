@@ -15,14 +15,18 @@ import { useEffect } from "react";
 export const UserLayout = () => {
   const setUser = useAuthStore((state) => state.setUser);
 
-  console.log("TRI");
   const { mutate } = useMutation({
     mutationFn: signIn,
     onSuccess: (data: any) => {
+      console.log(data, "@@");
       setUser(data.data);
+    },
+    onError: (error: any) => {
+      console.log(error);
     },
   });
   useEffect(() => {
+    console.log("TRI LOGIN");
     mutate({ email: "", password: "" });
   }, []);
   return (
