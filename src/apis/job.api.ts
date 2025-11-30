@@ -62,7 +62,7 @@ export const getSavedJobsByUserId = async (getSavedJobsParams: {
   return res.data.content;
 };
 
-export const applyJob = async (data: ApplyJobFormData) => {
+export const applyJob = async (data: FormData) => {
   const res = await axiosClientFormData.post(`${BASE_URL}/api/resumes`, data);
 
   return res.data;

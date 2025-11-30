@@ -15,6 +15,7 @@ import { useEffect } from "react";
 export const UserLayout = () => {
   const setUser = useAuthStore((state) => state.setUser);
 
+  console.log("TRI");
   const { mutate } = useMutation({
     mutationFn: signIn,
     onSuccess: (data: any) => {
