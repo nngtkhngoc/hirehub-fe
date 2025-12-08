@@ -21,7 +21,7 @@ export const UserDetail = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-[550px] py-5">
+    <div className="relative flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-[580px] py-5">
       <img
         src={receiver?.avatar || profile}
         className="h-25 w-25 rounded-full object-cover object-center"

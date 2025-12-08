@@ -16,7 +16,7 @@ export const ChatList = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-[550px]">
+    <div className="flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-[580px]">
       <div className="font-bold text-2xl pt-5 px-5 text-left w-full">
         {" "}
         Trò chuyện{" "}

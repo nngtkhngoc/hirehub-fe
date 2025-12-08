@@ -6,8 +6,8 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import type { UserProfile } from "@/types/Auth";
 import { useStomp } from "@/hooks/useStomp";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useChat } from "@/hooks/useChat";
-import type { Message, SeenUser } from "@/types/Chat";
+import { useChat, useChatList } from "@/hooks/useChat";
+import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
 import { Send, SmilePlus } from "lucide-react";
 import Picker from "emoji-picker-react";
@@ -29,11 +29,14 @@ export const Chatbox = ({
   } = useStomp();
   const { user } = useAuthStore();
 
-  const { data: history } = useChat(
+  const { data: history, refetch } = useChat(
     parseInt(receiver?.id!),
     parseInt(user?.id!)
   );
 
+  const { refetch: refetchChatList } = useChatList(
+    user?.id ? parseInt(user.id) : null
+  );
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -43,31 +46,9 @@ export const Chatbox = ({
   // SEND MSG
   useEffect(() => {
     if (!connected) return;
-    const sub = subscribePrivateMessage((msg: any) => {
-      console.log("msg", msg);
-      let newMsg: Message = {
-        receiver,
-        sender: user,
-        createdAt: new Date().toISOString(),
-        type: "text",
-        content: msg.content,
-        seenUsers: [],
-      };
-
-      if (
-        msg.senderEmail == receiver?.email &&
-        msg.receiverEmail == user?.email
-      ) {
-        newMsg = {
-          receiver: user,
-          sender: receiver,
-          createdAt: new Date().toISOString(),
-          type: "text",
-          content: msg.content,
-          seenUsers: [],
-        };
-      }
-      setMessages((prev) => [...prev, newMsg]);
+    const sub = subscribePrivateMessage(() => {
+      refetch();
+      refetchChatList();
     });
     return () => sub && sub.unsubscribe();
   }, [connected, receiver?.email, user?.email]);
@@ -82,53 +63,17 @@ export const Chatbox = ({
       content: content,
       type: "text",
     });
-
     inputRef.current.value = "";
+    refetchChatList();
   };
 
   // REACT MSG
   useEffect(() => {
     if (!connected) return;
 
-    const sub = subscribeReactMessage((data: any) => {
-      setMessages((prev) =>
-        prev.map((msg) => {
-          if (msg.id !== data.messageId) return msg;
-
-          // Copy seenUsers hiện tại hoặc khởi tạo mảng mới
-          const updatedSeenUsers: (SeenUser | undefined)[] = [
-            ...(msg.seenUsers || []),
-          ];
-
-          // Tìm index user trong seenUsers
-          const index = updatedSeenUsers.findIndex(
-            (u) => u?.id === data.userId.toString()
-          );
-
-          if (index !== -1) {
-            // Nếu emoji giống, remove emoji, nếu khác thì update
-            updatedSeenUsers[index] = {
-              ...updatedSeenUsers[index],
-              emoji:
-                updatedSeenUsers[index]?.emoji === data.emoji
-                  ? undefined
-                  : data.emoji,
-            };
-          } else {
-            // Nếu user chưa có trong seenUsers, push mới
-            updatedSeenUsers.push({
-              id: data.userId.toString(),
-              email: data.email,
-              emoji: data.emoji,
-            });
-          }
-
-          return {
-            ...msg,
-            seenUsers: updatedSeenUsers,
-          };
-        })
-      );
+    const sub = subscribeReactMessage(() => {
+      refetch();
+      refetchChatList();
     });
 
     return () => sub?.unsubscribe();
@@ -142,15 +87,15 @@ export const Chatbox = ({
       messageId: msgId && parseInt(msgId),
       emoji,
     });
+    setOpenPickerFor("");
   };
 
   useEffect(() => {
     if (!connected) return;
 
-    const sub = subscribeSeenMessage((messageId) => {
-      setMessages((prev) =>
-        prev.map((m) => (m?.id == messageId ? { ...m, seen: true } : m))
-      );
+    const sub = subscribeSeenMessage(() => {
+      refetch();
+      refetchChatList();
     });
 
     return () => sub?.unsubscribe();
@@ -206,10 +151,10 @@ export const Chatbox = ({
     if (isMine) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages.length]);
 
   return (
-    <div className="w-full h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden">
+    <div className="w-full h-[580px] flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[62px]">
         <img
@@ -232,7 +177,7 @@ export const Chatbox = ({
               className="flex flex-row items-start justify-start group relative"
             >
               <div
-                className={`flex flex-col relative ${
+                className={`flex flex-col relative gap-2 ${
                   isMine ? "text-right ml-auto" : "text-left mr-auto"
                 }`}
               >
@@ -252,7 +197,7 @@ export const Chatbox = ({
                   {isMine && (
                     <button
                       onClick={() => togglePicker(m.id)}
-                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hid group-hover:flex cursor-pointer"
+                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hidden group-hover:flex cursor-pointer absolute -left-8"
                     >
                       <SmilePlus className="w-4 h-4" />
                     </button>
@@ -270,16 +215,18 @@ export const Chatbox = ({
                   {!isMine && (
                     <button
                       onClick={() => togglePicker(m.id)}
-                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hidden  group-hover:block"
+                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hidden  group-hover:flex hover:cursor-pointer absolute -right-8"
                     >
                       <SmilePlus className="w-4 h-4" />
                     </button>
                   )}
                 </div>
-
                 {/* Seen emojis */}
                 {m?.seenUsers?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1 absolute -bottom-5 right-0">
+                  <div
+                    className={`flex flex-wrap gap-1 -mt-3  justify-end
+                    }`}
+                  >
                     {m.seenUsers.map((e, i) =>
                       e?.emoji ? (
                         <span
@@ -292,7 +239,6 @@ export const Chatbox = ({
                     )}
                   </div>
                 )}
-
                 {/* Emoji picker */}
                 {openPickerFor === m.id && (
                   <div
@@ -312,7 +258,6 @@ export const Chatbox = ({
                     />
                   </div>
                 )}
-
                 {/* Seen / Sent indicator */}
                 <div className="absolute -bottom-5 right-0 text-[10px] text-zinc-400 flex items-end justify-end">
                   {idx === messages.length - 1 && isMine && (
