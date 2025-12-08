@@ -186,8 +186,6 @@ export const Chatbox = ({
     }
   }, [messages, connected]);
 
-  const messageEndRef = useRef<HTMLDivElement>(null);
-
   const [openPickerFor, setOpenPickerFor] = useState<string | null>(null);
 
   const togglePicker = (msgId?: string) => {
@@ -197,9 +195,21 @@ export const Chatbox = ({
       setOpenPickerFor(msgId || null);
     }
   };
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const lastMsg = messages[messages.length - 1];
+
+    const isMine = lastMsg?.sender?.id === user?.id;
+
+    if (isMine) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
-    <div className="w-full  h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white ">
+    <div className="w-full h-[550px] flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[62px]">
         <img
@@ -313,11 +323,12 @@ export const Chatbox = ({
             </div>
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
       {/* Input */}
       <div
         className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm"
-        ref={messageEndRef}
+        // ref={messageEndRef}
       >
         <input
           ref={inputRef}
