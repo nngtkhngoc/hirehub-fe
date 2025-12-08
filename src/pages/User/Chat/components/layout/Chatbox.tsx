@@ -9,7 +9,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat, useChatList } from "@/hooks/useChat";
 import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { Send, SmilePlus } from "lucide-react";
+import { Images, Send, SmilePlus } from "lucide-react";
 import Picker from "emoji-picker-react";
 
 export const Chatbox = ({
@@ -271,10 +271,10 @@ export const Chatbox = ({
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
-      <div
-        className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm"
-        // ref={messageEndRef}
-      >
+      <div className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm">
+        <button className="p-2 border-zinc-200 border-1 hover:border-zinc-400 text-black rounded-full transition-all duration-500 cursor-pointer">
+          <Images />
+        </button>
         <input
           ref={inputRef}
           placeholder="Nhập tin nhắn..."
