@@ -43,6 +43,7 @@ export const Resume = ({
 
     const previewURL = URL.createObjectURL(file);
 
+    console.log(previewURL);
     setUserData((prev) => ({
       ...prev,
       resume_link: previewURL,
@@ -51,7 +52,8 @@ export const Resume = ({
 
     const formData = new FormData();
     formData.append("id", user?.id);
-    formData.append("resume_link", previewURL);
+    // formData.append("resume_link", previewURL);
+    formData.append("resume", file);
     formData.append("resume_name", file.name);
 
     mutate(formData);
