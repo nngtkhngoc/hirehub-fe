@@ -44,11 +44,13 @@ export const Chatbox = ({
   useEffect(() => {
     if (!connected) return;
     const sub = subscribePrivateMessage((msg: any) => {
+      console.log("msg", msg);
       let newMsg: Message = {
         receiver,
         sender: user,
         createdAt: new Date().toISOString(),
-        message: msg.message,
+        type: "text",
+        content: msg.content,
         seenUsers: [],
       };
 
@@ -60,7 +62,8 @@ export const Chatbox = ({
           receiver: user,
           sender: receiver,
           createdAt: new Date().toISOString(),
-          message: msg.message,
+          type: "text",
+          content: msg.content,
           seenUsers: [],
         };
       }
@@ -76,7 +79,8 @@ export const Chatbox = ({
     sendPrivate({
       senderEmail: user?.email,
       receiverEmail: receiver?.email,
-      message: content,
+      content: content,
+      type: "text",
     });
 
     inputRef.current.value = "";
@@ -238,7 +242,7 @@ export const Chatbox = ({
                   {isMine && (
                     <button
                       onClick={() => togglePicker(m.id)}
-                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hidden group-hover:block"
+                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hid group-hover:flex cursor-pointer"
                     >
                       <SmilePlus className="w-4 h-4" />
                     </button>
@@ -250,7 +254,7 @@ export const Chatbox = ({
                         : "bg-zinc-200 text-zinc-800 rounded-bl-none"
                     }`}
                   >
-                    {m?.message}
+                    {m?.content}
                   </div>{" "}
                   {/* Hover emoji button */}
                   {!isMine && (
@@ -265,7 +269,7 @@ export const Chatbox = ({
 
                 {/* Seen emojis */}
                 {m?.seenUsers?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <div className="flex flex-wrap gap-1 mt-1 absolute -bottom-5 right-0">
                     {m.seenUsers.map((e, i) =>
                       e?.emoji ? (
                         <span
@@ -310,7 +314,6 @@ export const Chatbox = ({
           );
         })}
       </div>
-
       {/* Input */}
       <div
         className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm"

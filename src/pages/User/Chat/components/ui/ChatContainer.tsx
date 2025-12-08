@@ -48,7 +48,7 @@ export const ChatContainer = ({
               !isSeen ? "font-medium" : "font-light"
             }`}
           >
-            {message?.message}
+            {message?.content}
           </div>
         </div>
       </div>
