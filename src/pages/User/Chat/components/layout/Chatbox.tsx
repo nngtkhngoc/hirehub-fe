@@ -258,7 +258,7 @@ export const Chatbox = ({
     transition-all duration-300 transition-all duration-500
     ${
       isMine
-        ? "bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 hover:brightness-105"
+        ? "bg-gradient-to-r from-indigo-100 to-purple-100 hover:brightness-105"
         : "bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 hover:brightness-105"
     }
   `}
