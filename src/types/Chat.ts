@@ -9,6 +9,7 @@ export type SeenUser = {
 export type Message = {
   id?: string;
   content?: string;
+  fileName?: string;
   type?: string;
   createdAt: string;
   sender: UserProfile | undefined | null;
@@ -19,6 +20,7 @@ export type Message = {
 export type CreateMessageRequest = {
   content?: string;
   type?: string;
+  fileName?: string;
 
   senderEmail?: string;
   receiverEmail?: string;

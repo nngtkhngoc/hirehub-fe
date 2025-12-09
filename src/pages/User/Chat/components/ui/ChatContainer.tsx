@@ -25,6 +25,21 @@ export const ChatContainer = ({
     return false;
   }, [message?.seenUsers, message?.sender?.id, otherUser?.id, user?.id]);
 
+  const isMine = message?.sender?.id === user?.id;
+
+  const getPreviewMessage = () => {
+    if (!message) return "";
+
+    switch (message.type) {
+      case "image":
+        return isMine ? "Bạn đã gửi một ảnh" : "Đã gửi cho bạn một ảnh";
+      case "file":
+        return isMine ? "Bạn đã gửi một file" : "Đã gửi cho bạn một file";
+      default:
+        return message.content; // text
+    }
+  };
+
   return (
     <Link
       to={`/chat/${otherUser?.id}`}
@@ -48,7 +63,7 @@ export const ChatContainer = ({
               !isSeen ? "font-medium" : "font-light"
             }`}
           >
-            {message?.content}
+            {getPreviewMessage()}
           </div>
         </div>
       </div>

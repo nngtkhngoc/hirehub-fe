@@ -9,8 +9,9 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat, useChatList } from "@/hooks/useChat";
 import type { Message } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { Images, Send, SmilePlus } from "lucide-react";
+import { File, Files, Images, Send, SmilePlus } from "lucide-react";
 import Picker from "emoji-picker-react";
+import { uploadFile } from "@/apis/chat.api";
 
 export const Chatbox = ({
   receiver,
@@ -65,6 +66,30 @@ export const Chatbox = ({
     });
     inputRef.current.value = "";
     refetchChatList();
+  };
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleSelectFile = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = await uploadFile(file);
+
+    const isImage = file.type.startsWith("image/");
+    sendPrivate({
+      senderEmail: user?.email!,
+      receiverEmail: receiver?.email!,
+      fileName: file.name,
+      content: url,
+      type: isImage ? "image" : "file",
+    });
+
+    e.target.value = "";
   };
 
   // REACT MSG
@@ -202,15 +227,69 @@ export const Chatbox = ({
                       <SmilePlus className="w-4 h-4" />
                     </button>
                   )}
-                  <div
-                    className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${
-                      isMine
-                        ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
-                        : "bg-zinc-200 text-zinc-800 rounded-bl-none"
-                    }`}
-                  >
-                    {m?.content}
-                  </div>{" "}
+                  {m.type === "text" && (
+                    <div
+                      className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${
+                        isMine
+                          ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
+                          : "bg-zinc-200 text-zinc-800 rounded-bl-none"
+                      }`}
+                    >
+                      <span>{m.content}</span>
+                    </div>
+                  )}
+
+                  {m.type === "image" && (
+                    <img
+                      src={m.content}
+                      className="rounded-2xl max-w-[220px] w-full h-auto cursor-pointer border border-zinc-200 object-contain"
+                      alt="img"
+                    />
+                  )}
+
+                  {m.type === "file" && (
+                    <a
+                      href={m.content}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`
+    flex items-center gap-3 p-3 rounded-xl border border-transparent
+    cursor-pointer max-w-[260px] shadow-sm
+    transition-all duration-300 transition-all duration-500
+    ${
+      isMine
+        ? "bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 hover:brightness-105"
+        : "bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 hover:brightness-105"
+    }
+  `}
+                    >
+                      {/* File icon */}
+                      <div
+                        className={`
+      w-10 h-10 flex items-center justify-center
+      rounded-lg text-zinc-700 font-bold ${
+        isMine ? "bg-violet-200" : "bg-zinc-200 "
+      }`}
+                      >
+                        <Files
+                          className={` ${
+                            isMine ? "text-primary" : "text-zinc-800 "
+                          }`}
+                        />
+                      </div>
+
+                      {/* File info */}
+                      <div className="flex flex-col gap-1 justify-left items-start">
+                        <span className="font-medium text-sm text-zinc-800 line-clamp-1">
+                          {m.fileName || "File đính kèm"}
+                        </span>
+                        <span className="text-xs text-zinc-500">
+                          Nhấn để mở
+                        </span>
+                      </div>
+                    </a>
+                  )}
+
                   {/* Hover emoji button */}
                   {!isMine && (
                     <button
@@ -272,9 +351,20 @@ export const Chatbox = ({
       </div>
       {/* Input */}
       <div className="p-4 border-t border-zinc-200 flex items-center gap-3 bg-zinc-50 rounded-b-xl text-sm">
-        <button className="p-2 border-zinc-200 border-1 hover:border-zinc-400 text-black rounded-full transition-all duration-500 cursor-pointer">
+        <button
+          className="p-2 border-zinc-200 border-1 hover:border-zinc-400 text-black rounded-full transition-all duration-500 cursor-pointer"
+          onClick={handleSelectFile}
+        >
           <Images />
         </button>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+
         <input
           ref={inputRef}
           placeholder="Nhập tin nhắn..."
