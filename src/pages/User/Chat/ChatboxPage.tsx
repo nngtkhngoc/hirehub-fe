@@ -3,7 +3,6 @@ import { Chatbox } from "./components/layout/Chatbox";
 import { UserDetail } from "./components/layout/UserDetail";
 import { ChatList } from "./components/layout/ChatList";
 import { useUserById } from "@/hooks/useUser";
-import { ChevronLeft } from "lucide-react";
 import { Header } from "@/components/layout/User/Header";
 
 export const ChatboxPage = () => {
@@ -15,12 +14,8 @@ export const ChatboxPage = () => {
       <div>
         <Header />
       </div>
-      <div className="px-4  bg-[#F2F4F7]  w-full flex-1 flex items-center justify-center flex-col">
-        {/* <div className="w-full flex items-center px-10 justify-left gap-1 text-md  hover:cursor-pointer hover:text-primary transition-all duration-300 hover:font-bold">
-          <ChevronLeft />
-          Back
-        </div> */}
-        <div className="flex flex-row gap-8 py-5 px-8 w-full">
+      <div className="px-4  bg-[#F2F4F7]  w-full flex-1 flex items-center justify-center flex-col h-75">
+        <div className="flex flex-row gap-8 py-5 px-8 w-full h-full">
           <div className="w-1/4">
             <ChatList />
           </div>

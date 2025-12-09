@@ -154,7 +154,7 @@ export const Chatbox = ({
   }, [messages.length]);
 
   return (
-    <div className="w-full h-[580px] flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
+    <div className="w-full max-h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[62px]">
         <img
@@ -167,7 +167,7 @@ export const Chatbox = ({
           <span className="text-xs text-zinc-500">Đang trò chuyện</span>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm flex flex-col">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm">
         {messages?.map((m, idx) => {
           const isMine = m?.sender?.email === user?.email;
 
