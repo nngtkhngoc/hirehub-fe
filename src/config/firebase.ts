@@ -1,6 +1,7 @@
 // firebase.ts
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken } from "firebase/messaging";
+// const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 const firebaseConfig = {
   apiKey: "AIzaSyBV-OBPd9BWLhiKzeioEZ46zgRBtICv2gY",
@@ -24,8 +25,7 @@ export const requestFCMToken = async () => {
   const registration = await navigator.serviceWorker.ready;
 
   const token = await getToken(messaging, {
-    vapidKey:
-      "BCKRbmx7Eqs7uNQJIhsD3MdcSnn8py73_KXcEHviVmRFOkck6vUTpaqKgYI1xm9wiQ-qAi8p4iu13V6P0txs2zU",
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     serviceWorkerRegistration: registration,
   });
 

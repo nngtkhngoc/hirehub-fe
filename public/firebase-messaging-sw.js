@@ -5,8 +5,6 @@ importScripts(
   "https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js"
 );
 
-console.log("🔥 FCM Service Worker loaded");
-
 firebase.initializeApp({
   apiKey: "AIzaSyBV-OBPd9BWLhiKzeioEZ46zgRBtICv2gY",
   authDomain: "hirehub-441e2.firebaseapp.com",
