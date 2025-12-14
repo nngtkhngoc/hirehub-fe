@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import type { CreateMessageRequest } from "@/types/Chat";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const SOCKET_URL = BASE_URL + "/ws";
@@ -59,7 +60,7 @@ export const useStomp = () => {
 
   // SEND MESSAGE
   const sendPrivate = useCallback(
-    (payload: any) => safeSend("/app/chat/private", payload),
+    (payload: CreateMessageRequest) => safeSend("/app/chat/private", payload),
     [safeSend]
   );
 

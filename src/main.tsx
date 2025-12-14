@@ -39,8 +39,8 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/user/:userId" element={<User />} />
             <Route path="/job-details/:id" element={<JobDetails />} />{" "}
             <Route path="/my-jobs" element={<MyJobsPage />} />
-            <Route path="/chat/:id" element={<ChatboxPage />} />
           </Route>
+          <Route path="/chat/:id" element={<ChatboxPage />} />
 
           <Route path="/auth" element={<AuthLayout />}>
             <Route index element={<AuthPage />} />
