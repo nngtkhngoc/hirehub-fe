@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Outlet } from "react-router";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -11,11 +12,12 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { signIn } from "@/apis/auth.api";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { useFCMListener } from "@/hooks/useFCMListener";
+import { requestFCMToken } from "@/config/firebase";
 
 export const UserLayout = () => {
   const setUser = useAuthStore((state) => state.setUser);
 
-  console.log("TRI");
   const { mutate } = useMutation({
     mutationFn: signIn,
     onSuccess: (data: any) => {
@@ -24,6 +26,11 @@ export const UserLayout = () => {
   });
   useEffect(() => {
     mutate({ email: "", password: "" });
+  }, []);
+
+  useFCMListener();
+  useEffect(() => {
+    requestFCMToken();
   }, []);
   return (
     <Suspense fallback={<Spinner />}>
