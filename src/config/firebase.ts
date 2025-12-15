@@ -1,4 +1,5 @@
 // firebase.ts
+import { createFcmToken } from "@/apis/fcmToken.api";
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken } from "firebase/messaging";
 // const BASE_URL = import.meta.env.VITE_BACKEND_URL;

@@ -1,5 +1,6 @@
 import { axiosClient } from "@/lib/axios";
 import type { UserProfile } from "@/types/Auth";
+import { createFcmToken } from "./fcmToken.api";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -8,6 +9,11 @@ export const signIn = async (signInData: {
   password: string;
 }) => {
   const res = await axiosClient.post(`${BASE_URL}/api/auth/login`, signInData);
+
+  if (res.status === 200 && res.data?.data?.id) {
+    const userId = res.data.data.id;
+    await createFcmToken(userId);
+  }
 
   return res.data;
 };
