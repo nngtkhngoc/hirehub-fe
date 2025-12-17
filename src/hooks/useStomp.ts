@@ -60,7 +60,13 @@ export const useStomp = () => {
 
   // SEND MESSAGE
   const sendPrivate = useCallback(
-    (payload: CreateMessageRequest) => safeSend("/app/chat/private", payload),
+    (payload: CreateMessageRequest) => safeSend("/app/chat/message", payload),
+    [safeSend]
+  );
+
+  // SEND MESSAGE (new version with conversationId)
+  const sendMessage = useCallback(
+    (payload: CreateMessageRequest) => safeSend("/app/chat/message", payload),
     [safeSend]
   );
 
@@ -132,6 +138,7 @@ export const useStomp = () => {
   return {
     connected,
     sendPrivate,
+    sendMessage,
     sendSeen,
     sendReact,
     subscribePrivateMessage,
