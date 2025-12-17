@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Sidebar } from "./Sidebar";
+import { NotificationList } from "./NotificationList";
 import { Header } from "./Header";
 
 export const Navbar = () => {
@@ -29,6 +30,8 @@ export const Navbar = () => {
       <div className="hidden md:block">
         <Header />
       </div>
+
+      <NotificationList />
 
       {/* Mobile sidebar */}
       <div className="block md:hidden">

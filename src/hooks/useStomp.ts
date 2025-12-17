@@ -129,6 +129,25 @@ export const useStomp = () => {
     []
   );
 
+  // SUBSCRIBE TO NOTIFICATIONS
+  const subscribeNotification = useCallback(
+    (callback: (notification: any) => void) => {
+      const client = clientRef.current;
+      if (!client || !client.connected) return;
+
+      return client.subscribe("/user/queue/notifications", (frame) => {
+        try {
+          const data = JSON.parse(frame.body);
+          console.log("🔔 Notification received:", data);
+          callback(data);
+        } catch (err) {
+          console.error("Failed to parse notification:", err, frame.body);
+        }
+      });
+    },
+    []
+  );
+
   return {
     connected,
     sendPrivate,
@@ -137,5 +156,6 @@ export const useStomp = () => {
     subscribePrivateMessage,
     subscribeSeenMessage,
     subscribeReactMessage,
+    subscribeNotification,
   };
 };
