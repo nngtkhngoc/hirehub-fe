@@ -1,76 +1,106 @@
 import profile from "@/assets/illustration/profile.png";
-import type { Message } from "@/types/Chat";
+import type { Conversation } from "@/types/Chat";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Link, useParams } from "react-router";
-import { Dot } from "lucide-react";
+import { Users } from "lucide-react";
 import { useMemo } from "react";
 
 export const ChatContainer = ({
-  message,
+  conversation,
 }: {
-  message: Message | undefined;
+  conversation: Conversation;
 }) => {
   const { user } = useAuthStore();
-  const otherUser =
-    user?.email == message?.receiver?.email
-      ? message?.sender
-      : message?.receiver;
+  const { conversationId } = useParams();
 
-  const { id } = useParams();
-  const isSeen = useMemo(() => {
-    if (message?.seenUsers && message?.sender?.id == user?.id) {
-      return message?.seenUsers.some((u) => u?.id == otherUser?.id);
+  // For DIRECT conversation, find the other user
+  const otherUser = useMemo(() => {
+    if (conversation.type === "DIRECT") {
+      return conversation.participants.find((p) => p.id !== user?.id);
     }
+    return null;
+  }, [conversation, user?.id]);
 
-    return false;
-  }, [message?.seenUsers, message?.sender?.id, otherUser?.id, user?.id]);
+  // Get display name and avatar
+  const displayName = useMemo(() => {
+    if (conversation.type === "GROUP") {
+      return conversation.name || "Nhóm chat";
+    }
+    return otherUser?.name || "Người dùng";
+  }, [conversation, otherUser]);
 
-  const isMine = message?.sender?.id === user?.id;
+  const displayAvatar = useMemo(() => {
+    if (conversation.type === "GROUP") {
+      // For group, show first participant's avatar or default
+      const firstParticipant = conversation.participants.find(
+        (p) => p.id !== user?.id
+      );
+      return firstParticipant?.avatar || profile;
+    }
+    return otherUser?.avatar || profile;
+  }, [conversation, otherUser, user?.id]);
+
+  const isActive = conversationId === conversation.id.toString();
 
   const getPreviewMessage = () => {
-    if (!message) return "";
+    if (!conversation.lastMessage) return "Chưa có tin nhắn";
 
-    switch (message.type) {
+    const lastMsg = conversation.lastMessage;
+    const isMine = lastMsg.sender?.id === user?.id;
+
+    switch (lastMsg.type) {
       case "image":
-        return isMine ? "Bạn đã gửi một ảnh" : "Đã gửi cho bạn một ảnh";
+        return isMine
+          ? "Bạn đã gửi một ảnh"
+          : `${lastMsg.sender?.name || "Ai đó"} đã gửi một ảnh`;
       case "file":
-        return isMine ? "Bạn đã gửi một file" : "Đã gửi cho bạn một file";
+        return isMine
+          ? "Bạn đã gửi một file"
+          : `${lastMsg.sender?.name || "Ai đó"} đã gửi một file`;
       default:
-        return message.content; // text
+        return lastMsg.content || "";
     }
   };
 
   return (
     <Link
-      to={`/chat/${otherUser?.id}`}
+      to={`/chat/conversation/${conversation.id}`}
       className={`w-full hover:bg-zinc-100 py-2 rounded-xl cursor-pointer relative ${
-        id == otherUser?.id && "bg-zinc-100"
+        isActive && "bg-zinc-100"
       }`}
     >
       <div className="flex flex-row gap-3 px-3 overflow-hidden">
-        <img
-          src={otherUser?.avatar || profile}
-          alt="profile"
-          className="w-[40px] h-[40px] rounded-full object-center object-cover"
-        />
-        <div className="flex flex-col justify-center gap-1 ">
-          <div className="font-medium text-sm  text-ellipsis">
-            {otherUser?.name}
+        <div className="relative">
+          <img
+            src={displayAvatar}
+            alt={displayName}
+            className="w-[40px] h-[40px] rounded-full object-center object-cover"
+          />
+          {conversation.type === "GROUP" && (
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+              <Users className="w-2.5 h-2.5 text-white" />
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col justify-center gap-1 flex-1 min-w-0">
+          <div className="font-medium text-sm text-ellipsis truncate">
+            {displayName}
           </div>
-
-          <div
-            className={`text-xs text-ellipsis ${
-              !isSeen ? "font-medium" : "font-light"
-            }`}
-          >
+          <div className="text-xs text-zinc-500 truncate">
             {getPreviewMessage()}
           </div>
         </div>
       </div>
 
-      <div className="absolute right-0 top-2">
-        {!isSeen && <Dot className="text-primary" size={50} />}
-      </div>
+      {/* {conversation.type !== "DIRECT" &&
+        conversation.unreadCount &&
+        conversation.unreadCount > 0 && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <div className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-semibold">
+              {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+            </div>
+          </div>
+        )} */}
     </Link>
   );
 };

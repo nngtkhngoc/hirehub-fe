@@ -1,7 +1,7 @@
 import type { UserProfile } from "./Auth";
 
 export type SeenUser = {
-  id?: string;
+  id?: string | number;
   email?: string;
   emoji?: string;
 };
@@ -13,7 +13,7 @@ export type Message = {
   type?: string;
   createdAt: string;
   sender: UserProfile | undefined | null;
-  receiver: UserProfile | undefined | null;
+  conversationId?: number;
   seenUsers: (SeenUser | undefined)[];
 };
 
@@ -23,5 +23,19 @@ export type CreateMessageRequest = {
   fileName?: string;
 
   senderEmail?: string;
-  receiverEmail?: string;
+  conversationId: number;
+};
+
+export type ConversationType = "DIRECT" | "GROUP";
+
+export type Conversation = {
+  id: number;
+  type: ConversationType;
+  name?: string;
+  leaderId?: number | null;
+  participants: UserProfile[];
+  lastMessage?: Message | null;
+  createdAt: string;
+  updatedAt: string;
+  unreadCount?: number;
 };
