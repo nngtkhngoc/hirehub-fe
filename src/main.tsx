@@ -22,6 +22,7 @@ import { User } from "./pages/User/User/User.tsx";
 import { JobDetails } from "./pages/User/JobDetails/JobDetails.tsx";
 import { MyJobsPage } from "./pages/User/MyJobs/MyJobsPage.tsx";
 import { ChatboxPage } from "./pages/User/Chat/ChatboxPage.tsx";
+import { ChatRedirectPage } from "./pages/User/Chat/ChatRedirectPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,11 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/job-details/:id" element={<JobDetails />} />{" "}
             <Route path="/my-jobs" element={<MyJobsPage />} />
           </Route>
+          <Route path="/chat" element={<ChatRedirectPage />} />
+          <Route
+            path="/chat/conversation/:conversationId"
+            element={<ChatboxPage />}
+          />
           <Route path="/chat/:id" element={<ChatboxPage />} />
 
           <Route path="/auth" element={<AuthLayout />}>
