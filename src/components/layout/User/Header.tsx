@@ -24,6 +24,7 @@ export const Header = () => {
     { label: "Việc làm", link: "/job-list" },
     { label: "Công ty", link: "/company-list" },
     { label: "Kết nối", link: "/user-list" },
+    { label: "Nhắn tin", link: "/chat" },
   ];
   const location = window.location.pathname;
   const isActive = (link: string) => {
