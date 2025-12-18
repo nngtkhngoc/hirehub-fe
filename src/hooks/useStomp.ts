@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
-import type { CreateMessageRequest } from "@/types/Chat";
+import type { CreateMessageRequest, GroupEventData } from "@/types/Chat";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const SOCKET_URL = BASE_URL + "/ws";
@@ -135,6 +135,25 @@ export const useStomp = () => {
     []
   );
 
+  // SUBSCRIBE TO GROUP EVENTS (kick, leave, invite)
+  const subscribeGroupEvent = useCallback(
+    (callback: (eventData: GroupEventData) => void) => {
+      const client = clientRef.current;
+      if (!client || !client.connected) return;
+
+      return client.subscribe("/user/queue/group-event", (frame) => {
+        try {
+          const data = JSON.parse(frame.body);
+          console.log("[GROUP EVENT]", data);
+          callback(data);
+        } catch (err) {
+          console.error("Failed to parse group event:", err, frame.body);
+        }
+      });
+    },
+    []
+  );
+
   return {
     connected,
     sendPrivate,
@@ -144,5 +163,6 @@ export const useStomp = () => {
     subscribePrivateMessage,
     subscribeSeenMessage,
     subscribeReactMessage,
+    subscribeGroupEvent,
   };
 };
