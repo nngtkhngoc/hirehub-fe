@@ -6,13 +6,14 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useStomp } from "@/hooks/useStomp";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat, useChatList } from "@/hooks/useChat";
-import type { Message, Conversation } from "@/types/Chat";
+import type { Message, Conversation, GroupEventData } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
 import { Files, Images, Send, SmilePlus, Users } from "lucide-react";
 import Picker from "emoji-picker-react";
 import { uploadFile } from "@/apis/chat.api";
 import { markConversationAsRead } from "@/apis/conversation.api";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 export const Chatbox = ({
   conversation,
@@ -28,8 +29,11 @@ export const Chatbox = ({
     sendSeen,
     subscribeReactMessage,
     sendReact,
+    subscribeGroupEvent,
   } = useStomp();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const conversationId = conversation?.id;
   const userId = user?.id ? parseInt(user.id) : 0;
@@ -145,6 +149,61 @@ export const Chatbox = ({
     return () => sub?.unsubscribe();
   }, [connected]);
 
+  // SUBSCRIBE TO GROUP EVENTS (kick, leave, invite)
+  useEffect(() => {
+    if (!connected) return;
+
+    const sub = subscribeGroupEvent((eventData: GroupEventData) => {
+      // Refetch chat list và history
+      refetch();
+      refetchChatList();
+
+      // Invalidate conversation queries để cập nhật participants
+      queryClient.invalidateQueries({ queryKey: ["chat-list"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      if (conversationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["conversation", conversationId.toString(), userId],
+        });
+      }
+
+      // Nếu user hiện tại bị kick hoặc rời nhóm, chuyển sang conversation khác
+      const isCurrentUserAffected = eventData.affectedUsers?.some(
+        (u) => u.id === userId || u.id?.toString() === user?.id
+      );
+
+      if (
+        isCurrentUserAffected &&
+        (eventData.eventType === "MEMBER_KICKED" ||
+          eventData.eventType === "MEMBER_LEFT" ||
+          eventData.eventType === "GROUP_DISBANDED")
+      ) {
+        // Refetch chat list trước rồi chuyển sang conversation khác
+        refetchChatList().then((result) => {
+          const conversations = result.data;
+          if (conversations && conversations.length > 0) {
+            // Tìm conversation khác (không phải conversation hiện tại và có tin nhắn)
+            const otherConversation = conversations.find(
+              (c: any) => c.id !== conversationId && c.lastMessage != null
+            );
+            if (otherConversation) {
+              navigate(`/chat/conversation/${otherConversation.id}`, {
+                replace: true,
+              });
+            } else {
+              // Không có conversation khác có tin nhắn, chuyển về trang chat chính
+              navigate("/chat", { replace: true });
+            }
+          } else {
+            navigate("/chat", { replace: true });
+          }
+        });
+      }
+    });
+
+    return () => sub?.unsubscribe();
+  }, [connected, conversationId, userId, user?.id]);
+
   // For group chat, check if all participants have seen
   const isSeen = useMemo(() => {
     if (!conversation || !messages.length) return false;
@@ -233,7 +292,7 @@ export const Chatbox = ({
   }
 
   return (
-    <div className="w-full max-h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
+    <div className="w-full h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[62px]">
         <div className="relative">
@@ -262,6 +321,18 @@ export const Chatbox = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm">
         {messages?.map((m, idx) => {
           const isMine = m?.sender?.id === user?.id;
+          const isSystemMessage = m.type === "system";
+
+          // Render system message (kick, leave, invite notifications)
+          if (isSystemMessage) {
+            return (
+              <div key={m?.id} className="flex justify-center my-2">
+                <div className="bg-zinc-100 text-zinc-500 text-xs px-3 py-1.5 rounded-full">
+                  {m.content}
+                </div>
+              </div>
+            );
+          }
 
           return (
             <div
@@ -269,9 +340,8 @@ export const Chatbox = ({
               className="flex flex-row items-start justify-start group relative"
             >
               <div
-                className={`flex flex-col relative gap-2 ${
-                  isMine ? "text-right ml-auto" : "text-left mr-auto"
-                }`}
+                className={`flex flex-col relative gap-2 ${isMine ? "text-right ml-auto" : "text-left mr-auto"
+                  }`}
               >
                 {/* Show sender name in group chat */}
                 {conversation.type === "GROUP" && !isMine && (
@@ -281,9 +351,8 @@ export const Chatbox = ({
                 )}
                 {/* Message bubble */}
                 <div
-                  className={`flex items-end gap-2 ${
-                    isMine ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {!isMine && (
                     <img
@@ -302,11 +371,10 @@ export const Chatbox = ({
                   )}
                   {m.type === "text" && (
                     <div
-                      className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${
-                        isMine
+                      className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${isMine
                           ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
                           : "bg-zinc-200 text-zinc-800 rounded-bl-none"
-                      }`}
+                        }`}
                     >
                       <span>{m.content}</span>
                     </div>
@@ -329,25 +397,22 @@ export const Chatbox = ({
     flex items-center gap-3 p-3 rounded-xl border border-transparent
     cursor-pointer max-w-[260px] shadow-sm
     transition-all duration-300
-    ${
-      isMine
-        ? "bg-gradient-to-r from-indigo-100 to-purple-100 hover:brightness-105"
-        : "bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 hover:brightness-105"
-    }
+    ${isMine
+                          ? "bg-gradient-to-r from-indigo-100 to-purple-100 hover:brightness-105"
+                          : "bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 hover:brightness-105"
+                        }
   `}
                     >
                       {/* File icon */}
                       <div
                         className={`
       w-10 h-10 flex items-center justify-center
-      rounded-lg text-zinc-700 font-bold ${
-        isMine ? "bg-violet-200" : "bg-zinc-200 "
-      }`}
+      rounded-lg text-zinc-700 font-bold ${isMine ? "bg-violet-200" : "bg-zinc-200 "
+                          }`}
                       >
                         <Files
-                          className={` ${
-                            isMine ? "text-primary" : "text-zinc-800 "
-                          }`}
+                          className={` ${isMine ? "text-primary" : "text-zinc-800 "
+                            }`}
                         />
                       </div>
 
@@ -394,9 +459,8 @@ export const Chatbox = ({
                 {/* Emoji picker */}
                 {openPickerFor === m.id && (
                   <div
-                    className={`absolute z-50 bottom-10 ${
-                      isMine ? "right-0" : "left-0"
-                    }`}
+                    className={`absolute z-50 bottom-10 ${isMine ? "right-0" : "left-0"
+                      }`}
                   >
                     <Picker
                       onEmojiClick={(e) => handleEmojiPicked(e.emoji, m?.id)}
