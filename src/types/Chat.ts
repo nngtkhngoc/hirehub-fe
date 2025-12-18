@@ -39,3 +39,14 @@ export type Conversation = {
   updatedAt: string;
   unreadCount?: number;
 };
+
+// Group event types for socket notifications
+export type GroupEventType = "MEMBER_KICKED" | "MEMBER_LEFT" | "MEMBER_INVITED" | "GROUP_CREATED" | "GROUP_DISBANDED";
+
+export type GroupEventData = {
+  conversationId: number;
+  eventType: GroupEventType;
+  actor: UserProfile;
+  affectedUsers: UserProfile[];
+  systemMessage: string;
+};
