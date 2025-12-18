@@ -1,11 +1,10 @@
 import { ArrowLeft } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/useChat";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useParams } from "react-router";
-import { set } from "date-fns";
-import { m } from "framer-motion";
+
 export default function MediaDetail({
   view,
   setView,
@@ -15,12 +14,16 @@ export default function MediaDetail({
 }) {
   const [tab, setTab] = useState(view);
   const user = useAuthStore((state) => state.user);
-  const otherUserId = parseInt(useParams().id!);
+  const { conversationId } = useParams();
+  const userId = parseInt(user?.id || "0");
   const [messageTypes, setMessageTypes] = useState<string[]>([view]);
-  const message = useChat(parseInt(user?.id || "0"), otherUserId, messageTypes);
 
-  if (!message.isLoading) console.log(message.data, "MESS");
-  console.log(messageTypes, "TYPE");
+  const message = useChat(
+    conversationId ? parseInt(conversationId) : 0,
+    userId,
+    messageTypes
+  );
+
   return (
     <div className="flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-full">
       <div className="font-bold text-2xl pt-5 px-5 text-left w-full flex items-center gap-3">
