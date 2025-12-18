@@ -3,11 +3,13 @@ import { Chatbox } from "./components/layout/Chatbox";
 import { UserDetail } from "./components/layout/UserDetail";
 import { ChatList } from "./components/layout/ChatList";
 import { Header } from "@/components/layout/User/Header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MediaDetail from "./components/layout/MediaDetail";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getConversationDetail } from "@/apis/conversation.api";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useStomp } from "@/hooks/useStomp";
+import type { GroupEventData } from "@/types/Chat";
 
 export const ChatboxPage = () => {
   const { conversationId } = useParams();
@@ -24,6 +26,34 @@ export const ChatboxPage = () => {
   });
 
   const [view, setView] = useState<"default" | "image" | "file">("default");
+
+  // Global group event subscription để khi user được mời vào nhóm mới,
+  // chat list sẽ được refresh dù họ đang xem conversation khác
+  const { connected, subscribeGroupEvent } = useStomp();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!connected) return;
+
+    const sub = subscribeGroupEvent((_eventData: GroupEventData) => {
+      // Refetch chat list khi có group event
+      queryClient.invalidateQueries({ queryKey: ["chat-list"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+
+      // Invalidate conversation detail để cập nhật danh sách thành viên
+      if (conversationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["conversation", conversationId, userId]
+        });
+        // Invalidate chat history để hiển thị system message
+        queryClient.invalidateQueries({
+          queryKey: ["chat"]
+        });
+      }
+    });
+
+    return () => sub?.unsubscribe();
+  }, [connected, queryClient, subscribeGroupEvent, conversationId, userId]);
 
   return (
     <div className="bg-white w-full h-screen flex flex-col">
