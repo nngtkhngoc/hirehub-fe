@@ -24,6 +24,13 @@ import { MyJobsPage } from "./pages/User/MyJobs/MyJobsPage.tsx";
 import { ChatboxPage } from "./pages/User/Chat/ChatboxPage.tsx";
 import { ChatRedirectPage } from "./pages/User/Chat/ChatRedirectPage.tsx";
 
+// Admin imports
+import { AdminLayout } from "./components/layout/Admin/AdminLayout.tsx";
+import { AdminDashboardPage } from "./pages/Admin/AdminDashboardPage.tsx";
+import { UserManagementPage } from "./pages/Admin/UserManagementPage.tsx";
+import { JobManagementPage } from "./pages/Admin/JobManagementPage.tsx";
+import { ViolationManagementPage } from "./pages/Admin/ViolationManagementPage.tsx";
+
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
@@ -60,6 +67,14 @@ createRoot(document.getElementById("root")!).render(
               element={<ResetPasswordPage />}
             />
             <Route path="/auth/mail-sent" element={<MailSentPage />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="users" element={<UserManagementPage />} />
+            <Route path="jobs" element={<JobManagementPage />} />
+            <Route path="violations" element={<ViolationManagementPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
