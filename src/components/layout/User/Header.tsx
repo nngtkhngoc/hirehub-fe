@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BriefcaseBusiness, LogOut, UserCircle } from "lucide-react";
+import { BriefcaseBusiness, LogOut, UserCircle, Shield, Users } from "lucide-react";
 import { useSignOut } from "@/hooks/useAuth";
 
 interface NavLink {
@@ -92,6 +92,32 @@ export const Header = () => {
                   Công việc
                 </Link>
               </DropdownMenuItem>
+
+              {/* Admin Dashboard Link */}
+              {user.role?.name?.toLowerCase() === "admin" && (
+                <DropdownMenuItem>
+                  <Link
+                    to="/admin"
+                    className="flex flex-row items-center justify-start gap-2"
+                  >
+                    <Shield className="text-[16px]" />
+                    Quản trị
+                  </Link>
+                </DropdownMenuItem>
+              )}
+
+              {/* Recruiter Dashboard Link */}
+              {user.role?.name?.toLowerCase() === "recruiter" && (
+                <DropdownMenuItem>
+                  <Link
+                    to="/recruiter"
+                    className="flex flex-row items-center justify-start gap-2"
+                  >
+                    <Users className="text-[16px]" />
+                    Tuyển dụng
+                  </Link>
+                </DropdownMenuItem>
+              )}
 
               <DropdownMenuItem>
                 <button
