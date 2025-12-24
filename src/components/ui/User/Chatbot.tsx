@@ -3,7 +3,12 @@ import { useRef, useState } from "react";
 import chatbotIcon from "@/assets/icons/chatbot.png";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Job } from "@/types/Job";
-import { analyzeResume, findJobs } from "@/apis/chatbot.api";
+import {
+  findJobs,
+  streamChat,
+  streamChatWithFile,
+  type ChatMessage,
+} from "@/apis/chatbot.api";
 import { ArrowRight, ImageUp, Send, SendHorizonal, X } from "lucide-react";
 import { FlexibleJobCard } from "./FlexibleJobCard";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -13,6 +18,10 @@ import { toast } from "sonner";
 import { applyJob } from "@/apis/job.api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { AxiosError } from "axios";
+import VoiceInput from "./VoiceInput";
+import { Link } from "react-router";
+
 interface messageInterface {
   sender: "user" | "bot";
   text?: string;
@@ -31,13 +40,32 @@ const messageList = [
   "Những công việc này có thể là lựa chọn tốt cho bạn:",
   "Hãy xem các công việc sau đây mà mình đã tìm được cho bạn:",
 ];
+const messageToApplyJob = [
+  "Để tôi nộp resume dùm bạn nhé",
+  "Mình sẽ gửi hồ sơ giúp bạn ngay bây giờ",
+  "Hãy để tôi hoàn tất việc nộp CV cho bạn",
+  "Đang chuẩn bị nộp hồ sơ, bạn đợi một chút nhé",
+  "CV của bạn sẽ được gửi đi ngay lập tức",
+  "Mình sẽ giúp bạn apply công việc này nhanh chóng",
+];
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<messageInterface[]>([]);
   const [userInput, setUserInput] = useState("");
   const { user } = useAuthStore();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
 
+  // Convert messages to ChatMessage format for API
+  const getHistoryForAPI = (): ChatMessage[] => {
+    return messages
+      .filter((m) => m.text && m.text !== "...")
+      .map((m) => ({
+        role: m.sender === "user" ? "user" : "assistant",
+        content: m.text || "",
+      }));
+  };
   const handleUserInput = async () => {
     if (!user) {
       toast.error("Vui lòng đăng nhập");
@@ -49,68 +77,57 @@ export default function Chatbot() {
       ...prevMessages,
       { sender: "bot", text: "..." },
     ]);
-    console.log("WTF");
-    setSelectedFile(null);
-    const messageType = await classifyMessage(userInput);
-    console.log(messageType);
 
-    console.log("WTF2");
-    if (messageType == ClassificationType.ANALYZE_CV) {
-      let form = new FormData();
+    setIsStreaming(true);
+    const history = getHistoryForAPI();
+    let streamedText = "";
 
-      form.append("message", userInput);
-      if (selectedFile) form.append("resume", selectedFile);
-      else if (user?.openAiResumeId) {
-        form.append("resumeId", user.openAiResumeId);
-      } else {
-        toast.error("Không thấy CV nào của bạn gởi lên cả");
-        return;
-      }
-      let botResponse = await analyzeResume(form);
-      setMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages];
-        updatedMessages.pop();
-        updatedMessages.push({
+    const onToken = (token: string) => {
+      streamedText += token;
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIdx = updated.length - 1;
+        updated[lastIdx] = {
           sender: "bot",
-          text: botResponse,
-          type: ClassificationType.ANALYZE_CV,
-        });
-        console.log(botResponse, "!!");
-        return updatedMessages;
+          text: streamedText,
+        };
+        return updated;
       });
-    } else if (messageType == ClassificationType.FIND_JOBS) {
-      let botResponse = await findJobs(userInput);
-      setMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages];
-        updatedMessages.pop();
-        updatedMessages.push({
-          sender: "bot",
-          jobs: botResponse,
-          text: messageList[Math.floor(Math.random() * messageList.length)],
-          type: ClassificationType.FIND_JOBS,
-        });
-        return updatedMessages;
-      });
+    };
+
+    const onComplete = () => {
+      setIsStreaming(false);
+    };
+
+    const onError = (error: Error) => {
+      setIsStreaming(false);
+      toast.error("Có lỗi xảy ra: " + error.message);
+    };
+
+    if (selectedFile) {
+      // Stream with file
+      await streamChatWithFile(
+        userInput,
+        history,
+        selectedFile,
+        onToken,
+        onComplete,
+        onError
+      );
     } else {
-      let match = userInput.match(/\d+/);
-      let form = new FormData();
-      form.append("userId", user!!.id);
-      if (selectedFile) {
-        form.append("resumeFile", selectedFile);
-      }
-      for (let id in match) {
-        form.set("jobId", id);
-        await applyJob(form);
-      }
-      toast.success("Nộp resume thành công");
+      // Stream without file - backend detects intent
+      await streamChat(userInput, history, onToken, onComplete, onError);
     }
+    setSelectedFile(null);
   };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setSelectedFile(file);
   };
+
   return (
     <div className="fixed bottom-2 right-2 z-100 font-primary">
       <AnimatePresence>
@@ -149,44 +166,51 @@ export default function Chatbot() {
                   tìm việc nhanh chóng!
                 </p>
               ) : (
-                <div className="flex flex-col gap-2 text-[14px] prose">
+                <div className="flex flex-col gap-2 text-[14px]">
                   {messages.map((msg, index) => (
                     <div
                       key={index}
-                      className={`p-2 rounded-xl text-[14px] ${
-                        msg.sender === "user"
+                      className={`p-2 rounded-xl text-[14px] max-w-[90%] ${msg.sender === "user"
                           ? "bg-primary text-white self-end"
                           : "bg-zinc-200 text-gray-800 self-start"
-                      }`}
+                        }`}
                     >
                       {/* USER MESSAGE */}
                       {msg.sender === "user" && <div>{msg.text}</div>}
+                      {msg.sender === "bot" && (
+                        <div className="prose prose-sm prose-zinc max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:bg-zinc-200 prose-pre:text-gray-800 prose-pre:text-xs prose-code:bg-zinc-300 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-zinc-800 prose-code:before:content-none prose-code:after:content-none prose-table:text-xs marker:text-black">
+                          <ReactMarkdown
+                            components={{
+                              a: ({ href, children }) => {
+                                if (!href) return <span>{children}</span>;
 
-                      {/* BOT ANALYZE_CV -> MARKDOWN */}
-                      {msg.sender === "bot" &&
-                        msg.type === ClassificationType.ANALYZE_CV &&
-                        msg.text && (
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                // const isInternal = href.startsWith("/");
+                                // if (!isInternal) {
+                                return (
+                                  <Link
+                                    to={href}
+                                    className="text-blue-600 underline cursor-pointer"
+                                  >
+                                    {children}
+                                  </Link>
+                                );
+                                // }
+                              },
+                            }}
+                            remarkPlugins={[remarkGfm]}
+                          >
                             {msg.text}
                           </ReactMarkdown>
-                        )}
-
-                      {/* BOT JOB LIST */}
-                      {msg.sender === "bot" &&
-                        msg?.jobs &&
-                        msg?.jobs.length > 0 && (
-                          <div>
-                            {msg.text && <p className="mb-2">{msg.text}</p>}
-
-                            <div>
-                              {msg.jobs.map((job, jobIndex) => (
-                                <div className="w-full p-4" key={jobIndex}>
-                                  <FlexibleJobCard job={job} />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        </div>
+                      )}
+                      {/* BOT LOADING STATE */}
+                      {msg.sender === "bot" && msg.text === "..." && (
+                        <div className="flex gap-1 items-center">
+                          <span className="animate-bounce">.</span>
+                          <span className="animate-bounce delay-100">.</span>
+                          <span className="animate-bounce delay-200">.</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -194,6 +218,7 @@ export default function Chatbot() {
             </div>
             <div className="bg-zinc-100 flex items-center border-t-1 rounded-b-lg mt-auto py-2 px-5 justify-between flex-row gap-3">
               <div className="flex-1 w-[100%]">{selectedFile?.name}</div>
+              <VoiceInput setText={setUserInput} />
               <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center flex-shrink-0 flex-grow-0 cursor-pointer">
                 <input
                   type="file"
@@ -203,7 +228,7 @@ export default function Chatbot() {
                   onChange={handleFileSelect}
                 />
                 <label htmlFor="file-upload">
-                  <ImageUp className="text-gray-500 hover:text-gray-700 w-5 text-primary cursor-pointer" />
+                  <ImageUp className="hover:text-gray-700 w-5 text-primary cursor-pointer" />
                 </label>
               </div>
               <input
@@ -229,7 +254,7 @@ export default function Chatbot() {
                 ) : (
                   <Send
                     className="text-gray-500 hover:text-gray-700 w-5 text-primary"
-                    // onClick={handleUserInput}
+                  // onClick={handleUserInput}
                   />
                 )}
               </div>

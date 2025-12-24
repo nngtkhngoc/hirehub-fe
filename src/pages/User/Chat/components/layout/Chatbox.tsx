@@ -3,42 +3,65 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState, useRef, useMemo } from "react";
-import type { UserProfile } from "@/types/Auth";
 import { useStomp } from "@/hooks/useStomp";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat, useChatList } from "@/hooks/useChat";
-import type { Message } from "@/types/Chat";
+import type { Message, Conversation, GroupEventData } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { File, Files, Images, Send, SmilePlus } from "lucide-react";
+import { Files, Images, Send, SmilePlus, Users } from "lucide-react";
 import Picker from "emoji-picker-react";
 import { uploadFile } from "@/apis/chat.api";
+import { markConversationAsRead } from "@/apis/conversation.api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 export const Chatbox = ({
-  receiver,
+  conversation,
 }: {
-  receiver: UserProfile | undefined;
+  conversation: Conversation | undefined;
 }) => {
   const inputRef = useRef<any>(null);
   const {
     connected,
     subscribePrivateMessage,
-    sendPrivate,
+    sendMessage,
     subscribeSeenMessage,
     sendSeen,
     subscribeReactMessage,
     sendReact,
+    subscribeGroupEvent,
   } = useStomp();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { data: history, refetch } = useChat(
-    parseInt(receiver?.id!),
-    parseInt(user?.id!)
-  );
+  const conversationId = conversation?.id;
+  const userId = user?.id ? parseInt(user.id) : 0;
 
-  const { refetch: refetchChatList } = useChatList(
-    user?.id ? parseInt(user.id) : null
-  );
+  const { data: history, refetch } = useChat(conversationId || 0, userId);
+
+  const { refetch: refetchChatList } = useChatList(userId);
   const [messages, setMessages] = useState<Message[]>([]);
+
+  // Mark conversation as read when opening
+  const markAsReadMutation = useMutation({
+    mutationFn: ({
+      conversationId,
+      userId,
+    }: {
+      conversationId: number;
+      userId: number;
+    }) => markConversationAsRead(conversationId, userId),
+    onSuccess: () => {
+      refetchChatList();
+    },
+  });
+
+  useEffect(() => {
+    if (conversationId && userId) {
+      markAsReadMutation.mutate({ conversationId, userId });
+    }
+  }, [conversationId]);
 
   useEffect(() => {
     if (history) setMessages(history);
@@ -46,21 +69,21 @@ export const Chatbox = ({
 
   // SEND MSG
   useEffect(() => {
-    if (!connected) return;
+    if (!connected || !conversationId) return;
     const sub = subscribePrivateMessage(() => {
       refetch();
       refetchChatList();
     });
     return () => sub && sub.unsubscribe();
-  }, [connected, receiver?.email, user?.email]);
+  }, [connected, conversationId, user?.email]);
 
   const handleSend = () => {
     const content = inputRef.current.value.trim();
-    if (!content || !user?.email || !receiver?.email) return;
+    if (!content || !user?.email || !conversationId) return;
 
-    sendPrivate({
+    sendMessage({
       senderEmail: user?.email,
-      receiverEmail: receiver?.email,
+      conversationId: conversationId,
       content: content,
       type: "text",
     });
@@ -76,14 +99,14 @@ export const Chatbox = ({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !conversationId) return;
 
     const url = await uploadFile(file);
 
     const isImage = file.type.startsWith("image/");
-    sendPrivate({
+    sendMessage({
       senderEmail: user?.email!,
-      receiverEmail: receiver?.email!,
+      conversationId: conversationId,
       fileName: file.name,
       content: url,
       type: isImage ? "image" : "file",
@@ -105,7 +128,7 @@ export const Chatbox = ({
   }, [connected]);
 
   const handleEmojiPicked = (emoji: string, msgId: string | undefined) => {
-    if (!emoji || !user?.email || !receiver?.email) return;
+    if (!emoji || !user?.id) return;
 
     sendReact({
       userId: parseInt(user?.id!),
@@ -126,26 +149,93 @@ export const Chatbox = ({
     return () => sub?.unsubscribe();
   }, [connected]);
 
-  const isSeen = useMemo(() => {
-    const seenUsers = messages[messages?.length - 1]?.seenUsers;
+  // SUBSCRIBE TO GROUP EVENTS (kick, leave, invite)
+  useEffect(() => {
+    if (!connected) return;
 
-    if (seenUsers && seenUsers.length >= 0) {
-      return seenUsers.some((user) => user?.id == receiver?.id);
+    const sub = subscribeGroupEvent((eventData: GroupEventData) => {
+      // Refetch chat list và history
+      refetch();
+      refetchChatList();
+
+      // Invalidate conversation queries để cập nhật participants
+      queryClient.invalidateQueries({ queryKey: ["chat-list"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      if (conversationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["conversation", conversationId.toString(), userId],
+        });
+      }
+
+      // Nếu user hiện tại bị kick hoặc rời nhóm, chuyển sang conversation khác
+      const isCurrentUserAffected = eventData.affectedUsers?.some(
+        (u) => u.id === userId || u.id?.toString() === user?.id
+      );
+
+      if (
+        isCurrentUserAffected &&
+        (eventData.eventType === "MEMBER_KICKED" ||
+          eventData.eventType === "MEMBER_LEFT" ||
+          eventData.eventType === "GROUP_DISBANDED")
+      ) {
+        // Refetch chat list trước rồi chuyển sang conversation khác
+        refetchChatList().then((result) => {
+          const conversations = result.data;
+          if (conversations && conversations.length > 0) {
+            // Tìm conversation khác (không phải conversation hiện tại và có tin nhắn)
+            const otherConversation = conversations.find(
+              (c: any) => c.id !== conversationId && c.lastMessage != null
+            );
+            if (otherConversation) {
+              navigate(`/chat/conversation/${otherConversation.id}`, {
+                replace: true,
+              });
+            } else {
+              // Không có conversation khác có tin nhắn, chuyển về trang chat chính
+              navigate("/chat", { replace: true });
+            }
+          } else {
+            navigate("/chat", { replace: true });
+          }
+        });
+      }
+    });
+
+    return () => sub?.unsubscribe();
+  }, [connected, conversationId, userId, user?.id]);
+
+  // For group chat, check if all participants have seen
+  const isSeen = useMemo(() => {
+    if (!conversation || !messages.length) return false;
+
+    const lastMsg = messages[messages.length - 1];
+    if (!lastMsg || lastMsg.sender?.id !== user?.id) return false;
+
+    if (conversation.type === "DIRECT") {
+      const otherUser = conversation.participants.find(
+        (p) => p.id !== user?.id
+      );
+      return lastMsg.seenUsers?.some((u) => u?.id == otherUser?.id) || false;
     }
 
-    return false;
-  }, [receiver, user, messages]);
+    // For group, check if all participants have seen
+    const participantsCount = conversation.participants.length;
+    const seenCount = lastMsg.seenUsers?.length || 0;
+    return seenCount >= participantsCount - 1; // -1 because sender doesn't count
+  }, [conversation, user, messages]);
 
   const lastMsgRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!messages.length || !connected) return;
+    if (!messages.length || !connected || !user?.id) return;
 
     const lastMsg = messages[messages.length - 1];
 
+    // Mark as seen if message is not from current user and not already seen
     if (
-      lastMsg.sender?.email === receiver?.email &&
-      lastMsg.id !== lastMsgRef.current
+      lastMsg.sender?.id !== user?.id &&
+      lastMsg.id !== lastMsgRef.current &&
+      !lastMsg.seenUsers?.some((u) => u?.id == user?.id)
     ) {
       lastMsgRef.current = lastMsg.id ?? null;
 
@@ -154,7 +244,7 @@ export const Chatbox = ({
         messageId: parseInt(lastMsg.id!),
       });
     }
-  }, [messages, connected]);
+  }, [messages, connected, user?.id]);
 
   const [openPickerFor, setOpenPickerFor] = useState<string | null>(null);
 
@@ -170,31 +260,79 @@ export const Chatbox = ({
     if (messages.length === 0) return;
 
     const lastMsg = messages[messages.length - 1];
-
-    const isMine = lastMsg?.sender?.id === user?.id;
-
-    if (isMine) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
+  // Get display name and avatar for header
+  const displayInfo = useMemo(() => {
+    if (!conversation) return { name: "", avatar: profile };
+
+    if (conversation.type === "GROUP") {
+      return {
+        name: conversation.name || "Nhóm chat",
+        avatar:
+          conversation.participants.find((p) => p.id !== user?.id)?.avatar ||
+          profile,
+      };
+    }
+
+    const otherUser = conversation.participants.find((p) => p.id !== user?.id);
+    return {
+      name: otherUser?.name || "Người dùng",
+      avatar: otherUser?.avatar || profile,
+    };
+  }, [conversation, user?.id]);
+
+  if (!conversation) {
+    return (
+      <div className="w-full max-h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden items-center justify-center">
+        <p className="text-zinc-500">Chọn một cuộc trò chuyện để bắt đầu</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
+    <div className="w-full h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden ">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-zinc-200 p-4 bg-zinc-50 rounded-t-xl h-[62px]">
-        <img
-          src={receiver?.avatar || profile}
-          alt="avatar"
-          className="w-10 h-10 rounded-full object-cover"
-        />
+        <div className="relative">
+          <img
+            src={displayInfo.avatar}
+            alt={displayInfo.name}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          {conversation.type === "GROUP" && (
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+              <Users className="w-2.5 h-2.5 text-white" />
+            </div>
+          )}
+        </div>
         <div className="flex flex-col">
-          <span className="font-semibold text-zinc-800">{receiver?.name}</span>
-          <span className="text-xs text-zinc-500">Đang trò chuyện</span>
+          <span className="font-semibold text-zinc-800">
+            {displayInfo.name}
+          </span>
+          <span className="text-xs text-zinc-500">
+            {conversation.type === "GROUP"
+              ? `${conversation.participants.length} thành viên`
+              : "Đang trò chuyện"}
+          </span>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-2 text-sm">
         {messages?.map((m, idx) => {
-          const isMine = m?.sender?.email === user?.email;
+          const isMine = m?.sender?.id === user?.id;
+          const isSystemMessage = m.type === "system";
+
+          // Render system message (kick, leave, invite notifications)
+          if (isSystemMessage) {
+            return (
+              <div key={m?.id} className="flex justify-center my-2">
+                <div className="bg-zinc-100 text-zinc-500 text-xs px-3 py-1.5 rounded-full">
+                  {m.content}
+                </div>
+              </div>
+            );
+          }
 
           return (
             <div
@@ -202,19 +340,23 @@ export const Chatbox = ({
               className="flex flex-row items-start justify-start group relative"
             >
               <div
-                className={`flex flex-col relative gap-2 ${
-                  isMine ? "text-right ml-auto" : "text-left mr-auto"
-                }`}
+                className={`flex flex-col relative gap-2 ${isMine ? "text-right ml-auto" : "text-left mr-auto"
+                  }`}
               >
+                {/* Show sender name in group chat */}
+                {conversation.type === "GROUP" && !isMine && (
+                  <span className="text-xs text-zinc-500 mb-1">
+                    {m.sender?.name || "Người dùng"}
+                  </span>
+                )}
                 {/* Message bubble */}
                 <div
-                  className={`flex items-end gap-2 ${
-                    isMine ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {!isMine && (
                     <img
-                      src={receiver?.avatar || profile}
+                      src={m.sender?.avatar || profile}
                       alt="avatar"
                       className="w-8 h-8 rounded-full object-cover"
                     />
@@ -222,18 +364,17 @@ export const Chatbox = ({
                   {isMine && (
                     <button
                       onClick={() => togglePicker(m.id)}
-                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hidden group-hover:flex cursor-pointer absolute -left-8"
+                      className="w-6 h-6 items-center justify-center rounded-full hover:bg-zinc-100 transition hidden group-hover:flex cursor-pointer absolute -left-8"
                     >
                       <SmilePlus className="w-4 h-4" />
                     </button>
                   )}
                   {m.type === "text" && (
                     <div
-                      className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${
-                        isMine
+                      className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${isMine
                           ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
                           : "bg-zinc-200 text-zinc-800 rounded-bl-none"
-                      }`}
+                        }`}
                     >
                       <span>{m.content}</span>
                     </div>
@@ -255,26 +396,23 @@ export const Chatbox = ({
                       className={`
     flex items-center gap-3 p-3 rounded-xl border border-transparent
     cursor-pointer max-w-[260px] shadow-sm
-    transition-all duration-300 transition-all duration-500
-    ${
-      isMine
-        ? "bg-gradient-to-r from-indigo-100 to-purple-100 hover:brightness-105"
-        : "bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 hover:brightness-105"
-    }
+    transition-all duration-300
+    ${isMine
+                          ? "bg-gradient-to-r from-indigo-100 to-purple-100 hover:brightness-105"
+                          : "bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 hover:brightness-105"
+                        }
   `}
                     >
                       {/* File icon */}
                       <div
                         className={`
       w-10 h-10 flex items-center justify-center
-      rounded-lg text-zinc-700 font-bold ${
-        isMine ? "bg-violet-200" : "bg-zinc-200 "
-      }`}
+      rounded-lg text-zinc-700 font-bold ${isMine ? "bg-violet-200" : "bg-zinc-200 "
+                          }`}
                       >
                         <Files
-                          className={` ${
-                            isMine ? "text-primary" : "text-zinc-800 "
-                          }`}
+                          className={` ${isMine ? "text-primary" : "text-zinc-800 "
+                            }`}
                         />
                       </div>
 
@@ -294,7 +432,7 @@ export const Chatbox = ({
                   {!isMine && (
                     <button
                       onClick={() => togglePicker(m.id)}
-                      className=" w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-100 transition hidden  group-hover:flex hover:cursor-pointer absolute -right-8"
+                      className="w-6 h-6 items-center justify-center rounded-full hover:bg-zinc-100 transition hidden group-hover:flex hover:cursor-pointer absolute -right-8"
                     >
                       <SmilePlus className="w-4 h-4" />
                     </button>
@@ -321,9 +459,8 @@ export const Chatbox = ({
                 {/* Emoji picker */}
                 {openPickerFor === m.id && (
                   <div
-                    className={`absolute z-50 bottom-10 ${
-                      isMine ? "right-0" : "left-0"
-                    }`}
+                    className={`absolute z-50 bottom-10 ${isMine ? "right-0" : "left-0"
+                      }`}
                   >
                     <Picker
                       onEmojiClick={(e) => handleEmojiPicked(e.emoji, m?.id)}

@@ -21,6 +21,7 @@ export type UserProfile = {
   role: {
     id: string;
     action: string;
+    name: string;
     resource: string;
   };
   skills: Skill[];

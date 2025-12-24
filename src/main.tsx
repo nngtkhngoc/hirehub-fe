@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import { createRoot } from "react-dom/client";
-// import { StrictMode } from "react";
+import { StrictMode } from "react";
 
 import "./index.css";
 
@@ -22,20 +22,23 @@ import { User } from "./pages/User/User/User.tsx";
 import { JobDetails } from "./pages/User/JobDetails/JobDetails.tsx";
 import { MyJobsPage } from "./pages/User/MyJobs/MyJobsPage.tsx";
 import { ChatboxPage } from "./pages/User/Chat/ChatboxPage.tsx";
+import { ChatRedirectPage } from "./pages/User/Chat/ChatRedirectPage.tsx";
+
+// Admin imports
+import { AdminLayout } from "./components/layout/Admin/AdminLayout.tsx";
+import { AdminDashboardPage } from "./pages/Admin/AdminDashboardPage.tsx";
+import { UserManagementPage } from "./pages/Admin/UserManagementPage.tsx";
+import { JobManagementPage } from "./pages/Admin/JobManagementPage.tsx";
+import { ViolationManagementPage } from "./pages/Admin/ViolationManagementPage.tsx";
+
+// Recruiter imports
+import { RecruiterLayout } from "./components/layout/Recruiter/RecruiterLayout.tsx";
+import { RecruiterDashboard } from "./pages/Recruiter/RecruiterDashboard.tsx";
+import { JobPostingsPage } from "./pages/Recruiter/JobPostingsPage.tsx";
+import { CreateJobPage } from "./pages/Recruiter/CreateJobPage.tsx";
+import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
 
 const queryClient = new QueryClient();
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/firebase-messaging-sw.js")
-      .then((reg) => {
-        console.log("✅ Service Worker registered:", reg);
-      })
-      .catch((err) => {
-        console.error("❌ Service Worker registration failed:", err);
-      });
-  });
-}
 
 createRoot(document.getElementById("root")!).render(
   // <StrictMode>
@@ -52,6 +55,11 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/job-details/:id" element={<JobDetails />} />{" "}
           <Route path="/my-jobs" element={<MyJobsPage />} />
         </Route>
+        <Route path="/chat" element={<ChatRedirectPage />} />
+        <Route
+          path="/chat/conversation/:conversationId"
+          element={<ChatboxPage />}
+        />
         <Route path="/chat/:id" element={<ChatboxPage />} />
 
         <Route path="/auth" element={<AuthLayout />}>
@@ -63,6 +71,22 @@ createRoot(document.getElementById("root")!).render(
           />
           <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/mail-sent" element={<MailSentPage />} />
+        </Route>
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="users" element={<UserManagementPage />} />
+          <Route path="jobs" element={<JobManagementPage />} />
+          <Route path="violations" element={<ViolationManagementPage />} />
+        </Route>
+
+        {/* Recruiter Routes */}
+        <Route path="/recruiter" element={<RecruiterLayout />}>
+          <Route index element={<RecruiterDashboard />} />
+          <Route path="jobs" element={<JobPostingsPage />} />
+          <Route path="jobs/create" element={<CreateJobPage />} />
+          <Route path="candidates" element={<CandidatesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

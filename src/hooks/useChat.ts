@@ -1,16 +1,22 @@
-import { getChatList, getHistory } from "@/apis/chat.api";
+import { getHistory } from "@/apis/chat.api";
+import { getUserConversations } from "@/apis/conversation.api";
 import { useQuery } from "@tanstack/react-query";
 
-export const useChat = (userA: number, userB: number) => {
+export const useChat = (
+  conversationId: number,
+  userId: number,
+  messageTypes?: string[]
+) => {
   return useQuery({
-    queryKey: ["chat", userA, userB],
-    queryFn: () => getHistory({ userA, userB }),
+    queryKey: ["chat", conversationId, userId, messageTypes],
+    queryFn: () => getHistory({ conversationId, userId, messageTypes }),
   });
 };
 
 export const useChatList = (userId: number | null) => {
   return useQuery({
     queryKey: ["chat-list", userId],
-    queryFn: () => getChatList({ userId: userId }),
+    queryFn: () =>
+      userId ? getUserConversations(userId) : Promise.resolve([]),
   });
 };

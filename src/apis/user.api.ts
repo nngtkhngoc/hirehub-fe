@@ -39,7 +39,6 @@ export const getAllUsers = async (
     role: "user",
     ...getAllJobQueries,
   };
-
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
     params: finalParams,
   });

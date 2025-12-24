@@ -2,12 +2,58 @@ import { useParams } from "react-router";
 import { Chatbox } from "./components/layout/Chatbox";
 import { UserDetail } from "./components/layout/UserDetail";
 import { ChatList } from "./components/layout/ChatList";
-import { useUserById } from "@/hooks/useUser";
 import { Header } from "@/components/layout/User/Header";
+import { useState, useEffect } from "react";
+import MediaDetail from "./components/layout/MediaDetail";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getConversationDetail } from "@/apis/conversation.api";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useStomp } from "@/hooks/useStomp";
+import type { GroupEventData } from "@/types/Chat";
 
 export const ChatboxPage = () => {
-  const { id } = useParams();
-  const { data: receiver, isLoading } = useUserById(parseInt(id!));
+  const { conversationId } = useParams();
+  const { user } = useAuthStore();
+  const userId = user?.id ? parseInt(user.id) : 0;
+
+  const { data: conversation, isLoading } = useQuery({
+    queryKey: ["conversation", conversationId, userId],
+    queryFn: () =>
+      conversationId && userId
+        ? getConversationDetail(parseInt(conversationId), userId)
+        : null,
+    enabled: !!conversationId && !!userId,
+  });
+
+  const [view, setView] = useState<"default" | "image" | "file">("default");
+
+  // Global group event subscription để khi user được mời vào nhóm mới,
+  // chat list sẽ được refresh dù họ đang xem conversation khác
+  const { connected, subscribeGroupEvent } = useStomp();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!connected) return;
+
+    const sub = subscribeGroupEvent((_eventData: GroupEventData) => {
+      // Refetch chat list khi có group event
+      queryClient.invalidateQueries({ queryKey: ["chat-list"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+
+      // Invalidate conversation detail để cập nhật danh sách thành viên
+      if (conversationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["conversation", conversationId, userId]
+        });
+        // Invalidate chat history để hiển thị system message
+        queryClient.invalidateQueries({
+          queryKey: ["chat"]
+        });
+      }
+    });
+
+    return () => sub?.unsubscribe();
+  }, [connected, queryClient, subscribeGroupEvent, conversationId, userId]);
 
   return (
     <div className="bg-white w-full h-screen flex flex-col">
@@ -20,11 +66,24 @@ export const ChatboxPage = () => {
             <ChatList />
           </div>
           <div className="w-1/2 h-full">
-            <Chatbox receiver={receiver} />
+            {isLoading ? (
+              <div className="w-full h-full flex items-center justify-center border border-zinc-300 rounded-xl bg-white">
+                <p className="text-zinc-500">Đang tải...</p>
+              </div>
+            ) : (
+              <Chatbox conversation={conversation} />
+            )}
           </div>
-          <div className="w-1/4">
-            <UserDetail receiver={receiver} />
-          </div>
+          {view === "default" && conversation && (
+            <div className="w-1/4">
+              <UserDetail conversation={conversation} setView={setView} />
+            </div>
+          )}
+          {view !== "default" && (
+            <div className="w-1/4">
+              <MediaDetail view={view} setView={setView} />
+            </div>
+          )}
         </div>
       </div>
     </div>
