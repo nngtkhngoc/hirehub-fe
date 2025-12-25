@@ -43,7 +43,7 @@ export const RecruiterLayout = () => {
                     {/* Logo Header */}
                     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold">
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center text-white font-bold">
                                 H
                             </div>
                             {!sidebarCollapsed && (
@@ -79,7 +79,7 @@ export const RecruiterLayout = () => {
                             end
                             className={({ isActive }) =>
                                 `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive
-                                    ? "bg-emerald-500 text-white shadow-md"
+                                    ? "bg-primary text-white shadow-md"
                                     : "text-gray-600 hover:bg-gray-100"
                                 }`
                             }
@@ -96,7 +96,7 @@ export const RecruiterLayout = () => {
                                     }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <Briefcase size={20} className="text-emerald-500" />
+                                    <Briefcase size={20} className="text-primary" />
                                     {!sidebarCollapsed && (
                                         <span className="font-medium">Recruitment</span>
                                     )}
@@ -119,7 +119,7 @@ export const RecruiterLayout = () => {
                                             to={item.path}
                                             className={({ isActive }) =>
                                                 `block px-3 py-2 rounded-lg text-sm transition-all ${isActive
-                                                    ? "text-emerald-600 bg-emerald-50 font-medium"
+                                                    ? "text-primary bg-primary/10 font-medium"
                                                     : "text-gray-600 hover:bg-gray-100"
                                                 }`
                                             }

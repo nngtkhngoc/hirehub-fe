@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Ellipsis, Link } from "lucide-react";
 import { Link as LinkRoute } from "react-router-dom";
 import { toast } from "sonner";
@@ -7,25 +8,64 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import defaultCompany from "@/assets/illustration/company.png";
 import { useGetAppliedJobs } from "@/hooks/useJob";
 import type { ApplyJob } from "@/types/Job";
 
 export const AppliedJobs = () => {
-  const { data: appliedJobs, isLoading } = useGetAppliedJobs(); // lấy isLoading từ hook
+  const { data: appliedJobs, isLoading } = useGetAppliedJobs();
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+
+  const statusOptions = [
+    { value: "ALL", label: "Tất cả" },
+    { value: "NOT VIEW", label: "Chưa xem" },
+    { value: "VIEWED", label: "Đã xem" },
+    { value: "ACCEPTED", label: "Đã chấp nhận" },
+    { value: "REJECTED", label: "Đã từ chối" },
+  ];
 
   const getStatusColor = (status?: string) => {
     switch (status) {
       case "NOT VIEW":
         return "bg-red-200 text-red-800";
-      case "PENDING":
-        return "bg-yellow-200 text-yellow-800";
-      case "ACCEPT":
+      case "VIEWED":
+        return "bg-blue-200 text-blue-800";
+      case "ACCEPTED":
         return "bg-green-200 text-green-800";
+      case "REJECTED":
+        return "bg-gray-200 text-gray-800";
       default:
         return "bg-gray-200 text-gray-800";
     }
   };
+
+  const getStatusLabel = (status?: string) => {
+    switch (status) {
+      case "NOT VIEW":
+        return "Chưa xem";
+      case "VIEWED":
+        return "Đã xem";
+      case "ACCEPTED":
+        return "Đã chấp nhận";
+      case "REJECTED":
+        return "Đã từ chối";
+      default:
+        return status;
+    }
+  };
+
+  // Filter jobs by status
+  const filteredJobs = appliedJobs?.filter((job: ApplyJob) => {
+    if (statusFilter === "ALL") return true;
+    return job.status === statusFilter;
+  });
 
   const renderSkeleton = () => {
     return Array.from({ length: 3 }).map((_, idx) => (
@@ -47,10 +87,17 @@ export const AppliedJobs = () => {
   };
 
   const renderJobs = () => {
-    return appliedJobs?.map((job: ApplyJob) => (
-      <div className="w-full relative">
+    if (!filteredJobs || filteredJobs.length === 0) {
+      return (
+        <div className="py-8 text-center text-gray-500">
+          Không có công việc nào phù hợp với bộ lọc.
+        </div>
+      );
+    }
+
+    return filteredJobs?.map((job: ApplyJob) => (
+      <div className="w-full relative" key={job.job.id}>
         <LinkRoute
-          key={job.job.id}
           to={`/job-details/${job.job.id}`}
           className="border-[#f2f2f2] border-t flex flex-row justify-between w-full py-4 hover:bg-zinc-100 transition-all duration-500 cursor-pointer"
         >
@@ -71,7 +118,7 @@ export const AppliedJobs = () => {
                   job?.status
                 )}`}
               >
-                {job?.status}
+                {getStatusLabel(job?.status)}
               </div>
             </div>
           </div>
@@ -107,6 +154,22 @@ export const AppliedJobs = () => {
 
   return (
     <div className="flex flex-col w-full">
+      {/* Status Filter */}
+      <div className="py-3 mb-2">
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Lọc theo trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            {statusOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {isLoading ? renderSkeleton() : renderJobs()}
     </div>
   );

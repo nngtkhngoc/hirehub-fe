@@ -37,7 +37,7 @@ import { RecruiterLayout } from "./components/layout/Recruiter/RecruiterLayout.t
 import { RecruiterDashboard } from "./pages/Recruiter/RecruiterDashboard.tsx";
 import { JobPostingsPage } from "./pages/Recruiter/JobPostingsPage.tsx";
 import { CreateJobPage } from "./pages/Recruiter/CreateJobPage.tsx";
-// import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
+import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -88,7 +88,7 @@ createRoot(document.getElementById("root")!).render(
           <Route index element={<RecruiterDashboard />} />
           <Route path="jobs" element={<JobPostingsPage />} />
           <Route path="jobs/create" element={<CreateJobPage />} />
-          {/* <Route path="candidates" element={<CandidatesPage />} /> */}
+          <Route path="candidates" element={<CandidatesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

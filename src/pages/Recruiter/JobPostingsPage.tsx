@@ -58,6 +58,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 type JobStatus = "ACTIVE" | "CLOSED" | "UNACTIVE";
 
+
 interface JobPosting {
     id: string;
     title: string;
@@ -67,6 +68,7 @@ interface JobPosting {
     postingDate: string;
     isDeleted: boolean;
     isBanned: boolean;
+    status?: string;
     candidatesCount?: number;
     recruiter?: {
         id: string;
@@ -85,6 +87,8 @@ const workspaces = ["Remote", "Onsite", "Hybrid"];
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"];
 
 const getJobStatus = (job: JobPosting): JobStatus => {
+    // Use status from API if available, otherwise calculate from flags
+    if (job.status) return job.status as JobStatus;
     if (job.isDeleted) return "CLOSED";
     if (job.isBanned) return "UNACTIVE";
     return "ACTIVE";
@@ -92,7 +96,7 @@ const getJobStatus = (job: JobPosting): JobStatus => {
 
 const StatusBadge = ({ status }: { status: JobStatus }) => {
     const styles = {
-        ACTIVE: "bg-emerald-100 text-emerald-700",
+        ACTIVE: "bg-green-100 text-green-700",
         CLOSED: "bg-gray-100 text-gray-600",
         UNACTIVE: "bg-red-100 text-red-700",
     };
@@ -109,6 +113,7 @@ export const JobPostingsPage = () => {
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
     const [keyword, setKeyword] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
     const [page, setPage] = useState(0);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -124,16 +129,20 @@ export const JobPostingsPage = () => {
 
     // Fetch jobs
     const { data, isLoading } = useQuery({
-        queryKey: ["recruiter-jobs", user?.id, keyword, page],
+        queryKey: ["recruiter-jobs", user?.id, keyword, selectedStatus, page],
         queryFn: async () => {
-            const res = await axiosClient.get(`${BASE_URL}/api/jobs`, {
-                params: {
-                    recruiterId: user?.id,
-                    keyword: keyword || undefined,
-                    page,
-                    size: 10,
-                },
-            });
+            const params: Record<string, string | number | undefined> = {
+                recruiterId: user?.id,
+                page,
+                size: 10,
+            };
+            if (keyword) {
+                params.keyword = keyword;
+            }
+            if (selectedStatus !== "ALL") {
+                params.status = selectedStatus;
+            }
+            const res = await axiosClient.get(`${BASE_URL}/api/jobs`, { params });
             return res.data;
         },
         enabled: !!user?.id,
@@ -175,6 +184,18 @@ export const JobPostingsPage = () => {
             queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] });
         },
         onError: () => toast.error("Failed to delete job"),
+    });
+
+    // Update job status mutation
+    const updateStatusMutation = useMutation({
+        mutationFn: async ({ jobId, status }: { jobId: string; status: string }) => {
+            await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}/status`, { status });
+        },
+        onSuccess: () => {
+            toast.success("Job status updated successfully");
+            queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] });
+        },
+        onError: () => toast.error("Failed to update job status"),
     });
 
     const jobs: JobPosting[] = data?.content || [];
@@ -247,7 +268,7 @@ export const JobPostingsPage = () => {
                             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                         />
                         <Input
-                            placeholder="Search what you need"
+                            placeholder="Search by job title..."
                             value={keyword}
                             onChange={(e) => {
                                 setKeyword(e.target.value);
@@ -257,10 +278,29 @@ export const JobPostingsPage = () => {
                         />
                     </div>
 
+                    {/* Status Filter */}
+                    <Select
+                        value={selectedStatus}
+                        onValueChange={(value) => {
+                            setSelectedStatus(value);
+                            setPage(0);
+                        }}
+                    >
+                        <SelectTrigger className="w-36 bg-white">
+                            <SelectValue placeholder="Filter by Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">All Status</SelectItem>
+                            <SelectItem value="ACTIVE">Active</SelectItem>
+                            <SelectItem value="CLOSED">Closed</SelectItem>
+                            <SelectItem value="UNACTIVE">Unactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+
                     {/* Add New Button */}
                     <Button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        className="bg-primary hover:bg-primary/90 text-white"
                     >
                         <Plus size={18} className="mr-2" />
                         Add New
@@ -314,7 +354,14 @@ export const JobPostingsPage = () => {
                                             </span>
 
                                             {/* Status Select */}
-                                            <Select defaultValue={status}>
+                                            <Select
+                                                value={status}
+                                                onValueChange={(newStatus) => {
+                                                    if (newStatus !== status) {
+                                                        updateStatusMutation.mutate({ jobId: job.id, status: newStatus });
+                                                    }
+                                                }}
+                                            >
                                                 <SelectTrigger className="w-28 h-9">
                                                     <SelectValue />
                                                 </SelectTrigger>
@@ -616,13 +663,13 @@ export const JobPostingsPage = () => {
                                     setIsCreateModalOpen(false);
                                     resetForm();
                                 }}
-                                className="border-purple-300 text-purple-600 hover:bg-purple-50"
+                                className="border-primary/30 text-primary hover:bg-primary/10"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleCreateJob}
-                                className="bg-emerald-500 hover:bg-emerald-600"
+                                className="bg-primary hover:bg-primary/90 text-white"
                                 disabled={createJobMutation.isPending}
                             >
                                 {createJobMutation.isPending ? "Creating..." : "Create Job"}

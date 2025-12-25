@@ -24,10 +24,9 @@ export const Category = ({
           <button
             key={tab.key}
             className={`cursor-pointer flex-1 py-3 px-2 text-left transition-all duration-300 flex items-center text-sm
-              ${
-                categoryTab === tab.key
-                  ? "border-l-4 border-[#5E1EE6] text-primary bg-[#F0E8FF] "
-                  : "border-l-4 border-transparent text-black hover:bg-[#F7F6F8]"
+              ${categoryTab === tab.key
+                ? "border-l-4 border-[#5E1EE6] text-primary bg-[#F0E8FF] "
+                : "border-l-4 border-transparent text-black hover:bg-[#F7F6F8]"
               }`}
             onClick={() => setCategoryTab(tab.key)}
           >
