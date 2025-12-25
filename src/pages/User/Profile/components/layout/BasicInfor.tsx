@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProvinces } from "@/apis/map.api";
+import { useEffect, useState } from "react";
 export const BasicInfor = ({
   user,
   setUserData,
@@ -36,6 +37,10 @@ export const BasicInfor = ({
 }) => {
   const isMedium = useMediaQuery("(min-width:768px)");
   const { mutate, isPending } = useUpdateUser();
+  const [draftUser, setDraftUser] = useState<UserProfile>(user);
+  useEffect(() => {
+    setDraftUser(user);
+  }, [user]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,10 +68,15 @@ export const BasicInfor = ({
 
   const handleSubmit = () => {
     const formData = new FormData();
-    formData.append("id", user?.id);
-    formData.append("name", user?.name ?? "");
+    formData.append("id", user.id);
+    formData.append("name", draftUser?.name ?? "");
 
     mutate(formData);
+    setUserData(draftUser); // commit
+  };
+
+  const handleCancel = () => {
+    setDraftUser(user); // rollback
   };
 
   return (
@@ -130,14 +140,13 @@ export const BasicInfor = ({
                     <Label htmlFor="name-1">Họ và tên</Label>
                     <Input
                       id="name-1"
-                      name="name"
-                      defaultValue={user?.name || ""}
-                      onChange={(e) => {
-                        setUserData((prev) => ({
+                      defaultValue={draftUser?.name || ""}
+                      onChange={(e) =>
+                        setDraftUser((prev) => ({
                           ...prev,
                           name: e.target.value,
-                        }));
-                      }}
+                        }))
+                      }
                     />
                   </div>
                   <div className="grid gap-3">
@@ -174,8 +183,9 @@ export const BasicInfor = ({
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
-                    <OutlineButton label="Hủy" />
+                    <OutlineButton label="Hủy" onClick={handleCancel} />
                   </DialogClose>
+
                   <PrimaryButton
                     label="Xác nhận"
                     onClick={handleSubmit}

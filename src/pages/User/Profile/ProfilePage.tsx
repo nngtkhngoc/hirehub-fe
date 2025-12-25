@@ -15,20 +15,20 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { UserProfile } from "@/types/Auth";
 export const ProfilePage = () => {
-  // const { data: user, isLoading } = useProfile();
+  const { data: user, isLoading } = useProfile();
   // const setUser = useAuthStore(state => state)
 
   // const nav = useNavigate();
-  const { user } = useAuthStore();
+  // const { user } = useAuthStore();
+  console.log("user", user);
   const [userData, setUserData] = useState<UserProfile>(user!);
 
-  // useEffect(() => setUserData(user!), [user]);
+  useEffect(() => setUserData(user!), [user]);
   // const { user, setUser } = useAuthStore();
   // if (isLoading) return <Spinner />;
   // if (!user) {
   //   nav("/auth");
   // }
-  console.log("ProfilePage");
   return (
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] h-full gap-15 px-20">
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">

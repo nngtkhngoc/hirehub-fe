@@ -9,10 +9,9 @@ export const ChatRedirectPage = () => {
 
   const userId = user?.id ? parseInt(user.id) : null;
 
-  const {
-    data: conversations,
-    isLoading,
-  } = useChatList(userId ? userId : null);
+  const { data: conversations, isLoading } = useChatList(
+    userId ? userId : null
+  );
 
   useEffect(() => {
     if (!userId) {
@@ -27,10 +26,12 @@ export const ChatRedirectPage = () => {
         (c: any) => c.lastMessage != null
       );
       const target = withMessages[0] ?? conversations[0];
+
       if (target) {
         navigate(`/chat/conversation/${target.id}`, { replace: true });
       }
     }
+    navigate(`/chat/conversation/`, { replace: true });
   }, [userId, isLoading, conversations, navigate]);
 
   if (!userId) {
@@ -45,9 +46,9 @@ export const ChatRedirectPage = () => {
 
   return (
     <div className="w-full h-[calc(100vh-75px)] flex items-center justify-center bg-[#F8F9FB]">
-      <p className="text-zinc-500 text-sm">Đang chuyển tới cuộc trò chuyện...</p>
+      <p className="text-zinc-500 text-sm">
+        Đang chuyển tới cuộc trò chuyện...
+      </p>
     </div>
   );
 };
-
-

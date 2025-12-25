@@ -48,8 +48,8 @@ export const useUpdateStudy = () => {
       });
     },
     onSuccess: () => {
-      toast.success("Cập nhật học vấn thành công!", { duration: 2000 });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Cập nhật học vấn thành công!", { duration: 2000 });
       toast.dismiss("loading-toast-update-study");
     },
     onError: () => {
@@ -69,8 +69,8 @@ export const useDeleteStudy = () => {
       });
     },
     onSuccess: () => {
-      toast.success("Xóa học vấn thành công!", { duration: 2000 });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Xóa học vấn thành công!", { duration: 2000 });
       toast.dismiss("loading-toast-delete-study");
     },
     onError: () => {

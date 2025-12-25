@@ -12,7 +12,8 @@ export const useNotifications = (page = 0, size = 10) => {
   const { user } = useAuthStore();
   return useQuery({
     queryKey: ["notifications", page, size, user?.id],
-    queryFn: () => getMyNotifications(page, size, user?.id ? Number(user.id) : undefined),
+    queryFn: () =>
+      getMyNotifications(page, size, user?.id ? Number(user.id) : undefined),
     enabled: !!user?.id,
     refetchInterval: 30_000,
   });
@@ -22,8 +23,9 @@ export const useUnreadNotificationCount = () => {
   const { user } = useAuthStore();
   return useQuery({
     queryKey: ["notifications", "unread-count", user?.id],
-    queryFn: () => getUnreadNotificationCount(user?.id ? Number(user.id) : undefined),
-    refetchInterval: 1_000,
+    queryFn: () =>
+      getUnreadNotificationCount(user?.id ? Number(user.id) : undefined),
+    refetchInterval: 3_000,
     enabled: !!user?.id,
   });
 };
@@ -43,7 +45,8 @@ export const useNotificationActions = () => {
     }),
 
     markAsUnread: useMutation({
-      mutationFn: (id: number) => markNotificationAsUnread(id, Number(user?.id)),
+      mutationFn: (id: number) =>
+        markNotificationAsUnread(id, Number(user?.id)),
       onSuccess: invalidate,
     }),
 

@@ -38,8 +38,8 @@ export const useUpdateUser = () => {
         id: "loading-toast-update-user",
       });
     },
-    onSuccess: (user) => {
-      setUser(user);
+    onSuccess: () => {
+      // setUser(user);
       toast.success("Cập nhật thành công!");
       queryClient.invalidateQueries({ queryKey: ["profile"] });
 

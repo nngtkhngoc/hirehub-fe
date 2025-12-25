@@ -71,8 +71,8 @@ export const useDeleteExperience = () => {
       });
     },
     onSuccess: () => {
-      toast.success("Xóa kinh nghiệm thành công!", { duration: 2000 });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      toast.success("Xóa kinh nghiệm thành công!", { duration: 2000 });
       toast.dismiss("loading-toast-delete-experience");
     },
     onError: () => {

@@ -18,5 +18,6 @@ export const useChatList = (userId: number | null) => {
     queryKey: ["chat-list", userId],
     queryFn: () =>
       userId ? getUserConversations(userId) : Promise.resolve([]),
+    retry: 1,
   });
 };
