@@ -11,11 +11,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, BriefcaseBusiness, LogOut, UserCircle, Shield, Users } from "lucide-react";
+import {
+  Bell,
+  BriefcaseBusiness,
+  LogOut,
+  UserCircle,
+  Shield,
+  Users,
+} from "lucide-react";
 import { useSignOut } from "@/hooks/useAuth";
-import { useNotifications, useUnreadNotificationCount, useNotificationActions } from "@/hooks/useNotification";
+import {
+  useNotifications,
+  useUnreadNotificationCount,
+  useNotificationActions,
+} from "@/hooks/useNotification";
 import { NotificationItem } from "@/components/ui/User/NotificationItem";
 import type { Notification } from "@/types/Notification";
+import { Badge } from "@/components/ui/badge";
 
 interface NavLink {
   label: string;
@@ -68,14 +80,14 @@ export const Header = () => {
   };
 
   // Notification hooks
-  const { data: unreadCount } = useUnreadNotificationCount();
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
   const { data: notificationsData, isFetching } = useNotifications(page, 10);
   const { markAsRead } = useNotificationActions();
 
   // Append notifications when page changes
   useEffect(() => {
     if (!notificationsData) return;
-    console.log(notificationsData.content, "notificationsData")
+    console.log(notificationsData.content, "notificationsData");
     setItems(() => {
       return [...notificationsData.content];
     });
@@ -84,7 +96,10 @@ export const Header = () => {
   // Close notification panel when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
         setShowNotifications(false);
       }
     };
@@ -105,7 +120,6 @@ export const Header = () => {
     // }
   };
 
-
   return (
     <header className="flex justify-between items-center md:px-10 lg:px-20 h-[75px] border boder-b border-[#EBEBEB]">
       <Logo />
@@ -121,12 +135,16 @@ export const Header = () => {
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
-              <Bell size={22} className="text-gray-600" />
-              {unreadCount && unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+              {unreadCount > 0 && (
+                <Badge
+                  className="min-w-5 h-5 rounded-full px-1 absolute -right-1 -top-1 flex items-center justify-center"
+                  variant="destructive"
+                >
                   {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
+                </Badge>
               )}
+
+              <Bell size={22} className="text-gray-600" />
             </button>
 
             {/* Notification Dropdown */}
@@ -164,15 +182,16 @@ export const Header = () => {
                   )}
 
                   {/* Load more */}
-                  {notificationsData && page + 1 < notificationsData.totalPages && (
-                    <button
-                      onClick={() => setPage((p) => p + 1)}
-                      className="w-full p-3 text-blue-500 text-sm font-medium hover:bg-gray-50 border-t"
-                      disabled={isFetching}
-                    >
-                      {isFetching ? "Đang tải..." : "Xem thông báo trước đó"}
-                    </button>
-                  )}
+                  {notificationsData &&
+                    page + 1 < notificationsData.totalPages && (
+                      <button
+                        onClick={() => setPage((p) => p + 1)}
+                        className="w-full p-3 text-blue-500 text-sm font-medium hover:bg-gray-50 border-t"
+                        disabled={isFetching}
+                      >
+                        {isFetching ? "Đang tải..." : "Xem thông báo trước đó"}
+                      </button>
+                    )}
                 </div>
               </div>
             )}
@@ -191,7 +210,6 @@ export const Header = () => {
                 />
               </DropdownMenuTrigger>{" "}
               <DropdownMenuContent align="end">
-
                 <DropdownMenuItem>
                   <Link
                     to="/my-jobs"
@@ -256,4 +274,3 @@ export const Header = () => {
     </header>
   );
 };
-

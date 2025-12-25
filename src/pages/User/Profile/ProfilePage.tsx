@@ -8,34 +8,36 @@ import { SkillsAndLanguages } from "./components/layout/SkillsAndLanguages";
 import { Study } from "./components/layout/Study";
 // import { useNavigate } from "react-router";
 import { RecommendedUsers } from "./components/layout/RecommendedUsers";
-// import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 // import type { UserProfile } from "@/types/Auth";
 import { useProfile } from "@/hooks/useAuth";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/stores/useAuthStore";
+import type { UserProfile } from "@/types/Auth";
 export const ProfilePage = () => {
   // const { data: user, isLoading } = useProfile();
   // const setUser = useAuthStore(state => state)
 
   // const nav = useNavigate();
-  // const [userData, setUserData] = useState<UserProfile>(user!);
+  const { user } = useAuthStore();
+  const [userData, setUserData] = useState<UserProfile>(user!);
 
   // useEffect(() => setUserData(user!), [user]);
-  const { user, setUser } = useAuthStore()
+  // const { user, setUser } = useAuthStore();
   // if (isLoading) return <Spinner />;
   // if (!user) {
   //   nav("/auth");
   // }
-  console.log("ProfilePage")
+  console.log("ProfilePage");
   return (
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] h-full gap-15 px-20">
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">
-        <BasicInfor user={user} />
-        <DetailsInfor user={user} />
-        <Resume user={user} />
-        <Experiences user={user} setUserData={setUser} />
-        <Study user={user} setUserData={setUser} />
-        <SkillsAndLanguages user={user!} />
+        <BasicInfor user={userData} setUserData={setUserData} />
+        <DetailsInfor user={userData} setUserData={setUserData} />
+        <Resume user={userData} setUserData={setUserData} />
+        <Experiences user={userData} />
+        <Study user={userData} />
+        <SkillsAndLanguages user={userData!} />
       </div>
       <div className="lg:flex lg:flex-col hidden lg:block lg:justify-start lg:h-full lg:gap-10">
         <RecommendedUsers />
