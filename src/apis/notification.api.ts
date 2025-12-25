@@ -17,21 +17,29 @@ export const getMyNotifications = async (
   return res.data;
 };
 
-export const getUnreadNotificationCount = async (): Promise<number> => {
-  const res = await axiosClient.get(`${NOTIFICATION_URL}/unread-count`);
+export const getUnreadNotificationCount = async (userId: number | undefined): Promise<number> => {
+  const res = await axiosClient.get(`${NOTIFICATION_URL}/unread-count`, {
+    params: { userId },
+  });
   return res.data;
 };
 
-export const markNotificationAsRead = async (id: number) => {
-  await axiosClient.put(`${NOTIFICATION_URL}/${id}/read`);
+export const markNotificationAsRead = async (id: number, userId: number) => {
+  await axiosClient.put(`${NOTIFICATION_URL}/${id}/read`, null, {
+    params: { userId },
+  });
 };
 
-export const markNotificationAsUnread = async (id: number) => {
-  await axiosClient.put(`${NOTIFICATION_URL}/${id}/unread`);
+export const markNotificationAsUnread = async (id: number, userId: number) => {
+  await axiosClient.put(`${NOTIFICATION_URL}/${id}/unread`, null, {
+    params: { userId },
+  });
 };
 
-export const deleteNotification = async (id: number) => {
-  await axiosClient.delete(`${NOTIFICATION_URL}/${id}`);
+export const deleteNotification = async (id: number, userId: number) => {
+  await axiosClient.delete(`${NOTIFICATION_URL}/${id}`, {
+    params: { userId },
+  });
 };
 
 export const createNotification = async (data: CreateNotificationDTO) => {

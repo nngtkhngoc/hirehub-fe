@@ -30,13 +30,14 @@ import { AdminDashboardPage } from "./pages/Admin/AdminDashboardPage.tsx";
 import { UserManagementPage } from "./pages/Admin/UserManagementPage.tsx";
 import { JobManagementPage } from "./pages/Admin/JobManagementPage.tsx";
 import { ViolationManagementPage } from "./pages/Admin/ViolationManagementPage.tsx";
+import { ResumeManagementPage } from "./pages/Admin/ResumeManagementPage.tsx";
 
 // Recruiter imports
 import { RecruiterLayout } from "./components/layout/Recruiter/RecruiterLayout.tsx";
 import { RecruiterDashboard } from "./pages/Recruiter/RecruiterDashboard.tsx";
 import { JobPostingsPage } from "./pages/Recruiter/JobPostingsPage.tsx";
 import { CreateJobPage } from "./pages/Recruiter/CreateJobPage.tsx";
-import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
+// import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ createRoot(document.getElementById("root")!).render(
           <Route index element={<AdminDashboardPage />} />
           <Route path="users" element={<UserManagementPage />} />
           <Route path="jobs" element={<JobManagementPage />} />
+          <Route path="resumes" element={<ResumeManagementPage />} />
           <Route path="violations" element={<ViolationManagementPage />} />
         </Route>
 
@@ -86,7 +88,7 @@ createRoot(document.getElementById("root")!).render(
           <Route index element={<RecruiterDashboard />} />
           <Route path="jobs" element={<JobPostingsPage />} />
           <Route path="jobs/create" element={<CreateJobPage />} />
-          <Route path="candidates" element={<CandidatesPage />} />
+          {/* <Route path="candidates" element={<CandidatesPage />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

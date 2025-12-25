@@ -16,6 +16,7 @@ import {
   Search,
   Bell,
   MessageSquare,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ const navItems = [
   { path: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
   { path: "/admin/users", icon: Users, label: "Quản lý Users" },
   { path: "/admin/jobs", icon: Briefcase, label: "Quản lý Jobs" },
+  { path: "/admin/resumes", icon: FileText, label: "Quản lý Hồ sơ" },
   { path: "/admin/violations", icon: AlertTriangle, label: "Vi phạm" },
 ];
 
@@ -114,8 +116,8 @@ export const AdminLayout = () => {
                 <button
                   onClick={() => setDarkMode(false)}
                   className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-all ${!darkMode
-                      ? "bg-white shadow-sm text-gray-800"
-                      : "text-gray-500"
+                    ? "bg-white shadow-sm text-gray-800"
+                    : "text-gray-500"
                     }`}
                 >
                   <Sun size={14} />
@@ -124,8 +126,8 @@ export const AdminLayout = () => {
                 <button
                   onClick={() => setDarkMode(true)}
                   className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-all ${darkMode
-                      ? "bg-white shadow-sm text-gray-800"
-                      : "text-gray-500"
+                    ? "bg-white shadow-sm text-gray-800"
+                    : "text-gray-500"
                     }`}
                 >
                   <Moon size={14} />

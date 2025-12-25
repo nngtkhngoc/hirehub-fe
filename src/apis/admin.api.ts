@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/axios";
-import type { PaginatedResponse, Report, AdminUser, AdminJob } from "@/types/Admin";
+import type { PaginatedResponse, Report, AdminUser, AdminJob, AdminResume } from "@/types/Admin";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -35,26 +35,26 @@ export const unbanUser = async (userId: number): Promise<AdminUser> => {
     return res.data.data;
 };
 
-// Job Management APIs
+// Job Management APIs - Admin endpoint shows all jobs including banned
 export const getAllJobsAdmin = async (params: {
     keyword?: string;
     page?: number;
     size?: number;
 }): Promise<PaginatedResponse<AdminJob>> => {
-    const res = await axiosClient.get(`${BASE_URL}/api/jobs`, { params });
+    const res = await axiosClient.get(`${BASE_URL}/api/jobs/admin`, { params });
     return res.data;
 };
 
 export const banJob = async (jobId: string): Promise<AdminJob> => {
     const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}`, {
-        isBanned: true,
+        is_banned: true,
     });
     return res.data;
 };
 
 export const unbanJob = async (jobId: string): Promise<AdminJob> => {
     const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}`, {
-        isBanned: false,
+        is_banned: false,
     });
     return res.data;
 };
@@ -86,4 +86,14 @@ export const updateReportStatus = async (
 
 export const deleteReport = async (reportId: number): Promise<void> => {
     await axiosClient.delete(`${BASE_URL}/api/reports/${reportId}`);
+};
+
+// Resume Management APIs
+export const getAllResumesAdmin = async (params?: {
+    user?: number;
+    job?: number;
+    recruiter?: number;
+}): Promise<AdminResume[]> => {
+    const res = await axiosClient.get(`${BASE_URL}/api/resumes`, { params });
+    return res.data;
 };

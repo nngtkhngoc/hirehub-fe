@@ -225,8 +225,8 @@ export const UserManagementPage = () => {
                                         <td className="px-6 py-4">
                                             <span
                                                 className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${user.role?.resource?.toLowerCase() === "recruiter"
-                                                        ? "bg-blue-100 text-blue-700"
-                                                        : "bg-gray-100 text-gray-700"
+                                                    ? "bg-blue-100 text-blue-700"
+                                                    : "bg-gray-100 text-gray-700"
                                                     }`}
                                             >
                                                 {user.role?.resource || "User"}
@@ -257,9 +257,8 @@ export const UserManagementPage = () => {
                                         {/* Actions */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-2">
-                                                {/* Verify button for recruiters */}
-                                                {user.role?.resource?.toLowerCase() === "recruiter" &&
-                                                    !user.isVerified &&
+                                                {/* Verify button for unverified users */}
+                                                {!user.isVerified &&
                                                     !user.isBanned && (
                                                         <Button
                                                             size="sm"

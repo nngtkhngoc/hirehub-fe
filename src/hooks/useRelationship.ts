@@ -62,3 +62,16 @@ export const useDeleteRelationship = () => {
     },
   });
 };
+
+export const useDisconnect = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: { senderId: number; receiverId: number }) =>
+      disconnect(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["relationship"] });
+    },
+  });
+};
+

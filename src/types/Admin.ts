@@ -40,7 +40,7 @@ export type AdminJob = {
     title: string;
     description: string;
     level: string;
-    isBanned: boolean | null;
+    is_banned: boolean | null;
     workspace: string;
     postingDate: string;
     recruiter: {
@@ -51,4 +51,26 @@ export type AdminJob = {
     };
     type: string;
     address: string;
+};
+
+export type AdminResume = {
+    id: number;
+    link: string;
+    status: string;
+    coverLetter: string | null;
+    createdAt: string;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        avatar: string | null;
+    };
+    job: {
+        id: number;
+        title: string;
+        recruiter: {
+            id: number;
+            name: string;
+        };
+    };
 };

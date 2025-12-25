@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router";
+import { useState, useEffect, useRef } from "react";
 
 import { OutlineButton } from "../../ui/User/Button";
 import { Logo } from "../../ui/User/Logo";
@@ -10,8 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BriefcaseBusiness, LogOut, UserCircle, Shield, Users } from "lucide-react";
+import { Bell, BriefcaseBusiness, LogOut, UserCircle, Shield, Users } from "lucide-react";
 import { useSignOut } from "@/hooks/useAuth";
+import { useNotifications, useUnreadNotificationCount, useNotificationActions } from "@/hooks/useNotification";
+import { NotificationItem } from "@/components/ui/User/NotificationItem";
+import type { Notification } from "@/types/Notification";
 
 interface NavLink {
   label: string;
@@ -19,6 +23,12 @@ interface NavLink {
 }
 
 export const Header = () => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [page, setPage] = useState(0);
+  const [items, setItems] = useState<Notification[]>([]);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  console.log(items, "!@#");
+
   const navLinks: NavLink[] = [
     { label: "Trang chủ", link: "/" },
     { label: "Việc làm", link: "/job-list" },
@@ -51,11 +61,50 @@ export const Header = () => {
     nav("/auth");
   };
 
-  const user = useAuthStore((state) => state.user);
+  let user = useAuthStore((state) => state.user);
   const { mutate: handleSignOut, isPending } = useSignOut();
   const handleLogout = () => {
     handleSignOut();
   };
+
+  // Notification hooks
+  const { data: unreadCount } = useUnreadNotificationCount();
+  const { data: notificationsData, isFetching } = useNotifications(page, 10);
+  const { markAsRead } = useNotificationActions();
+
+  // Append notifications when page changes
+  useEffect(() => {
+    if (!notificationsData) return;
+    console.log(notificationsData.content, "notificationsData")
+    setItems(() => {
+      return [...notificationsData.content];
+    });
+  }, [notificationsData]);
+
+  // Close notification panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle notification click
+  const handleNotificationClick = (noti: Notification) => {
+    console.log("kkk");
+    if (!noti.isRead) {
+      markAsRead.mutate(noti.id);
+    }
+    // if (noti.redirectUrl) {
+    //   setShowNotifications(false);
+    //   nav(noti.redirectUrl);
+    // }
+  };
+
 
   return (
     <header className="flex justify-between items-center md:px-10 lg:px-20 h-[75px] border boder-b border-[#EBEBEB]">
@@ -63,78 +112,148 @@ export const Header = () => {
       <nav className="flex justify-around items-center gap-[32px]">
         {renderNavLinks()}
       </nav>
-      {user ? (
-        <div className="w-[50px] h-[50px] object-cover rounded-full overflow-hidden cursor-pointer">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <img
-                src={user.avatar ? user.avatar : profile}
-                alt="avatar"
-                className="w-[40px] h-[40px] rounded-full object-cover"
-              />
-            </DropdownMenuTrigger>{" "}
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link
-                  to="/profile"
-                  className="flex flex-row items-center justify-start gap-2"
-                >
-                  <UserCircle className="text-[16px]" />
-                  Hồ sơ
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link
-                  to="/my-jobs"
-                  className="flex flex-row items-center justify-start gap-2"
-                >
-                  <BriefcaseBusiness className="text-[16px]" />
-                  Công việc
-                </Link>
-              </DropdownMenuItem>
 
-              {/* Admin Dashboard Link */}
-              {user.role?.name?.toLowerCase() === "admin" && (
+      <div className="flex items-center gap-4">
+        {/* Notification Bell */}
+        {user && (
+          <div className="relative" ref={notificationRef}>
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <Bell size={22} className="text-gray-600" />
+              {unreadCount && unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Dropdown */}
+            {showNotifications && (
+              <div className="absolute right-0 top-12 w-96 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b">
+                  <h3 className="font-bold text-xl">Thông báo</h3>
+                  <div className="flex gap-2">
+                    <button className="text-blue-500 text-sm font-medium hover:underline">
+                      Tất cả
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button className="text-gray-500 text-sm hover:underline">
+                      Chưa đọc
+                    </button>
+                  </div>
+                </div>
+
+                {/* Notification List */}
+                <div className="max-h-[450px] overflow-y-auto">
+                  {items.length === 0 && !isFetching ? (
+                    <div className="p-8 text-center text-gray-500">
+                      <Bell size={40} className="mx-auto mb-2 text-gray-300" />
+                      <p>Không có thông báo mới</p>
+                    </div>
+                  ) : (
+                    items.map((noti) => (
+                      <NotificationItem
+                        key={noti.id}
+                        notification={noti}
+                        onClick={handleNotificationClick}
+                      />
+                    ))
+                  )}
+
+                  {/* Load more */}
+                  {notificationsData && page + 1 < notificationsData.totalPages && (
+                    <button
+                      onClick={() => setPage((p) => p + 1)}
+                      className="w-full p-3 text-blue-500 text-sm font-medium hover:bg-gray-50 border-t"
+                      disabled={isFetching}
+                    >
+                      {isFetching ? "Đang tải..." : "Xem thông báo trước đó"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* User Avatar / Login */}
+        {user ? (
+          <div className="w-[50px] h-[50px] object-cover rounded-full overflow-hidden cursor-pointer">
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <img
+                  src={user.avatar ? user.avatar : profile}
+                  alt="avatar"
+                  className="w-[40px] h-[40px] rounded-full object-cover"
+                />
+              </DropdownMenuTrigger>{" "}
+              <DropdownMenuContent align="end">
+
                 <DropdownMenuItem>
                   <Link
-                    to="/admin"
+                    to="/my-jobs"
                     className="flex flex-row items-center justify-start gap-2"
                   >
-                    <Shield className="text-[16px]" />
-                    Quản trị
+                    <BriefcaseBusiness className="text-[16px]" />
+                    Công việc
                   </Link>
                 </DropdownMenuItem>
-              )}
-
-              {/* Recruiter Dashboard Link */}
-              {user.role?.name?.toLowerCase() === "recruiter" && (
                 <DropdownMenuItem>
                   <Link
-                    to="/recruiter"
+                    to="/profile"
                     className="flex flex-row items-center justify-start gap-2"
                   >
-                    <Users className="text-[16px]" />
-                    Tuyển dụng
+                    <UserCircle className="text-[16px]" />
+                    Hồ sơ
                   </Link>
                 </DropdownMenuItem>
-              )}
+                {/* Admin Dashboard Link */}
+                {user.role?.name?.toLowerCase() === "admin" && (
+                  <DropdownMenuItem>
+                    <Link
+                      to="/admin"
+                      className="flex flex-row items-center justify-start gap-2"
+                    >
+                      <Shield className="text-[16px]" />
+                      Quản trị
+                    </Link>
+                  </DropdownMenuItem>
+                )}
 
-              <DropdownMenuItem>
-                <button
-                  className="flex flex-row items-center justify-start gap-2"
-                  onClick={handleLogout}
-                  disabled={isPending}
-                >
-                  <LogOut className="text-[16px]" />
-                  Đăng xuất
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ) : (
-        <OutlineButton label="Đăng nhập" onClick={handleLogin} />
-      )}
+                {/* Recruiter Dashboard Link */}
+                {user.role?.name?.toLowerCase() === "recruiter" && (
+                  <DropdownMenuItem>
+                    <Link
+                      to="/recruiter"
+                      className="flex flex-row items-center justify-start gap-2"
+                    >
+                      <Users className="text-[16px]" />
+                      Tuyển dụng
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+
+                <DropdownMenuItem>
+                  <button
+                    className="flex flex-row items-center justify-start gap-2"
+                    onClick={handleLogout}
+                    disabled={isPending}
+                  >
+                    <LogOut className="text-[16px]" />
+                    Đăng xuất
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : (
+          <OutlineButton label="Đăng nhập" onClick={handleLogin} />
+        )}
+      </div>
     </header>
   );
 };
+

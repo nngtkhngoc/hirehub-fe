@@ -193,7 +193,7 @@ export const BasicInfor = ({
           {user?.address}
         </div>
 
-        <div className="flex flex-row gap-2 items-center">
+        {/* <div className="flex flex-row gap-2 items-center">
           <PrimaryButton
             label={
               <div className="flex flex-row items-center text-white gap-2">
@@ -210,7 +210,7 @@ export const BasicInfor = ({
               </div>
             }
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllUsersAdmin, getAllJobsAdmin, getAllReports } from "@/apis/admin.api";
-import { Users, Briefcase, AlertTriangle, TrendingUp } from "lucide-react";
+import { getAllUsersAdmin, getAllJobsAdmin, getAllReports, getAllResumesAdmin } from "@/apis/admin.api";
+import { Users, Briefcase, AlertTriangle, FileText } from "lucide-react";
 
 export const AdminDashboardPage = () => {
     const { data: usersData } = useQuery({
@@ -16,6 +16,11 @@ export const AdminDashboardPage = () => {
     const { data: reportsData } = useQuery({
         queryKey: ["admin-reports-count"],
         queryFn: () => getAllReports({ status: "pending", size: 1 }),
+    });
+
+    const { data: resumesData } = useQuery({
+        queryKey: ["admin-resumes-count"],
+        queryFn: () => getAllResumesAdmin(),
     });
 
     const stats = [
@@ -41,9 +46,9 @@ export const AdminDashboardPage = () => {
             bgColor: "bg-orange-50",
         },
         {
-            label: "Recruiter chờ duyệt",
-            value: 0, // Will be calculated from pending recruiters
-            icon: TrendingUp,
+            label: "Hồ sơ ứng tuyển",
+            value: resumesData?.length || 0,
+            icon: FileText,
             color: "from-purple-500 to-purple-600",
             bgColor: "bg-purple-50",
         },
@@ -92,7 +97,7 @@ export const AdminDashboardPage = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Thao tác nhanh
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <a
                         href="/admin/users"
                         className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-[#7749DA]/10 to-[#38128A]/10 hover:from-[#7749DA]/20 hover:to-[#38128A]/20 transition-colors"
@@ -106,6 +111,13 @@ export const AdminDashboardPage = () => {
                     >
                         <Briefcase size={20} className="text-primary" />
                         <span className="font-medium text-gray-700">Quản lý Jobs</span>
+                    </a>
+                    <a
+                        href="/admin/resumes"
+                        className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-[#7749DA]/10 to-[#38128A]/10 hover:from-[#7749DA]/20 hover:to-[#38128A]/20 transition-colors"
+                    >
+                        <FileText size={20} className="text-primary" />
+                        <span className="font-medium text-gray-700">Quản lý Hồ sơ</span>
                     </a>
                     <a
                         href="/admin/violations"

@@ -91,7 +91,7 @@ export const JobManagementPage = () => {
 
     const jobs = data?.content || [];
     const totalPages = data?.totalPages || 0;
-
+    console.log(jobs, "JOBS");
     const formatDate = (dateStr: string) => {
         try {
             return new Date(dateStr).toLocaleDateString("vi-VN");
@@ -222,7 +222,7 @@ export const JobManagementPage = () => {
 
                                         {/* Status */}
                                         <td className="px-6 py-4 text-center">
-                                            {job.isBanned ? (
+                                            {job.is_banned ? (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
                                                     <Ban size={12} className="mr-1" />
                                                     Bị cấm
@@ -249,7 +249,7 @@ export const JobManagementPage = () => {
                                                     Xem
                                                 </Button>
 
-                                                {job.isBanned ? (
+                                                {job.is_banned ? (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"

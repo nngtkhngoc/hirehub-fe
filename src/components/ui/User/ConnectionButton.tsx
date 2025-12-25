@@ -9,6 +9,7 @@ import {
   useFriends,
   useRelationship,
   useUpdateRelationshipStatus,
+  useDisconnect,
 } from "@/hooks/useRelationship";
 import { toast } from "sonner";
 export type ButtonVariant = "primary" | "outline";
@@ -28,6 +29,8 @@ const ConnectionButton = ({
   const { data: relationships } = useRelationship(Number(user?.id));
   const { mutate: createRelationship } = useCreateRelationship();
   const { mutate: updateRelationshipStatus } = useUpdateRelationshipStatus();
+  const { mutate: disconnectFriend } = useDisconnect();
+
   const isFriend = friends?.some(
     (friend: any) => friend.user?.id === targetUser?.id
   );
@@ -46,23 +49,36 @@ const ConnectionButton = ({
       rel.status === "pending"
     );
   });
-  console.log(user);
+  // console.log(user);
   // console.log({ targetUser, user, isSender, isReceiver, isFriend });
   const text = isFriend
-    ? "Bạn bè"
+    ? "Hủy kết nối"
     : isSender
-    ? "Đã gửi lời mời"
-    : isReceiver
-    ? "Chấp nhận lời mời"
-    : "Kết nối";
+      ? "Đã gửi lời mời"
+      : isReceiver
+        ? "Chấp nhận lời mời"
+        : "Kết nối";
 
   const handleConnect = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
+
+    // If already friends, disconnect
     if (isFriend) {
-      toast.info("Bạn đã là bạn bè của người này rồi!", { duration: 2000 });
+      disconnectFriend({
+        senderId: Number(user?.id),
+        receiverId: Number(targetUser?.id),
+      }, {
+        onSuccess: () => {
+          toast.success("Đã hủy kết nối!", { duration: 2000 });
+        },
+        onError: () => {
+          toast.error("Không thể hủy kết nối!", { duration: 2000 });
+        }
+      });
       return;
     }
+
     if (!isFriend && !isSender && !isReceiver) {
       createRelationship({
         senderId: Number(user?.id),

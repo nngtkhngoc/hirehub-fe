@@ -26,6 +26,7 @@ import {
   kickFromGroup,
   leaveGroup,
   disbandGroup,
+  deleteConversation,
 } from "@/apis/conversation.api";
 import { toast } from "sonner";
 import {
@@ -62,6 +63,7 @@ export const UserDetail = ({
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const [kickDialogOpen, setKickDialogOpen] = useState(false);
   const [disbandDialogOpen, setDisbandDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedFriends, setSelectedFriends] = useState<number[]>([]);
   const [userToKick, setUserToKick] = useState<{
     id: number;
@@ -172,6 +174,23 @@ export const UserDetail = ({
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Giải tán nhóm thất bại!", {
+        duration: 2000,
+      });
+    },
+  });
+
+  // Mutation để xóa cuộc trò chuyện
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteConversation(conversation!.id, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chat-list"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      toast.success("Đã xóa cuộc trò chuyện!", { duration: 2000 });
+      setDeleteDialogOpen(false);
+      navigate("/chat");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Xóa cuộc trò chuyện thất bại!", {
         duration: 2000,
       });
     },
@@ -404,6 +423,15 @@ export const UserDetail = ({
             </div>
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Nút xóa cuộc trò chuyện */}
+        <button
+          onClick={() => setDeleteDialogOpen(true)}
+          className="w-full flex flex-row items-center gap-2 justify-left py-3 rounded-xl hover:bg-red-50 px-3 cursor-pointer text-red-500"
+        >
+          <Trash2 strokeWidth="1.4" />
+          Xóa cuộc trò chuyện
+        </button>
       </div>
 
       {/* Dialog mời thành viên */}
@@ -431,8 +459,8 @@ export const UserDetail = ({
                   <div
                     key={friendUser?.id}
                     className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${isSelected
-                        ? "bg-primary/10 border border-primary"
-                        : "hover:bg-zinc-100"
+                      ? "bg-primary/10 border border-primary"
+                      : "hover:bg-zinc-100"
                       }`}
                     onClick={() => toggleFriend(parseInt(friendUser?.id))}
                   >
@@ -561,6 +589,29 @@ export const UserDetail = ({
               disabled={disbandMutation.isPending}
             >
               {disbandMutation.isPending ? "Đang giải tán..." : "Giải tán nhóm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog xác nhận xóa cuộc trò chuyện */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa cuộc trò chuyện</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa cuộc trò chuyện này? Lịch sử chat sẽ bị ẩn đi.
+              {displayInfo.isGroup ? " Bạn vẫn có thể thấy tin nhắn mới nếu có." : " Bạn vẫn có thể bắt đầu cuộc trò chuyện mới với người này."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteMutation.mutate()}
+              className="bg-red-500 hover:bg-red-600"
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Đang xóa..." : "Xóa"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

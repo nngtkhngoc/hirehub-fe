@@ -109,3 +109,15 @@ export const disbandGroup = async (conversationId: number, userId: number) => {
   );
   return res.data;
 };
+
+// User xóa (ẩn) cuộc trò chuyện - set deletedAt = now
+// Dùng cho cả DIRECT và GROUP conversations
+export const deleteConversation = async (conversationId: number, userId: number) => {
+  const res = await axiosClient.delete(
+    `${BASE_URL}/api/conversations/${conversationId}`,
+    {
+      params: { userId },
+    }
+  );
+  return res.data;
+};
