@@ -17,7 +17,6 @@ export const AppliedJobs = () => {
   const getStatusColor = (status?: string) => {
     switch (status) {
       case "NOT VIEW":
-        return "bg-red-200 text-red-800";
       case "PENDING":
         return "bg-yellow-200 text-yellow-800";
       case "ACCEPT":
@@ -71,7 +70,7 @@ export const AppliedJobs = () => {
                   job?.status
                 )}`}
               >
-                {job?.status}
+                {job?.status == "NOT VIEW" ? "PENDING" : job?.status}
               </div>
             </div>
           </div>
