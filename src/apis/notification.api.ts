@@ -7,10 +7,11 @@ const NOTIFICATION_URL = `${BASE_URL}/api/notifications`;
 
 export const getMyNotifications = async (
   page = 0,
-  size = 10
+  size = 10,
+  userId: number | undefined
 ): Promise<PageResponse<Notification>> => {
   const res = await axiosClient.get(NOTIFICATION_URL, {
-    params: { page, size },
+    params: { page, size, userId },
   });
 
   return res.data;

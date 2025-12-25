@@ -60,7 +60,7 @@ export const NotificationList = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow">
+    <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow hidden">
       <div className="p-4 border-b font-semibold text-lg">Thông báo</div>
 
       <div className="max-h-[500px] overflow-y-auto">

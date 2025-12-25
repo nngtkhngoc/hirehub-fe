@@ -10,10 +10,12 @@ export const signIn = async (signInData: {
 }) => {
   const res = await axiosClient.post(`${BASE_URL}/api/auth/login`, signInData);
 
-  if (res.status === 200 && res.data?.data?.id) {
-    const userId = res.data.data.id;
-    await createFcmToken(userId);
-  }
+  console.log(res);
+
+  // if (res.status === 200 && res.data?.data?.id) {
+  //   // const userId = res.data.data.id;
+  //   // await createFcmToken(userId);
+  // }
 
   return res.data;
 };

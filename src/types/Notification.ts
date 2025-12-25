@@ -1,4 +1,3 @@
-// Map đúng với enum NotificationType bên backend
 export type NotificationType =
   | "FRIEND_REQUEST"
   | "FRIEND_ACCEPTED"
@@ -16,12 +15,9 @@ export interface Notification {
   isRead: boolean;
   isDeleted: boolean;
 
-  createdAt: string; // ISO string từ backend
+  createdAt: string;
 }
 
-/**
- * Dùng khi tạo notification (admin / system / service nội bộ)
- */
 export interface CreateNotificationDTO {
   userId: number;
   type: NotificationType;
