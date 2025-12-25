@@ -73,7 +73,7 @@ export const Header = () => {
     nav("/auth");
   };
 
-  let user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   const { mutate: handleSignOut, isPending } = useSignOut();
   const handleLogout = () => {
     handleSignOut();

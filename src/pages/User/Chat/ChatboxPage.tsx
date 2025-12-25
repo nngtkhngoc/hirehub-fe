@@ -13,8 +13,10 @@ import type { GroupEventData } from "@/types/Chat";
 
 export const ChatboxPage = () => {
   const { conversationId } = useParams();
+
   const { user } = useAuthStore();
-  const userId = user?.id ? parseInt(user.id) : 0;
+  console.log("converstation", conversationId);
+  const userId = user?.id;
 
   const { data: conversation, isLoading } = useQuery({
     queryKey: ["conversation", conversationId, userId],
@@ -43,11 +45,11 @@ export const ChatboxPage = () => {
       // Invalidate conversation detail để cập nhật danh sách thành viên
       if (conversationId) {
         queryClient.invalidateQueries({
-          queryKey: ["conversation", conversationId, userId]
+          queryKey: ["conversation", conversationId, userId],
         });
         // Invalidate chat history để hiển thị system message
         queryClient.invalidateQueries({
-          queryKey: ["chat"]
+          queryKey: ["chat"],
         });
       }
     });

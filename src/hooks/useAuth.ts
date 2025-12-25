@@ -37,7 +37,6 @@ export const useProfile = () => {
   const query = useQuery({
     queryKey: ["profile"],
     queryFn: getProfile,
-    staleTime: 0,
     select: (profile) => {
       setUser(profile);
       console.log("hello", profile);

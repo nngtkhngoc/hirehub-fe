@@ -190,9 +190,12 @@ export const UserDetail = ({
       navigate("/chat");
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Xóa cuộc trò chuyện thất bại!", {
-        duration: 2000,
-      });
+      toast.error(
+        error?.response?.data?.message || "Xóa cuộc trò chuyện thất bại!",
+        {
+          duration: 2000,
+        }
+      );
     },
   });
 
@@ -458,10 +461,11 @@ export const UserDetail = ({
                 return (
                   <div
                     key={friendUser?.id}
-                    className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${isSelected
-                      ? "bg-primary/10 border border-primary"
-                      : "hover:bg-zinc-100"
-                      }`}
+                    className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                      isSelected
+                        ? "bg-primary/10 border border-primary"
+                        : "hover:bg-zinc-100"
+                    }`}
                     onClick={() => toggleFriend(parseInt(friendUser?.id))}
                   >
                     <img
@@ -578,7 +582,8 @@ export const UserDetail = ({
             <AlertDialogTitle>Xác nhận giải tán nhóm</AlertDialogTitle>
             <AlertDialogDescription>
               Bạn có chắc chắn muốn giải tán nhóm{" "}
-              <strong>{conversation?.name}</strong>? Tất cả tin nhắn và thành viên sẽ bị xóa. Hành động này không thể hoàn tác.
+              <strong>{conversation?.name}</strong>? Tất cả tin nhắn và thành
+              viên sẽ bị xóa. Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -600,8 +605,11 @@ export const UserDetail = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa cuộc trò chuyện</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa cuộc trò chuyện này? Lịch sử chat sẽ bị ẩn đi.
-              {displayInfo.isGroup ? " Bạn vẫn có thể thấy tin nhắn mới nếu có." : " Bạn vẫn có thể bắt đầu cuộc trò chuyện mới với người này."}
+              Bạn có chắc chắn muốn xóa cuộc trò chuyện này? Lịch sử chat sẽ bị
+              ẩn đi.
+              {displayInfo.isGroup
+                ? " Bạn vẫn có thể thấy tin nhắn mới nếu có."
+                : " Bạn vẫn có thể bắt đầu cuộc trò chuyện mới với người này."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

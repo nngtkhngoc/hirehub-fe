@@ -83,6 +83,7 @@ interface Type {
 }
 
 export const Experiences = ({ user }: { user: UserProfile }) => {
+  console.log("user", user);
   const [editable, setEditable] = useState(false);
   const activeExperiences = user?.experiences?.filter((ex) => !ex.deleted);
   const renderExperiences = () =>
@@ -216,7 +217,6 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
               <form
                 onSubmit={handleSubmit((data: CreateExperienceFormData) => {
                   data.userId = user.id;
-                  console.log("Send data:", data);
                   mutate(data, {
                     onSuccess: () => setOpenDialog(false),
                   });

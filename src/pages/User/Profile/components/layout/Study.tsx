@@ -62,6 +62,7 @@ import { StudyCard } from "../ui/StudyCard";
 import type { CreateStudyData } from "@/types/Study";
 import { useCreateStudy, useUniversity } from "@/hooks/useStudy";
 import type { University } from "@/types/University";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const createStudySchema: yup.ObjectSchema<CreateStudyData> = yup.object({
   userId: yup.string().required(),
@@ -131,6 +132,8 @@ export const Study = ({ user }: { user: UserProfile }) => {
       setValue("userId", user.id);
     }
   }, [user, setValue]);
+  const queryClient = useQueryClient();
+
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
       <div className="flex flex-col w-full">
@@ -205,7 +208,12 @@ export const Study = ({ user }: { user: UserProfile }) => {
                 onSubmit={handleSubmit(
                   (data: CreateStudyData) => {
                     mutate(data, {
-                      onSuccess: () => setOpenDialog(false),
+                      onSuccess: () => {
+                        setOpenDialog(false);
+                        queryClient.invalidateQueries({
+                          queryKey: ["profile"],
+                        });
+                      },
                     });
                   },
                   (errors) => {

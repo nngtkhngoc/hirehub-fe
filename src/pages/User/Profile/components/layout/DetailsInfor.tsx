@@ -52,6 +52,10 @@ export const DetailsInfor = ({
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const introduceRef = useRef<HTMLDivElement>(null);
+  const [draftUser, setDraftUser] = useState<UserProfile>(user);
+  useEffect(() => {
+    setDraftUser(user);
+  }, [user]);
 
   useEffect(() => {
     const el = introduceRef.current;
@@ -112,13 +116,19 @@ export const DetailsInfor = ({
 
   const handleSubmit = () => {
     const formData = new FormData();
-    formData.append("id", user?.id);
-    formData.append("description", user?.description ?? "");
-    formData.append("github", user?.github ?? "");
-    formData.append("phoneNumber", user?.phoneNumber ?? "");
+    formData.append("id", user.id);
+    formData.append("description", draftUser?.description ?? "");
+    formData.append("github", draftUser?.github ?? "");
+    formData.append("phoneNumber", draftUser?.phoneNumber ?? "");
 
     mutate(formData);
+    setUserData(draftUser); // commit UI
   };
+
+  const handleCancel = () => {
+    setDraftUser(user);
+  };
+
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 py-4">
       {/* Phần giới thiệu */}
@@ -149,58 +159,50 @@ export const DetailsInfor = ({
                   <div className="grid gap-3">
                     <Label htmlFor="description-1">Giới thiệu</Label>
                     <Textarea
-                      id="description-1"
-                      name="description"
-                      defaultValue={user?.description || ""}
-                      onChange={(e) => {
-                        setUserData((prev) => ({
+                      defaultValue={draftUser?.description || ""}
+                      onChange={(e) =>
+                        setDraftUser((prev) => ({
                           ...prev,
                           description: e.target.value,
-                        }));
-                      }}
-                      className="leading-[24px]"
+                        }))
+                      }
                     />
                   </div>
                   <div className="grid gap-3">
                     <Label htmlFor="email-1">Email</Label>{" "}
                     <Input
-                      id="email-1"
-                      name="email"
-                      defaultValue={user?.email || ""}
-                      onChange={(e) => {
-                        setUserData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }));
-                      }}
+                      defaultValue={draftUser?.email || ""}
+                      // onChange={(e) =>
+                      //   setDraftUser((prev) => ({
+                      //     ...prev,
+                      //     email: e.target.value,
+                      //   }))
+                      // }
+                      disabled
                     />
                   </div>{" "}
                   <div className="grid gap-3">
                     <Label htmlFor="github-1">Github</Label>{" "}
                     <Input
-                      id="github-1"
-                      name="github"
-                      defaultValue={user?.github || ""}
-                      onChange={(e) => {
-                        setUserData((prev) => ({
+                      defaultValue={draftUser?.github || ""}
+                      onChange={(e) =>
+                        setDraftUser((prev) => ({
                           ...prev,
                           github: e.target.value,
-                        }));
-                      }}
+                        }))
+                      }
                     />
                   </div>{" "}
                   <div className="grid gap-3">
                     <Label htmlFor="github-1">Số điện thoại</Label>{" "}
                     <Input
-                      id="github-1"
-                      name="github"
-                      defaultValue={user?.phoneNumber || ""}
-                      onChange={(e) => {
-                        setUserData((prev) => ({
+                      defaultValue={draftUser?.phoneNumber || ""}
+                      onChange={(e) =>
+                        setDraftUser((prev) => ({
                           ...prev,
                           phoneNumber: e.target.value,
-                        }));
-                      }}
+                        }))
+                      }
                     />
                   </div>
                   <div className="grid gap-3">
@@ -237,8 +239,9 @@ export const DetailsInfor = ({
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
-                    <OutlineButton label="Hủy" />
+                    <OutlineButton label="Hủy" onClick={handleCancel} />
                   </DialogClose>
+
                   <PrimaryButton
                     label="Xác nhận"
                     onClick={handleSubmit}
