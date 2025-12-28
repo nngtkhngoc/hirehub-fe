@@ -39,6 +39,9 @@ export const unbanUser = async (userId: number): Promise<AdminUser> => {
 // Job Management APIs - Admin endpoint shows all jobs including banned
 export const getAllJobsAdmin = async (params: {
     keyword?: string;
+    level?: string;
+    status?: string;
+    recruiter?: string;
     page?: number;
     size?: number;
 }): Promise<PaginatedResponse<AdminJob>> => {

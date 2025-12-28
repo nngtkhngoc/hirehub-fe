@@ -2,9 +2,16 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllUsersAdmin, verifyUser, banUser, unbanUser } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Search, Ban, UserCheck, Filter } from "lucide-react";
+import { Search, Ban, UserCheck, Filter, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription
+} from "@/components/ui/empty";
 import {
     Select,
     SelectContent,
@@ -30,6 +37,11 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const UserManagementPage = () => {
     const queryClient = useQueryClient();
@@ -214,18 +226,52 @@ export const UserManagementPage = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-12 text-center">
-                                        <div className="animate-pulse">Đang tải...</div>
-                                    </td>
-                                </tr>
+                                // Skeleton loading
+                                Array.from({ length: 5 }).map((_, index) => (
+                                    <tr key={index} className="animate-pulse">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                                <div className="space-y-2">
+                                                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                                    <div className="h-3 bg-gray-100 rounded w-16"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="h-6 bg-gray-200 rounded-full w-20 mx-auto"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-8 bg-gray-200 rounded w-16"></div>
+                                        </td>
+                                    </tr>
+                                ))
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td
-                                        colSpan={7}
-                                        className="px-6 py-12 text-center text-gray-400"
-                                    >
-                                        Không tìm thấy người dùng nào
+                                    <td colSpan={7}>
+                                        <Empty className="py-12">
+                                            <EmptyHeader>
+                                                <EmptyMedia variant="icon">
+                                                    <Users />
+                                                </EmptyMedia>
+                                                <EmptyTitle>Không tìm thấy người dùng nào</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                                                </EmptyDescription>
+                                            </EmptyHeader>
+                                        </Empty>
                                     </td>
                                 </tr>
                             ) : (
@@ -238,9 +284,14 @@ export const UserManagementPage = () => {
                                             }`}
                                     >
                                         {/* User Info */}
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold overflow-hidden ${user.isBanned
+                                        <td className="px-6 py-4 max-w-[180px]">
+                                            <a
+                                                href={`/profile/${user.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-3 hover:text-primary"
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-semibold overflow-hidden ${user.isBanned
                                                     ? "bg-gray-300 text-gray-500"
                                                     : "bg-gradient-to-br from-primary to-purple-600 text-white"
                                                     }`}>
@@ -254,19 +305,37 @@ export const UserManagementPage = () => {
                                                         user.name?.charAt(0) || "U"
                                                     )}
                                                 </div>
-                                                <div>
-                                                    <p className="font-medium text-gray-900">
-                                                        {user.name || "Chưa đặt tên"}
-                                                    </p>
+                                                <div className="min-w-0">
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <p className="font-medium text-gray-900 truncate hover:text-primary hover:underline">
+                                                                {user.name || "Chưa đặt tên"}
+                                                            </p>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            {user.name || "Chưa đặt tên"}
+                                                        </TooltipContent>
+                                                    </Tooltip>
                                                     <p className="text-sm text-gray-500">
                                                         ID: {user.id}
                                                     </p>
                                                 </div>
-                                            </div>
+                                            </a>
                                         </td>
 
                                         {/* Email */}
-                                        <td className="px-6 py-4 text-gray-600 text-[14px]">{user.email}</td>
+                                        <td className="px-6 py-4 max-w-[160px]">
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-gray-600 text-[14px] block truncate cursor-default">
+                                                        {user.email}
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    {user.email}
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </td>
 
                                         {/* Role */}
                                         <td className="px-6 py-4">
@@ -281,13 +350,31 @@ export const UserManagementPage = () => {
                                         </td>
 
                                         {/* Created At */}
-                                        <td className="px-6 py-4 text-gray-600 text-sm">
-                                            {formatDate(user.createdAt)}
+                                        <td className="px-6 py-4 max-w-[146px]">
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-gray-600 text-sm block truncate whitespace-nowrap cursor-default">
+                                                        {formatDate(user.createdAt)}
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    {formatDate(user.createdAt)}
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </td>
 
                                         {/* Last Login */}
-                                        <td className="px-6 py-4 text-gray-600 text-sm">
-                                            {formatDate(user.lastLogin)}
+                                        <td className="px-6 py-4 max-w-[146px]">
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-gray-600 text-sm block truncate whitespace-nowrap cursor-default">
+                                                        {formatDate(user.lastLogin)}
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    {formatDate(user.lastLogin)}
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </td>
 
                                         {/* Status */}
@@ -311,14 +398,14 @@ export const UserManagementPage = () => {
 
                                         {/* Actions */}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-start justify-start gap-2">
+                                            <div className="flex items-start justify-start gap-2 text-sm">
                                                 {/* Verify button for unverified users */}
                                                 {!user.isVerified &&
                                                     !user.isBanned && (
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            className="text-green-600 border-green-300 hover:bg-green-50"
+                                                            className="text-green-600 border-green-300 hover:bg-green-50 hover:cursor-pointer text-sm hover:text-green-600"
                                                             onClick={() =>
                                                                 setConfirmDialog({
                                                                     open: true,
@@ -338,7 +425,7 @@ export const UserManagementPage = () => {
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
-                                                        className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                                                        className="text-blue-600 border-blue-300 hover:bg-blue-50 hover:cursor-pointer text-sm hover:text-blue-600"
                                                         onClick={() =>
                                                             setConfirmDialog({
                                                                 open: true,
@@ -355,6 +442,7 @@ export const UserManagementPage = () => {
                                                     <Button
                                                         size="sm"
                                                         variant="destructive"
+                                                        className="text-white hover:cursor-pointer text-sm"
                                                         onClick={() =>
                                                             setConfirmDialog({
                                                                 open: true,

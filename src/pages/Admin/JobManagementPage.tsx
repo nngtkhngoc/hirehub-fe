@@ -1,10 +1,24 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllJobsAdmin, banJob, unbanJob, deleteJobAdmin } from "@/apis/admin.api";
+import { getAllJobsAdmin, banJob, unbanJob } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Search, Ban, Check, Trash2, Eye } from "lucide-react";
+import { Search, Ban, UserCheck, Filter, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription
+} from "@/components/ui/empty";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Pagination,
     PaginationContent,
@@ -27,19 +41,25 @@ import {
 export const JobManagementPage = () => {
     const queryClient = useQueryClient();
     const [keyword, setKeyword] = useState("");
+    const [level, setLevel] = useState<string>("all");
+    const [status, setStatus] = useState<string>("all");
+    const [companySearch, setCompanySearch] = useState("");
     const [page, setPage] = useState(0);
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
-        type: "ban" | "unban" | "delete";
+        type: "ban" | "unban";
         jobId: string;
         jobTitle: string;
     } | null>(null);
 
     const { data, isLoading } = useQuery({
-        queryKey: ["admin-jobs", keyword, page],
+        queryKey: ["admin-jobs", keyword, level, status, companySearch, page],
         queryFn: () =>
             getAllJobsAdmin({
                 keyword: keyword || undefined,
+                level: level === "all" ? undefined : level,
+                status: status === "all" ? undefined : status,
+                recruiter: companySearch || undefined,
                 page,
                 size: 10,
             }),
@@ -63,15 +83,6 @@ export const JobManagementPage = () => {
         onError: () => toast.error("Có lỗi xảy ra khi bỏ cấm công việc"),
     });
 
-    const deleteMutation = useMutation({
-        mutationFn: deleteJobAdmin,
-        onSuccess: () => {
-            toast.success("Đã xóa công việc thành công");
-            queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
-        },
-        onError: () => toast.error("Có lỗi xảy ra khi xóa công việc"),
-    });
-
     const handleConfirmAction = () => {
         if (!confirmDialog) return;
 
@@ -81,9 +92,6 @@ export const JobManagementPage = () => {
                 break;
             case "unban":
                 unbanMutation.mutate(confirmDialog.jobId);
-                break;
-            case "delete":
-                deleteMutation.mutate(confirmDialog.jobId);
                 break;
         }
         setConfirmDialog(null);
@@ -114,20 +122,78 @@ export const JobManagementPage = () => {
 
             {/* Filters */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div className="relative max-w-md">
-                    <Search
-                        size={18}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-                    <Input
-                        placeholder="Tìm kiếm theo tiêu đề, công ty..."
-                        value={keyword}
-                        onChange={(e) => {
-                            setKeyword(e.target.value);
+                <div className="flex flex-wrap gap-4">
+                    {/* Search */}
+                    <div className="relative flex-1 min-w-[200px]">
+                        <Search
+                            size={18}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                        />
+                        <Input
+                            placeholder="Tìm kiếm theo tiêu đề..."
+                            value={keyword}
+                            onChange={(e) => {
+                                setKeyword(e.target.value);
+                                setPage(0);
+                            }}
+                            className="pl-10"
+                        />
+                    </div>
+
+                    {/* Company Search */}
+                    <div className="relative min-w-[180px]">
+                        <Input
+                            placeholder="Tìm theo công ty..."
+                            value={companySearch}
+                            onChange={(e) => {
+                                setCompanySearch(e.target.value);
+                                setPage(0);
+                            }}
+                        />
+                    </div>
+
+                    {/* Level Filter */}
+                    <Select
+                        value={level}
+                        onValueChange={(val) => {
+                            setLevel(val);
                             setPage(0);
                         }}
-                        className="pl-10"
-                    />
+                    >
+                        <SelectTrigger className="w-full sm:w-40">
+                            <Filter size={16} className="mr-2" />
+                            <SelectValue placeholder="Cấp bậc" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Cấp bậc</SelectItem>
+                            <SelectItem value="Intern">Intern</SelectItem>
+                            <SelectItem value="Fresher">Fresher</SelectItem>
+                            <SelectItem value="Junior">Junior</SelectItem>
+                            <SelectItem value="Middle">Middle</SelectItem>
+                            <SelectItem value="Senior">Senior</SelectItem>
+                            <SelectItem value="Lead">Lead</SelectItem>
+                            <SelectItem value="Manager">Manager</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    {/* Status Filter */}
+                    <Select
+                        value={status}
+                        onValueChange={(val) => {
+                            setStatus(val);
+                            setPage(0);
+                        }}
+                    >
+                        <SelectTrigger className="w-full sm:w-40">
+                            <Filter size={16} className="mr-2" />
+                            <SelectValue placeholder="Trạng thái" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Trạng thái</SelectItem>
+                            <SelectItem value="active">Hoạt động</SelectItem>
+                            <SelectItem value="banned">Bị cấm</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
@@ -144,7 +210,7 @@ export const JobManagementPage = () => {
                                     Công ty
                                 </th>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Level
+                                    Cấp bậc
                                 </th>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Ngày đăng
@@ -152,46 +218,91 @@ export const JobManagementPage = () => {
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
                                 </th>
-                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Hành động
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center">
-                                        <div className="animate-pulse">Đang tải...</div>
-                                    </td>
-                                </tr>
+                                // Skeleton loading
+                                Array.from({ length: 5 }).map((_, index) => (
+                                    <tr key={index} className="animate-pulse">
+                                        <td className="px-6 py-4">
+                                            <div className="space-y-2">
+                                                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                                <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                                                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-4 bg-gray-200 rounded w-20"></div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="h-6 bg-gray-200 rounded-full w-16 mx-auto"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="h-8 bg-gray-200 rounded w-16"></div>
+                                        </td>
+                                    </tr>
+                                ))
                             ) : jobs.length === 0 ? (
                                 <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="px-6 py-12 text-center text-gray-400"
-                                    >
-                                        Không tìm thấy công việc nào
+                                    <td colSpan={6}>
+                                        <Empty className="py-12">
+                                            <EmptyHeader>
+                                                <EmptyMedia variant="icon">
+                                                    <Briefcase />
+                                                </EmptyMedia>
+                                                <EmptyTitle>Không tìm thấy công việc nào</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                                                </EmptyDescription>
+                                            </EmptyHeader>
+                                        </Empty>
                                     </td>
                                 </tr>
                             ) : (
                                 jobs.map((job) => (
-                                    <tr key={job.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr
+                                        key={job.id}
+                                        className={`transition-colors ${job.is_banned
+                                            ? "bg-gray-100 opacity-60"
+                                            : "hover:bg-gray-50"
+                                            }`}
+                                    >
                                         {/* Job Info */}
                                         <td className="px-6 py-4">
-                                            <div>
-                                                <p className="font-medium text-gray-900 line-clamp-1">
+                                            <a
+                                                href={`/job-details/${job.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block hover:text-primary"
+                                            >
+                                                <p className="font-medium text-gray-900 line-clamp-1 hover:text-primary hover:underline">
                                                     {job.title}
                                                 </p>
                                                 <p className="text-sm text-gray-500">
                                                     {job.workspace} • {job.type}
                                                 </p>
-                                            </div>
+                                            </a>
                                         </td>
 
                                         {/* Company */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium overflow-hidden">
+                                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-medium overflow-hidden ${job.is_banned
+                                                    ? "bg-gray-300 text-gray-500"
+                                                    : "bg-gray-100"
+                                                    }`}>
                                                     {job.recruiter?.avatar ? (
                                                         <img
                                                             src={job.recruiter.avatar}
@@ -202,7 +313,7 @@ export const JobManagementPage = () => {
                                                         job.recruiter?.name?.charAt(0) || "C"
                                                     )}
                                                 </div>
-                                                <span className="text-gray-600 line-clamp-1">
+                                                <span className="text-gray-600 text-sm line-clamp-1">
                                                     {job.recruiter?.name || "N/A"}
                                                 </span>
                                             </div>
@@ -216,7 +327,7 @@ export const JobManagementPage = () => {
                                         </td>
 
                                         {/* Date */}
-                                        <td className="px-6 py-4 text-gray-600">
+                                        <td className="px-6 py-4 text-gray-600 text-sm">
                                             {formatDate(job.postingDate)}
                                         </td>
 
@@ -224,12 +335,10 @@ export const JobManagementPage = () => {
                                         <td className="px-6 py-4 text-center">
                                             {job.is_banned ? (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                    <Ban size={12} className="mr-1" />
                                                     Bị cấm
                                                 </span>
                                             ) : (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                                    <Check size={12} className="mr-1" />
                                                     Hoạt động
                                                 </span>
                                             )}
@@ -237,23 +346,12 @@ export const JobManagementPage = () => {
 
                                         {/* Actions */}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        window.open(`/job-details/${job.id}`, "_blank")
-                                                    }
-                                                >
-                                                    <Eye size={14} className="mr-1" />
-                                                    Xem
-                                                </Button>
-
+                                            <div className="flex items-start justify-start gap-2 text-sm">
                                                 {job.is_banned ? (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
-                                                        className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                                                        className="text-blue-600 border-blue-300 hover:bg-blue-50 hover:cursor-pointer text-sm hover:text-blue-600"
                                                         onClick={() =>
                                                             setConfirmDialog({
                                                                 open: true,
@@ -263,14 +361,14 @@ export const JobManagementPage = () => {
                                                             })
                                                         }
                                                     >
-                                                        <Check size={14} className="mr-1" />
+                                                        <UserCheck size={14} className="mr-1" />
                                                         Bỏ cấm
                                                     </Button>
                                                 ) : (
                                                     <Button
                                                         size="sm"
-                                                        variant="outline"
-                                                        className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                                                        variant="destructive"
+                                                        className="text-white hover:cursor-pointer text-sm"
                                                         onClick={() =>
                                                             setConfirmDialog({
                                                                 open: true,
@@ -284,21 +382,6 @@ export const JobManagementPage = () => {
                                                         Cấm
                                                     </Button>
                                                 )}
-
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                    onClick={() =>
-                                                        setConfirmDialog({
-                                                            open: true,
-                                                            type: "delete",
-                                                            jobId: job.id,
-                                                            jobTitle: job.title,
-                                                        })
-                                                    }
-                                                >
-                                                    <Trash2 size={14} />
-                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
@@ -309,7 +392,7 @@ export const JobManagementPage = () => {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {totalPages >= 1 && (
                     <div className="border-t border-gray-100 p-4">
                         <Pagination>
                             <PaginationContent>
@@ -367,8 +450,6 @@ export const JobManagementPage = () => {
                                 `Bạn có chắc muốn cấm công việc "${confirmDialog.jobTitle}"? Công việc này sẽ không còn hiển thị cho người dùng.`}
                             {confirmDialog?.type === "unban" &&
                                 `Bạn có chắc muốn bỏ cấm công việc "${confirmDialog?.jobTitle}"?`}
-                            {confirmDialog?.type === "delete" &&
-                                `Bạn có chắc muốn xóa công việc "${confirmDialog?.jobTitle}"? Hành động này không thể hoàn tác.`}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

@@ -43,7 +43,7 @@ export const AdminLayout = () => {
     <div className="min-h-screen bg-[#F8F9FB] flex">
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 bg-white border-r border-gray-200 transition-all duration-300 ${sidebarCollapsed ? "w-20" : "w-64"
+        className={`fixed lg:static inset-y-0 left-0 z-50 bg-white border-r border-gray-200 transition-all duration-300 ${sidebarCollapsed ? "w-20" : "w-56"
           }`}
       >
         <div className="flex flex-col h-full">
@@ -77,7 +77,7 @@ export const AdminLayout = () => {
                 to={item.path}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive && item.path !== "/"
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${isActive && item.path !== "/"
                     ? "bg-purple-500 text-white shadow-md"
                     : "text-gray-600 hover:bg-gray-100"
                   }`
