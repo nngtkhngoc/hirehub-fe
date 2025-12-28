@@ -95,7 +95,8 @@ export const ForgetPasswordPage = () => {
                   onClick={() => nav("/auth/sign-in")}
                 />
                 <PrimaryButton
-                  label={isPending ? "Đang gửi..." : "Xác nhận"}
+                  label={isPending ? "Đang gửi..." : "Gửi"}
+                  type="submit"
                   disabled={isPending}
                 />
               </div>

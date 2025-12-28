@@ -47,11 +47,12 @@ export const useProfile = () => {
   return query;
 };
 
-export const useSignUpCandidate = () => {
+export const useSignUpCandidate = (onSuccessCallback?: () => void) => {
   return useMutation({
     mutationFn: signUpCandidate,
     onSuccess: () => {
       toast.success("Đăng kí thành công!", { duration: 1500 });
+      onSuccessCallback?.();
     },
     onError: (error: unknown) => {
       const err = error as AxiosError<{ message: string }>;
@@ -63,11 +64,12 @@ export const useSignUpCandidate = () => {
   });
 };
 
-export const useSignUpRecruiter = () => {
+export const useSignUpRecruiter = (onSuccessCallback?: () => void) => {
   return useMutation({
     mutationFn: signUpRecruiter,
     onSuccess: () => {
       toast.success("Đăng kí thành công!", { duration: 1500 });
+      onSuccessCallback?.();
     },
     onError: (error: unknown) => {
       const err = error as AxiosError<{ message: string }>;

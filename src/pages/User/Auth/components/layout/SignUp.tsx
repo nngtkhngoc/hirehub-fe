@@ -57,7 +57,7 @@ export const SignUp = ({
         {typeAccount == "candidate" ? (
           <SignUpCandidate ref={ref} setAuthTab={setAuthTab} />
         ) : (
-          <SignUpRecruiter ref={ref} />
+          <SignUpRecruiter ref={ref} setAuthTab={setAuthTab} />
         )}
       </div>
 

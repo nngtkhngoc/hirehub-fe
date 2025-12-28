@@ -146,6 +146,7 @@ export const ResetPasswordPage = () => {
                 <PrimaryButton
                   label={isPending ? "Đang xử lý..." : "Xác nhận"}
                   disabled={isPending}
+                  type="submit"
                 />
               </div>
             </form>

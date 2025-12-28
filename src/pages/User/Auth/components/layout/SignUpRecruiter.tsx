@@ -30,7 +30,7 @@ const schema = yup
       .number()
       .typeError("Vui lòng nhập năm hợp lệ")
       .min(1900, "Năm phải lớn hơn 1900")
-      .max(new Date().getFullYear(), "Năm không được lớn hơn hiện tạin")
+      .max(new Date().getFullYear(), "Năm không được lớn hơn hiện tại")
       .default(undefined),
     numberOfEmployees: yup.string().default(undefined),
     password: yup
@@ -46,8 +46,10 @@ const schema = yup
 
 export const SignUpRecruiter = ({
   ref,
+  setAuthTab,
 }: {
   ref?: React.RefObject<HTMLInputElement>;
+  setAuthTab: React.Dispatch<React.SetStateAction<"sign-in" | "sign-up">>;
 }) => {
   const [openPassword, setOpenPassword] = useState(false);
   const [openCfPassword, setOpenCfPassword] = useState(false);
@@ -71,7 +73,9 @@ export const SignUpRecruiter = ({
     ) as unknown as Resolver<SignUpRecruiterFormData>,
     mode: "onBlur",
   });
-  const { mutate, isPending } = useSignUpRecruiter();
+  const { mutate, isPending } = useSignUpRecruiter(() => {
+    setAuthTab("sign-in");
+  });
 
   const onSubmit: SubmitHandler<SignUpRecruiterFormData> = (data) => {
     const payload = (({

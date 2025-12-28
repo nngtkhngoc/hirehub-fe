@@ -34,9 +34,9 @@ export const sendActivation = async (email: string) => {
   return res.data;
 };
 
-export const activateAccount = async (email: string) => {
+export const activateAccount = async (data: { email: string; token: string }) => {
   const res = await axiosClient.post(
-    `${BASE_URL}/api/auth/send-activation?email=${email}`
+    `${BASE_URL}/api/auth/activate?email=${data.email}&token=${data.token}`
   );
 
   return res.data;

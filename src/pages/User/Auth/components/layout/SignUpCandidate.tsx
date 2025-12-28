@@ -55,7 +55,9 @@ export const SignUpCandidate = ({
     mode: "onBlur",
   });
 
-  const { mutate, isPending, isSuccess } = useSignUpCandidate();
+  const { mutate, isPending } = useSignUpCandidate(() => {
+    setAuthTab("sign-in");
+  });
 
   const onSubmit: SubmitHandler<SignUpCandidateFormData> = (data) => {
     const payload = (({ email, name, password }) => ({
@@ -64,10 +66,6 @@ export const SignUpCandidate = ({
       password,
     }))(data);
     mutate({ ...payload, roleId: 1 });
-
-    if (isSuccess) {
-      setAuthTab("sign-in");
-    }
   };
 
   return (

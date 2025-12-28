@@ -11,6 +11,7 @@ import { AuthLayout } from "./components/layout/User/AuthLayout.tsx";
 import { VerifyPage } from "./pages/User/Verify/VerifyPage.tsx";
 import { ForgetPasswordPage } from "./pages/User/ForgetPassword/ForgetPasswordPage.tsx";
 import { MailSentPage } from "./pages/User/MailSent/MailSentPage.tsx";
+import { ActivationPage } from "./pages/User/Activation/ActivationPage.tsx";
 import { JobListPage } from "./pages/User/JobList/JobListPage.tsx";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -66,6 +67,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/auth" element={<AuthLayout />}>
           <Route index element={<AuthPage />} />
           <Route path="/auth/verify" element={<VerifyPage />} />
+          <Route path="/auth/activation" element={<ActivationPage />} />
           <Route
             path="/auth/forget-password"
             element={<ForgetPasswordPage />}
