@@ -32,7 +32,8 @@ export type PaginatedResponse<T> = {
 export type AdminUser = UserProfile & {
     isVerified: boolean;
     isBanned: boolean;
-    createdAt: string;
+    createdAt: string | null;
+    lastLogin: string | null;
 };
 
 export type AdminJob = {

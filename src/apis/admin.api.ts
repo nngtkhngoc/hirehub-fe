@@ -7,6 +7,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const getAllUsersAdmin = async (params: {
     keyword?: string;
     role?: string;
+    status?: string;
     page?: number;
     size?: number;
 }): Promise<PaginatedResponse<AdminUser>> => {

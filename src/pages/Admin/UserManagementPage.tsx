@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllUsersAdmin, verifyUser, banUser, unbanUser } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Search, Check, Ban, UserCheck, Filter } from "lucide-react";
+import { Search, Ban, UserCheck, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,7 +35,20 @@ export const UserManagementPage = () => {
     const queryClient = useQueryClient();
     const [keyword, setKeyword] = useState("");
     const [role, setRole] = useState<string>("all");
+    const [status, setStatus] = useState<string>("all");
     const [page, setPage] = useState(0);
+
+    // Helper function to format date or return '-' for null/undefined
+    const formatDate = (dateString: string | null | undefined): string => {
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleDateString("vi-VN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
         type: "verify" | "ban" | "unban";
@@ -44,11 +57,12 @@ export const UserManagementPage = () => {
     } | null>(null);
 
     const { data, isLoading } = useQuery({
-        queryKey: ["admin-users", keyword, role, page],
+        queryKey: ["admin-users", keyword, role, status, page],
         queryFn: () =>
             getAllUsersAdmin({
                 keyword: keyword || undefined,
                 role: role === "all" ? undefined : role,
+                status: status === "all" ? undefined : status,
                 page,
                 size: 10,
             }),
@@ -138,14 +152,32 @@ export const UserManagementPage = () => {
                             setPage(0);
                         }}
                     >
-                        <SelectTrigger className="w-full sm:w-48">
+                        <SelectTrigger className="w-full sm:w-50">
                             <Filter size={16} className="mr-2" />
                             <SelectValue placeholder="Lọc theo role" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Tất cả</SelectItem>
+                            <SelectItem value="all">Loại tài khoản</SelectItem>
                             <SelectItem value="user">User</SelectItem>
                             <SelectItem value="recruiter">Recruiter</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select
+                        value={status}
+                        onValueChange={(val) => {
+                            setStatus(val);
+                            setPage(0);
+                        }}
+                    >
+                        <SelectTrigger className="w-full sm:w-40">
+                            <Filter size={16} className="mr-2" />
+                            <SelectValue placeholder="Lọc theo trạng thái" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Trạng thái</SelectItem>
+                            <SelectItem value="verified">Đã xác thực</SelectItem>
+                            <SelectItem value="pending">Chờ duyệt</SelectItem>
+                            <SelectItem value="banned">Bị cấm</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -166,10 +198,16 @@ export const UserManagementPage = () => {
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Vai trò
                                 </th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                                    Ngày tạo
+                                </th>
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                                    Đăng nhập cuối
+                                </th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
                                 </th>
-                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
+                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Hành động
                                 </th>
                             </tr>
@@ -177,14 +215,14 @@ export const UserManagementPage = () => {
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center">
+                                    <td colSpan={7} className="px-6 py-12 text-center">
                                         <div className="animate-pulse">Đang tải...</div>
                                     </td>
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={5}
+                                        colSpan={7}
                                         className="px-6 py-12 text-center text-gray-400"
                                     >
                                         Không tìm thấy người dùng nào
@@ -195,16 +233,16 @@ export const UserManagementPage = () => {
                                     <tr
                                         key={user.id}
                                         className={`transition-colors ${user.isBanned
-                                                ? "bg-gray-100 opacity-60"
-                                                : "hover:bg-gray-50"
+                                            ? "bg-gray-100 opacity-60"
+                                            : "hover:bg-gray-50"
                                             }`}
                                     >
                                         {/* User Info */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold overflow-hidden ${user.isBanned
-                                                        ? "bg-gray-300 text-gray-500"
-                                                        : "bg-gradient-to-br from-primary to-purple-600 text-white"
+                                                    ? "bg-gray-300 text-gray-500"
+                                                    : "bg-gradient-to-br from-primary to-purple-600 text-white"
                                                     }`}>
                                                     {user.avatar ? (
                                                         <img
@@ -228,7 +266,7 @@ export const UserManagementPage = () => {
                                         </td>
 
                                         {/* Email */}
-                                        <td className="px-6 py-4 text-gray-600">{user.email}</td>
+                                        <td className="px-6 py-4 text-gray-600 text-[14px]">{user.email}</td>
 
                                         {/* Role */}
                                         <td className="px-6 py-4">
@@ -242,17 +280,25 @@ export const UserManagementPage = () => {
                                             </span>
                                         </td>
 
+                                        {/* Created At */}
+                                        <td className="px-6 py-4 text-gray-600 text-sm">
+                                            {formatDate(user.createdAt)}
+                                        </td>
+
+                                        {/* Last Login */}
+                                        <td className="px-6 py-4 text-gray-600 text-sm">
+                                            {formatDate(user.lastLogin)}
+                                        </td>
+
                                         {/* Status */}
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 {user.isBanned ? (
                                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                        <Ban size={12} className="mr-1" />
                                                         Bị cấm
                                                     </span>
                                                 ) : user.isVerified ? (
                                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                                        <Check size={12} className="mr-1" />
                                                         Đã xác thực
                                                     </span>
                                                 ) : (
@@ -265,7 +311,7 @@ export const UserManagementPage = () => {
 
                                         {/* Actions */}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-2">
+                                            <div className="flex items-start justify-start gap-2">
                                                 {/* Verify button for unverified users */}
                                                 {!user.isVerified &&
                                                     !user.isBanned && (

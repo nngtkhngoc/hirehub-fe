@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllUsersAdmin, getAllJobsAdmin, getAllReports, getAllResumesAdmin } from "@/apis/admin.api";
 import { Users, Briefcase, AlertTriangle, FileText } from "lucide-react";
 import {
+
+
     BarChart,
     Bar,
     XAxis,
@@ -77,7 +79,7 @@ export const AdminDashboardPage = () => {
 
         // Count users by month
         if (allUsersData?.content) {
-            allUsersData.content.forEach((user: { createdAt?: string }) => {
+            allUsersData.content.forEach((user: { createdAt?: string | null }) => {
                 if (user.createdAt) {
                     const date = new Date(user.createdAt);
                     if (date.getFullYear() === currentYear) {
