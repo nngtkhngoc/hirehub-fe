@@ -105,7 +105,7 @@ export const JobManagementPage = () => {
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold font-title text-gray-900">
-                    Quản lý Jobs
+                    Quản lý công việc
                 </h1>
                 <p className="text-gray-500 mt-1">
                     Quản lý các bài đăng tuyển dụng, cấm hoặc xóa job vi phạm

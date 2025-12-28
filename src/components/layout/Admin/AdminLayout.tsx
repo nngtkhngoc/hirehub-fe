@@ -23,10 +23,10 @@ import { Input } from "@/components/ui/input";
 
 const navItems = [
   { path: "/", icon: Home, label: "Trang chủ" },
-  { path: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
-  { path: "/admin/users", icon: Users, label: "Quản lý Users" },
-  { path: "/admin/jobs", icon: Briefcase, label: "Quản lý Jobs" },
-  { path: "/admin/resumes", icon: FileText, label: "Quản lý Hồ sơ" },
+  { path: "/admin", icon: LayoutDashboard, label: "Bảng điều khiển", end: true },
+  { path: "/admin/users", icon: Users, label: "Quản lý người dùng" },
+  { path: "/admin/jobs", icon: Briefcase, label: "Quản lý công việc" },
+  { path: "/admin/resumes", icon: FileText, label: "Quản lý hồ sơ" },
   { path: "/admin/violations", icon: AlertTriangle, label: "Vi phạm" },
 ];
 
@@ -101,13 +101,13 @@ export const AdminLayout = () => {
                   3
                 </span>
               </div>
-              {!sidebarCollapsed && <span>Help Center</span>}
+              {!sidebarCollapsed && <span>Trung tâm hỗ trợ</span>}
             </button>
 
             {/* Settings */}
             <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100">
               <Settings size={20} />
-              {!sidebarCollapsed && <span>Setting</span>}
+              {!sidebarCollapsed && <span>Cài đặt</span>}
             </button>
 
             {/* Theme Toggle */}
@@ -121,7 +121,7 @@ export const AdminLayout = () => {
                     }`}
                 >
                   <Sun size={14} />
-                  Light
+                  Sáng
                 </button>
                 <button
                   onClick={() => setDarkMode(true)}
@@ -131,7 +131,7 @@ export const AdminLayout = () => {
                     }`}
                 >
                   <Moon size={14} />
-                  Dark
+                  Tối
                 </button>
               </div>
             )}
@@ -152,7 +152,7 @@ export const AdminLayout = () => {
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <Input
-                  placeholder="Search anything..."
+                  placeholder="Tìm kiếm..."
                   className="pl-10 w-64 bg-gray-50 border-gray-200"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">
@@ -166,19 +166,19 @@ export const AdminLayout = () => {
                   href="#"
                   className="text-gray-600 hover:text-gray-900 text-sm"
                 >
-                  Reports
+                  Báo cáo
                 </a>
                 <a
                   href="#"
                   className="text-gray-600 hover:text-gray-900 text-sm"
                 >
-                  Analytics
+                  Phân tích
                 </a>
                 <a
                   href="#"
                   className="text-gray-600 hover:text-gray-900 text-sm"
                 >
-                  Logs
+                  Nhật ký
                 </a>
               </nav>
             </div>

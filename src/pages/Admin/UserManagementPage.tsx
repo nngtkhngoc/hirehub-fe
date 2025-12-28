@@ -106,7 +106,7 @@ export const UserManagementPage = () => {
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold font-title text-gray-900">
-                    Quản lý Users
+                    Quản lý người dùng
                 </h1>
                 <p className="text-gray-500 mt-1">
                     Duyệt tài khoản công ty, cấm hoặc bỏ cấm người dùng
@@ -158,13 +158,13 @@ export const UserManagementPage = () => {
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    User
+                                    Người dùng
                                 </th>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Email
                                 </th>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Role
+                                    Vai trò
                                 </th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
@@ -192,11 +192,20 @@ export const UserManagementPage = () => {
                                 </tr>
                             ) : (
                                 users.map((user) => (
-                                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr
+                                        key={user.id}
+                                        className={`transition-colors ${user.isBanned
+                                                ? "bg-gray-100 opacity-60"
+                                                : "hover:bg-gray-50"
+                                            }`}
+                                    >
                                         {/* User Info */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-semibold overflow-hidden">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold overflow-hidden ${user.isBanned
+                                                        ? "bg-gray-300 text-gray-500"
+                                                        : "bg-gradient-to-br from-primary to-purple-600 text-white"
+                                                    }`}>
                                                     {user.avatar ? (
                                                         <img
                                                             src={user.avatar}

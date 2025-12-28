@@ -15,21 +15,21 @@ export const getAllUsersAdmin = async (params: {
 };
 
 export const verifyUser = async (userId: number): Promise<AdminUser> => {
-    const res = await axiosClient.put(`${BASE_URL}/api/users/${userId}`, {
+    const res = await axiosClient.patch(`${BASE_URL}/api/users/${userId}`, {
         isVerified: true,
     });
     return res.data.data;
 };
 
 export const banUser = async (userId: number): Promise<AdminUser> => {
-    const res = await axiosClient.put(`${BASE_URL}/api/users/${userId}`, {
+    const res = await axiosClient.patch(`${BASE_URL}/api/users/${userId}`, {
         isBanned: true,
     });
     return res.data.data;
 };
 
 export const unbanUser = async (userId: number): Promise<AdminUser> => {
-    const res = await axiosClient.put(`${BASE_URL}/api/users/${userId}`, {
+    const res = await axiosClient.patch(`${BASE_URL}/api/users/${userId}`, {
         isBanned: false,
     });
     return res.data.data;
