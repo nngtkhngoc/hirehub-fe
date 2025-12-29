@@ -113,3 +113,14 @@ export const getAllResumesAdmin = async (params?: {
     const res = await axiosClient.get(`${BASE_URL}/api/resumes`, { params });
     return res.data;
 };
+
+export const banResume = async (resumeId: number, reason?: string): Promise<AdminResume> => {
+    const params = reason ? { reason } : {};
+    const res = await axiosClient.patch(`${BASE_URL}/api/resumes/${resumeId}/ban`, null, { params });
+    return res.data;
+};
+
+export const unbanResume = async (resumeId: number): Promise<AdminResume> => {
+    const res = await axiosClient.patch(`${BASE_URL}/api/resumes/${resumeId}/unban`);
+    return res.data;
+};

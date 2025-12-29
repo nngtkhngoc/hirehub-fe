@@ -41,7 +41,7 @@ export type AdminJob = {
     title: string;
     description: string;
     level: string;
-    is_banned: boolean | null;
+    _banned: boolean | null;
     status: string;
     workspace: string;
     postingDate: string;
@@ -80,4 +80,5 @@ export type AdminResume = {
             name: string;
         };
     };
+    banReason: string | null;
 };

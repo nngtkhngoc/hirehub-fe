@@ -311,7 +311,7 @@ export const JobManagementPage = () => {
                                 jobs.map((job) => (
                                     <tr
                                         key={job.id}
-                                        className={`transition-colors ${job.is_banned
+                                        className={`transition-colors ${job.status == "BANNED"
                                             ? "bg-gray-100 opacity-60"
                                             : "hover:bg-gray-50"
                                             }`}
@@ -324,7 +324,9 @@ export const JobManagementPage = () => {
                                                 rel="noopener noreferrer"
                                                 className="block hover:text-primary"
                                             >
-                                                <p className="font-medium text-gray-900 line-clamp-1 hover:text-primary hover:underline">
+                                                <p className={`font-medium line-clamp-1 ${job.status == "BANNED"
+                                                    ? "text-gray-500"
+                                                    : "text-gray-900 hover:text-primary hover:underline"}`}>
                                                     {job.title}
                                                 </p>
                                                 <p className="text-sm text-gray-500">
@@ -336,7 +338,7 @@ export const JobManagementPage = () => {
                                         {/* Company */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-medium overflow-hidden ${job.is_banned
+                                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-medium overflow-hidden ${job.status == "BANNED"
                                                     ? "bg-gray-300 text-gray-500"
                                                     : "bg-gray-100"
                                                     }`}>
@@ -378,7 +380,7 @@ export const JobManagementPage = () => {
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                                                     Đã duyệt
                                                 </span>
-                                            ) : job.status === "BANNED" || job.is_banned ? (
+                                            ) : job.status === "BANNED" || job.status == "BANNED" ? (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
                                                     Bị từ chối
                                                 </span>
@@ -425,7 +427,7 @@ export const JobManagementPage = () => {
                                                             </>
                                                         )}
                                                     </Button>
-                                                ) : (job.status === "APPROVED" || job.status === "ACTIVE") && !job.is_banned ? (
+                                                ) : (job.status === "APPROVED" || job.status === "ACTIVE") && !job.status == "BANNED" ? (
                                                     <Button
                                                         size="sm"
                                                         variant="destructive"
@@ -442,7 +444,7 @@ export const JobManagementPage = () => {
                                                         <Ban size={14} className="mr-1" />
                                                         Cấm
                                                     </Button>
-                                                ) : (job.status === "BANNED" || job.is_banned) ? (
+                                                ) : (job.status === "BANNED" || job.status == "BANNED") ? (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
