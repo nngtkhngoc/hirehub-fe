@@ -42,6 +42,7 @@ export type AdminJob = {
     description: string;
     level: string;
     is_banned: boolean | null;
+    status: string;
     workspace: string;
     postingDate: string;
     recruiter: {

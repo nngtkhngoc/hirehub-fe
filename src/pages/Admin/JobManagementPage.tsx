@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllJobsAdmin, banJob, unbanJob } from "@/apis/admin.api";
+import { getAllJobsAdmin, banJob, unbanJob, approveJob, rejectJob } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Search, Ban, UserCheck, Filter, Briefcase } from "lucide-react";
+import { Search, Ban, UserCheck, Filter, Briefcase, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
     Empty,
     EmptyHeader,
@@ -47,10 +49,12 @@ export const JobManagementPage = () => {
     const [page, setPage] = useState(0);
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
-        type: "ban" | "unban";
+        type: "ban" | "unban" | "review"; // review = for pending jobs
         jobId: string;
         jobTitle: string;
     } | null>(null);
+    const [reviewAction, setReviewAction] = useState<"approve" | "reject">("approve");
+    const [actionReason, setActionReason] = useState("");
 
     const { data, isLoading } = useQuery({
         queryKey: ["admin-jobs", keyword, level, status, companySearch, page],
@@ -66,7 +70,7 @@ export const JobManagementPage = () => {
     });
 
     const banMutation = useMutation({
-        mutationFn: banJob,
+        mutationFn: ({ jobId, reason }: { jobId: string; reason?: string }) => banJob(jobId, reason),
         onSuccess: () => {
             toast.success("Đã cấm công việc thành công");
             queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
@@ -83,18 +87,47 @@ export const JobManagementPage = () => {
         onError: () => toast.error("Có lỗi xảy ra khi bỏ cấm công việc"),
     });
 
+    const approveMutation = useMutation({
+        mutationFn: ({ jobId, reason }: { jobId: string; reason?: string }) => approveJob(jobId, reason),
+        onSuccess: () => {
+            toast.success("Đã duyệt công việc thành công");
+            queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+        },
+        onError: () => toast.error("Có lỗi xảy ra khi duyệt công việc"),
+    });
+
+    const rejectMutation = useMutation({
+        mutationFn: ({ jobId, reason }: { jobId: string; reason?: string }) => rejectJob(jobId, reason),
+        onSuccess: () => {
+            toast.success("Đã từ chối công việc thành công");
+            queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+        },
+        onError: () => toast.error("Có lỗi xảy ra khi từ chối công việc"),
+    });
+
     const handleConfirmAction = () => {
         if (!confirmDialog) return;
 
+        const reason = actionReason.trim() || undefined;
+
         switch (confirmDialog.type) {
             case "ban":
-                banMutation.mutate(confirmDialog.jobId);
+                banMutation.mutate({ jobId: confirmDialog.jobId, reason });
                 break;
             case "unban":
                 unbanMutation.mutate(confirmDialog.jobId);
                 break;
+            case "review":
+                if (reviewAction === "approve") {
+                    approveMutation.mutate({ jobId: confirmDialog.jobId, reason });
+                } else {
+                    rejectMutation.mutate({ jobId: confirmDialog.jobId, reason });
+                }
+                break;
         }
         setConfirmDialog(null);
+        setActionReason("");
+        setReviewAction("approve");
     };
 
     const jobs = data?.content || [];
@@ -190,8 +223,9 @@ export const JobManagementPage = () => {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Trạng thái</SelectItem>
-                            <SelectItem value="active">Hoạt động</SelectItem>
-                            <SelectItem value="banned">Bị cấm</SelectItem>
+                            <SelectItem value="pending">Chờ duyệt</SelectItem>
+                            <SelectItem value="approved">Đã duyệt</SelectItem>
+                            <SelectItem value="banned">Bị từ chối</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -333,13 +367,21 @@ export const JobManagementPage = () => {
 
                                         {/* Status */}
                                         <td className="px-6 py-4 text-center">
-                                            {job.is_banned ? (
+                                            {job.status === "PENDING" ? (
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                                                    Chờ duyệt
+                                                </span>
+                                            ) : job.status === "APPROVED" ? (
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                                    Đã duyệt
+                                                </span>
+                                            ) : job.status === "BANNED" || job.is_banned ? (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                    Bị cấm
+                                                    Bị từ chối
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                                    Hoạt động
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                    {job.status || "N/A"}
                                                 </span>
                                             )}
                                         </td>
@@ -347,24 +389,26 @@ export const JobManagementPage = () => {
                                         {/* Actions */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-start justify-start gap-2 text-sm">
-                                                {job.is_banned ? (
+                                                {job.status === "PENDING" ? (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
                                                         className="text-blue-600 border-blue-300 hover:bg-blue-50 hover:cursor-pointer text-sm hover:text-blue-600"
-                                                        onClick={() =>
+                                                        onClick={() => {
+                                                            setReviewAction("approve");
+                                                            setActionReason("");
                                                             setConfirmDialog({
                                                                 open: true,
-                                                                type: "unban",
+                                                                type: "review",
                                                                 jobId: job.id,
                                                                 jobTitle: job.title,
-                                                            })
-                                                        }
+                                                            });
+                                                        }}
                                                     >
-                                                        <UserCheck size={14} className="mr-1" />
-                                                        Bỏ cấm
+                                                        <CheckCircle size={14} className="mr-1" />
+                                                        Xem xét
                                                     </Button>
-                                                ) : (
+                                                ) : (job.status === "APPROVED" || job.status === "ACTIVE") && !job.is_banned ? (
                                                     <Button
                                                         size="sm"
                                                         variant="destructive"
@@ -381,7 +425,24 @@ export const JobManagementPage = () => {
                                                         <Ban size={14} className="mr-1" />
                                                         Cấm
                                                     </Button>
-                                                )}
+                                                ) : (job.status === "BANNED" || job.is_banned) ? (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        className="text-blue-600 border-blue-300 hover:bg-blue-50 hover:cursor-pointer text-sm hover:text-blue-600"
+                                                        onClick={() =>
+                                                            setConfirmDialog({
+                                                                open: true,
+                                                                type: "unban",
+                                                                jobId: job.id,
+                                                                jobTitle: job.title,
+                                                            })
+                                                        }
+                                                    >
+                                                        <UserCheck size={14} className="mr-1" />
+                                                        Bỏ cấm
+                                                    </Button>
+                                                ) : null}
                                             </div>
                                         </td>
                                     </tr>
@@ -436,26 +497,95 @@ export const JobManagementPage = () => {
             {/* Confirmation Dialog */}
             <AlertDialog
                 open={confirmDialog?.open}
-                onOpenChange={(open) => !open && setConfirmDialog(null)}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setConfirmDialog(null);
+                        setActionReason("");
+                        setReviewAction("approve");
+                    }
+                }}
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             {confirmDialog?.type === "ban" && "Xác nhận cấm công việc"}
                             {confirmDialog?.type === "unban" && "Xác nhận bỏ cấm công việc"}
-                            {confirmDialog?.type === "delete" && "Xác nhận xóa công việc"}
+                            {confirmDialog?.type === "review" && "Xem xét công việc"}
                         </AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {confirmDialog?.type === "ban" &&
-                                `Bạn có chắc muốn cấm công việc "${confirmDialog.jobTitle}"? Công việc này sẽ không còn hiển thị cho người dùng.`}
-                            {confirmDialog?.type === "unban" &&
-                                `Bạn có chắc muốn bỏ cấm công việc "${confirmDialog?.jobTitle}"?`}
+                        <AlertDialogDescription asChild>
+                            <div className="space-y-4">
+                                <p>
+                                    {confirmDialog?.type === "ban" &&
+                                        `Bạn có chắc muốn cấm công việc "${confirmDialog.jobTitle}"? Công việc này sẽ không còn hiển thị cho người dùng.`}
+                                    {confirmDialog?.type === "unban" &&
+                                        `Bạn có chắc muốn bỏ cấm công việc "${confirmDialog?.jobTitle}"?`}
+                                    {confirmDialog?.type === "review" &&
+                                        `Xem xét công việc "${confirmDialog?.jobTitle}". Chọn hành động bên dưới.`}
+                                </p>
+
+                                {/* Action selection for review type */}
+                                {confirmDialog?.type === "review" && (
+                                    <div className="space-y-3">
+                                        <Label className="text-sm font-medium text-gray-700">Chọn hành động</Label>
+                                        <div className="flex gap-4">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="reviewAction"
+                                                    value="approve"
+                                                    checked={reviewAction === "approve"}
+                                                    onChange={() => setReviewAction("approve")}
+                                                    className="w-4 h-4 text-green-600"
+                                                />
+                                                <span className="text-sm font-medium text-green-600">Duyệt</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="reviewAction"
+                                                    value="reject"
+                                                    checked={reviewAction === "reject"}
+                                                    onChange={() => setReviewAction("reject")}
+                                                    className="w-4 h-4 text-red-600"
+                                                />
+                                                <span className="text-sm font-medium text-red-600">Từ chối</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Reason input - show for ban and reject */}
+                                {(confirmDialog?.type === "ban" || (confirmDialog?.type === "review" && reviewAction === "reject")) && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="reason" className="text-sm font-medium text-gray-700">
+                                            Lý do (nếu có)
+                                        </Label>
+                                        <Textarea
+                                            id="reason"
+                                            placeholder="Nhập lý do từ chối/cấm công việc..."
+                                            value={actionReason}
+                                            onChange={(e) => setActionReason(e.target.value)}
+                                            rows={3}
+                                            className="resize-none"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleConfirmAction}>
-                            Xác nhận
+                        <AlertDialogCancel onClick={() => {
+                            setActionReason("");
+                            setReviewAction("approve");
+                        }}>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmAction}
+                            className={confirmDialog?.type === "review" && reviewAction === "reject" ? "bg-red-600 hover:bg-red-700" : ""}
+                        >
+                            {confirmDialog?.type === "review"
+                                ? (reviewAction === "approve" ? "Duyệt" : "Từ chối")
+                                : "Xác nhận"
+                            }
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

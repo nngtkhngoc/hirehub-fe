@@ -49,16 +49,28 @@ export const getAllJobsAdmin = async (params: {
     return res.data;
 };
 
-export const banJob = async (jobId: string): Promise<AdminJob> => {
-    const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}`, {
-        is_banned: true,
+export const banJob = async (jobId: string, reason?: string): Promise<AdminJob> => {
+    const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}/ban`, {
+        reason,
     });
     return res.data;
 };
 
 export const unbanJob = async (jobId: string): Promise<AdminJob> => {
-    const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}`, {
-        is_banned: false,
+    const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}/unban`);
+    return res.data;
+};
+
+export const approveJob = async (jobId: string, reason?: string): Promise<AdminJob> => {
+    const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}/approve`, {
+        reason,
+    });
+    return res.data;
+};
+
+export const rejectJob = async (jobId: string, reason?: string): Promise<AdminJob> => {
+    const res = await axiosClient.put(`${BASE_URL}/api/jobs/${jobId}/reject`, {
+        reason,
     });
     return res.data;
 };

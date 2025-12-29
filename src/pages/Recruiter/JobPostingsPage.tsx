@@ -56,7 +56,7 @@ import { cn } from "@/lib/utils";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-type JobStatus = "ACTIVE" | "CLOSED" | "UNACTIVE";
+type JobStatus = "PENDING" | "APPROVED" | "BANNED" | "CLOSED" | "DRAFT" | "ACTIVE" | "UNACTIVE";
 
 
 interface JobPosting {
@@ -90,20 +90,34 @@ const getJobStatus = (job: JobPosting): JobStatus => {
     // Use status from API if available, otherwise calculate from flags
     if (job.status) return job.status as JobStatus;
     if (job.isDeleted) return "CLOSED";
-    if (job.isBanned) return "UNACTIVE";
-    return "ACTIVE";
+    if (job.isBanned) return "BANNED";
+    return "PENDING";
 };
 
 const StatusBadge = ({ status }: { status: JobStatus }) => {
-    const styles = {
-        ACTIVE: "bg-green-100 text-green-700",
+    const styles: Record<JobStatus, string> = {
+        PENDING: "bg-yellow-100 text-yellow-700",
+        APPROVED: "bg-green-100 text-green-700",
+        BANNED: "bg-red-100 text-red-700",
         CLOSED: "bg-gray-100 text-gray-600",
+        DRAFT: "bg-blue-100 text-blue-700",
+        ACTIVE: "bg-green-100 text-green-700",
         UNACTIVE: "bg-red-100 text-red-700",
+    };
+
+    const labels: Record<JobStatus, string> = {
+        PENDING: "Chờ duyệt",
+        APPROVED: "Đã duyệt",
+        BANNED: "Bị từ chối",
+        CLOSED: "Đã đóng",
+        DRAFT: "Bản nháp",
+        ACTIVE: "Hoạt động",
+        UNACTIVE: "Không hoạt động",
     };
 
     return (
         <span className={`px-2 py-0.5 rounded text-xs font-medium ${styles[status]}`}>
-            {status}
+            {labels[status]}
         </span>
     );
 };
@@ -286,14 +300,16 @@ export const JobPostingsPage = () => {
                             setPage(0);
                         }}
                     >
-                        <SelectTrigger className="w-36 bg-white">
-                            <SelectValue placeholder="Filter by Status" />
+                        <SelectTrigger className="w-40 bg-white">
+                            <SelectValue placeholder="Trạng thái" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="ALL">All Status</SelectItem>
-                            <SelectItem value="ACTIVE">Active</SelectItem>
-                            <SelectItem value="CLOSED">Closed</SelectItem>
-                            <SelectItem value="UNACTIVE">Unactive</SelectItem>
+                            <SelectItem value="ALL">Tất cả</SelectItem>
+                            <SelectItem value="PENDING">Chờ duyệt</SelectItem>
+                            <SelectItem value="APPROVED">Đã duyệt</SelectItem>
+                            <SelectItem value="BANNED">Bị từ chối</SelectItem>
+                            <SelectItem value="DRAFT">Bản nháp</SelectItem>
+                            <SelectItem value="CLOSED">Đã đóng</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -353,24 +369,30 @@ export const JobPostingsPage = () => {
                                                 {formatTimeAgo(job.postingDate)}
                                             </span>
 
-                                            {/* Status Select */}
-                                            <Select
-                                                value={status}
-                                                onValueChange={(newStatus) => {
-                                                    if (newStatus !== status) {
-                                                        updateStatusMutation.mutate({ jobId: job.id, status: newStatus });
-                                                    }
-                                                }}
-                                            >
-                                                <SelectTrigger className="w-28 h-9">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="ACTIVE">Active</SelectItem>
-                                                    <SelectItem value="CLOSED">Closed</SelectItem>
-                                                    <SelectItem value="UNACTIVE">Unactive</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            {/* Status Select - Only allow changes for APPROVED jobs */}
+                                            {status === "PENDING" || status === "BANNED" ? (
+                                                <span className="text-sm text-gray-400 italic w-28">
+                                                    {status === "PENDING" ? "Chờ duyệt" : "Bị từ chối"}
+                                                </span>
+                                            ) : (
+                                                <Select
+                                                    value={status}
+                                                    onValueChange={(newStatus) => {
+                                                        if (newStatus !== status) {
+                                                            updateStatusMutation.mutate({ jobId: job.id, status: newStatus });
+                                                        }
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="w-28 h-9">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="APPROVED">Đã duyệt</SelectItem>
+                                                        <SelectItem value="CLOSED">Đã đóng</SelectItem>
+                                                        <SelectItem value="DRAFT">Bản nháp</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
 
                                             {/* More Menu */}
                                             <DropdownMenu>
