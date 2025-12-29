@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllJobsAdmin, banJob, unbanJob, approveJob, rejectJob } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Search, Ban, UserCheck, Filter, Briefcase, CheckCircle } from "lucide-react";
+import { Search, Ban, UserCheck, Filter, Briefcase, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +52,9 @@ export const JobManagementPage = () => {
         type: "ban" | "unban" | "review"; // review = for pending jobs
         jobId: string;
         jobTitle: string;
+        violationType?: string | null;
+        violationExplanation?: string | null;
+        banReason?: string | null;
     } | null>(null);
     const [reviewAction, setReviewAction] = useState<"approve" | "reject">("approve");
     const [actionReason, setActionReason] = useState("");
@@ -392,21 +395,35 @@ export const JobManagementPage = () => {
                                                 {job.status === "PENDING" ? (
                                                     <Button
                                                         size="sm"
-                                                        variant="outline"
-                                                        className="text-blue-600 border-blue-300 hover:bg-blue-50 hover:cursor-pointer text-sm hover:text-blue-600"
+                                                        variant={job.violationType ? "outline" : "outline"}
+                                                        className={job.violationType
+                                                            ? "text-orange-600 border-orange-300 hover:bg-orange-50 hover:cursor-pointer text-sm hover:text-orange-600"
+                                                            : "text-blue-600 border-blue-300 hover:bg-blue-50 hover:cursor-pointer text-sm hover:text-blue-600"
+                                                        }
                                                         onClick={() => {
-                                                            setReviewAction("approve");
+                                                            setReviewAction(job.violationType ? "reject" : "approve");
                                                             setActionReason("");
                                                             setConfirmDialog({
                                                                 open: true,
                                                                 type: "review",
                                                                 jobId: job.id,
                                                                 jobTitle: job.title,
+                                                                violationType: job.violationType,
+                                                                violationExplanation: job.violationExplanation,
                                                             });
                                                         }}
                                                     >
-                                                        <CheckCircle size={14} className="mr-1" />
-                                                        Xem xét
+                                                        {job.violationType ? (
+                                                            <>
+                                                                <AlertCircle size={14} className="mr-1" />
+                                                                Có vi phạm
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <CheckCircle size={14} className="mr-1" />
+                                                                Xem xét
+                                                            </>
+                                                        )}
                                                     </Button>
                                                 ) : (job.status === "APPROVED" || job.status === "ACTIVE") && !job.is_banned ? (
                                                     <Button
@@ -436,6 +453,9 @@ export const JobManagementPage = () => {
                                                                 type: "unban",
                                                                 jobId: job.id,
                                                                 jobTitle: job.title,
+                                                                violationType: job.violationType,
+                                                                violationExplanation: job.violationExplanation,
+                                                                banReason: job.banReason,
                                                             })
                                                         }
                                                     >
@@ -507,48 +527,128 @@ export const JobManagementPage = () => {
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>
+                        <AlertDialogTitle className="text-lg font-semibold">
                             {confirmDialog?.type === "ban" && "Xác nhận cấm công việc"}
                             {confirmDialog?.type === "unban" && "Xác nhận bỏ cấm công việc"}
-                            {confirmDialog?.type === "review" && "Xem xét công việc"}
+                            {confirmDialog?.type === "review" && (
+                                <span className="flex items-center gap-2">
+                                    Xem xét công việc
+                                    {confirmDialog.violationType && (
+                                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                                            AI phát hiện vi phạm
+                                        </span>
+                                    )}
+                                </span>
+                            )}
                         </AlertDialogTitle>
                         <AlertDialogDescription asChild>
                             <div className="space-y-4">
-                                <p>
+                                {/* Job Title */}
+                                <div className="bg-gray-50 rounded-lg p-3 border">
+                                    <p className="text-sm text-gray-600">Công việc:</p>
+                                    <p className="font-medium text-gray-900">{confirmDialog?.jobTitle}</p>
+                                </div>
+
+                                {/* Violation Info - show for review and unban */}
+                                {(confirmDialog?.type === "review" || confirmDialog?.type === "unban") && confirmDialog.violationType && (
+                                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                        <div className="flex items-start gap-3">
+                                            <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                                            <div className="space-y-3 flex-1">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-xs font-medium text-orange-600 uppercase tracking-wide">
+                                                        Loại vi phạm
+                                                    </span>
+                                                    <span className="text-sm bg-orange-200 text-orange-800 px-2 py-1 rounded font-semibold inline-block w-fit">
+                                                        {confirmDialog.violationType}
+                                                    </span>
+                                                </div>
+                                                {confirmDialog.violationExplanation && (
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-xs font-medium text-orange-600 uppercase tracking-wide">
+                                                            Lý do vi phạm
+                                                        </span>
+                                                        <p className="text-sm text-orange-800 bg-orange-100 rounded p-2">
+                                                            {confirmDialog.violationExplanation}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Ban Reason - show for unban type when available */}
+                                {confirmDialog?.type === "unban" && confirmDialog.banReason && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div className="flex items-start gap-3">
+                                            <Ban className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-xs font-medium text-red-600 uppercase tracking-wide">
+                                                    Lý do bị cấm bởi Admin
+                                                </span>
+                                                <p className="text-sm text-red-800 bg-red-100 rounded p-2">
+                                                    {confirmDialog.banReason}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Action description */}
+                                <p className="text-sm text-gray-600">
                                     {confirmDialog?.type === "ban" &&
-                                        `Bạn có chắc muốn cấm công việc "${confirmDialog.jobTitle}"? Công việc này sẽ không còn hiển thị cho người dùng.`}
+                                        "Công việc này sẽ không còn hiển thị cho người dùng."}
                                     {confirmDialog?.type === "unban" &&
-                                        `Bạn có chắc muốn bỏ cấm công việc "${confirmDialog?.jobTitle}"?`}
-                                    {confirmDialog?.type === "review" &&
-                                        `Xem xét công việc "${confirmDialog?.jobTitle}". Chọn hành động bên dưới.`}
+                                        "Công việc sẽ được hiển thị lại cho người dùng."}
+                                    {confirmDialog?.type === "review" && !confirmDialog.violationType &&
+                                        "Chọn hành động phù hợp với công việc này."}
+                                    {confirmDialog?.type === "review" && confirmDialog.violationType &&
+                                        "AI đã phát hiện nội dung có thể vi phạm. Vui lòng xem xét kỹ trước khi quyết định."}
                                 </p>
 
                                 {/* Action selection for review type */}
                                 {confirmDialog?.type === "review" && (
-                                    <div className="space-y-3">
+                                    <div className="space-y-3 pt-2">
                                         <Label className="text-sm font-medium text-gray-700">Chọn hành động</Label>
-                                        <div className="flex gap-4">
-                                            <label className="flex items-center gap-2 cursor-pointer">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <label
+                                                className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all group ${reviewAction === "approve"
+                                                    ? "border-green-500 bg-green-50"
+                                                    : "border-gray-200 hover:border-green-500 hover:bg-green-50 hover:text-green-600"
+                                                    }`}
+                                            >
                                                 <input
                                                     type="radio"
                                                     name="reviewAction"
                                                     value="approve"
                                                     checked={reviewAction === "approve"}
                                                     onChange={() => setReviewAction("approve")}
-                                                    className="w-4 h-4 text-green-600"
+                                                    className="sr-only"
                                                 />
-                                                <span className="text-sm font-medium text-green-600">Duyệt</span>
+                                                <CheckCircle size={18} className={reviewAction === "approve" ? "text-green-600" : "text-gray-400 group-hover:text-green-600"} />
+                                                <span className={`text-sm font-medium group-hover:text-green-600 ${reviewAction === "approve" ? "text-green-700" : "text-gray-600"}`}>
+                                                    Duyệt
+                                                </span>
                                             </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
+                                            <label
+                                                className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all group ${reviewAction === "reject"
+                                                    ? "border-red-500 bg-red-50"
+                                                    : "border-gray-200 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
+                                                    }`}
+                                            >
                                                 <input
                                                     type="radio"
                                                     name="reviewAction"
                                                     value="reject"
                                                     checked={reviewAction === "reject"}
                                                     onChange={() => setReviewAction("reject")}
-                                                    className="w-4 h-4 text-red-600"
+                                                    className="sr-only"
                                                 />
-                                                <span className="text-sm font-medium text-red-600">Từ chối</span>
+                                                <Ban size={18} className={reviewAction === "reject" ? "text-red-600" : "text-gray-400 group-hover:text-red-600"} />
+                                                <span className={`text-sm font-medium group-hover:text-red-600 ${reviewAction === "reject" ? "text-red-700" : "text-gray-600"}`}>
+                                                    Từ chối
+                                                </span>
                                             </label>
                                         </div>
                                     </div>
@@ -580,12 +680,8 @@ export const JobManagementPage = () => {
                         }}>Hủy</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleConfirmAction}
-                            className={confirmDialog?.type === "review" && reviewAction === "reject" ? "bg-red-600 hover:bg-red-700" : ""}
                         >
-                            {confirmDialog?.type === "review"
-                                ? (reviewAction === "approve" ? "Duyệt" : "Từ chối")
-                                : "Xác nhận"
-                            }
+                            Xác nhận
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

@@ -53,6 +53,11 @@ export type AdminJob = {
     };
     type: string;
     address: string;
+    // AI violation check results
+    violationType: string | null;
+    violationExplanation: string | null;
+    // Admin ban reason
+    banReason: string | null;
 };
 
 export type AdminResume = {
