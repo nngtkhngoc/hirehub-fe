@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Eye, FileText, MessageCircle, Check, Clock, X, UserCheck, UserX } from "lucide-react";
+import { Search, Eye, FileText, MessageCircle, Clock, UserCheck, UserX, Ban, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,8 @@ interface JobSummary {
     id: number;
     title: string;
     level?: string;
+    status?: string;
+    isBanned?: boolean;
 }
 
 interface Resume {
@@ -84,14 +86,14 @@ const getStatusConfig = (status: string) => {
             return {
                 bg: "bg-green-100",
                 text: "text-green-700",
-                label: "Đã chấp nhận",
+                label: "Chấp nhận",
                 icon: UserCheck
             };
         case "REJECTED":
             return {
                 bg: "bg-red-100",
                 text: "text-red-700",
-                label: "Đã từ chối",
+                label: "Từ chối",
                 icon: UserX
             };
         default:
@@ -250,6 +252,7 @@ export const CandidatesPage = () => {
                 {/* Job Filter */}
                 <Select value={selectedJob} onValueChange={handleJobFilterChange}>
                     <SelectTrigger className="w-48 bg-white">
+                        <Filter size={16} className="mr-2 text-gray-400" />
                         <SelectValue placeholder="Lọc theo việc làm" />
                     </SelectTrigger>
                     <SelectContent>
@@ -264,6 +267,7 @@ export const CandidatesPage = () => {
                 {/* Status Filter */}
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                     <SelectTrigger className="w-44 bg-white">
+                        <Filter size={16} className="mr-2 text-gray-400" />
                         <SelectValue placeholder="Lọc theo trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
@@ -274,11 +278,6 @@ export const CandidatesPage = () => {
                         ))}
                     </SelectContent>
                 </Select>
-
-                {/* Results count */}
-                <span className="text-sm text-gray-500">
-                    Tìm thấy {filteredResumes.length} ứng viên
-                </span>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -331,15 +330,24 @@ export const CandidatesPage = () => {
 
                                         {/* Job Applied */}
                                         <TableCell>
-                                            <div>
-                                                <p
-                                                    className="font-medium text-gray-900 hover:text-primary cursor-pointer"
-                                                    onClick={() => navigate(`/job-details/${resume.job.id}`)}
-                                                >
-                                                    {resume.job.title}
-                                                </p>
-                                                {resume.job.level && (
-                                                    <p className="text-sm text-gray-500">{resume.job.level}</p>
+                                            <div className="flex items-center gap-2">
+                                                <div>
+                                                    <p
+                                                        className="font-medium text-gray-900 hover:text-primary cursor-pointer"
+                                                        onClick={() => navigate(`/job-details/${resume.job.id}`)}
+                                                    >
+                                                        {resume.job.title}
+                                                    </p>
+                                                    {resume.job.level && (
+                                                        <p className="text-sm text-gray-500">{resume.job.level}</p>
+                                                    )}
+                                                </div>
+                                                {/* Banned job tag */}
+                                                {(resume.job.status === "BANNED" || resume.job.isBanned) && (
+                                                    <Badge className="bg-red-100 text-red-700 flex items-center gap-1">
+                                                        <Ban size={12} />
+                                                        Đã cấm
+                                                    </Badge>
                                                 )}
                                             </div>
                                         </TableCell>
@@ -353,68 +361,81 @@ export const CandidatesPage = () => {
 
                                         {/* Status - Improved UI with Select */}
                                         <TableCell>
-                                            <Select
-                                                value={resume.status}
-                                                onValueChange={(value) => handleStatusChange(resume.id, value)}
-                                            >
-                                                <SelectTrigger className="w-40 h-9 border-0 bg-transparent hover:bg-gray-50">
-                                                    <div className="flex items-center gap-2">
-                                                        <StatusIcon size={16} className={statusConfig.text} />
-                                                        <Badge className={`${statusConfig.bg} ${statusConfig.text} font-medium`}>
-                                                            {statusConfig.label}
-                                                        </Badge>
-                                                    </div>
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {statusOptions.filter(s => s.value !== "ALL").map((option) => {
-                                                        const Icon = option.icon;
-                                                        return (
-                                                            <SelectItem key={option.value} value={option.value}>
-                                                                <div className="flex items-center gap-2">
-                                                                    {Icon && <Icon size={16} className={option.color} />}
-                                                                    <span>{option.label}</span>
-                                                                    {resume.status === option.value && (
-                                                                        <Check size={14} className="ml-auto text-green-600" />
-                                                                    )}
-                                                                </div>
-                                                            </SelectItem>
-                                                        );
-                                                    })}
-                                                </SelectContent>
-                                            </Select>
+                                            {/* If job is banned, show status as read-only */}
+                                            {(resume.job.status === "BANNED" || resume.job.isBanned) ? (
+                                                <div className="flex items-center gap-2 px-2 py-1.5 opacity-60">
+                                                    <StatusIcon size={16} className={statusConfig.text} />
+                                                    <Badge className={`${statusConfig.bg} ${statusConfig.text} font-medium`}>
+                                                        {statusConfig.label}
+                                                    </Badge>
+                                                </div>
+                                            ) : (
+                                                <Select
+                                                    value={resume.status}
+                                                    onValueChange={(value) => handleStatusChange(resume.id, value)}
+                                                >
+                                                    <SelectTrigger className="w-40 h-9 border-0 bg-transparent hover:bg-gray-50">
+                                                        <div className="flex items-center gap-2">
+                                                            <StatusIcon size={16} className={statusConfig.text} />
+                                                            <Badge className={`${statusConfig.bg} ${statusConfig.text} font-medium`}>
+                                                                {statusConfig.label}
+                                                            </Badge>
+                                                        </div>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {/* Only show ACCEPTED and REJECTED as options to change - VIEWED is auto-set on CV view */}
+                                                        {statusOptions.filter(s => s.value !== "ALL" && s.value !== "NOT VIEW" && s.value !== "VIEWED").map((option) => {
+                                                            const Icon = option.icon;
+                                                            return (
+                                                                <SelectItem key={option.value} value={option.value}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        {Icon && <Icon size={16} className={option.color} />}
+                                                                        <span>{option.label}</span>
+                                                                    </div>
+                                                                </SelectItem>
+                                                            );
+                                                        })}
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
                                         </TableCell>
 
                                         {/* Actions */}
                                         <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-2">
+                                            <div className="flex items-center justify-end gap-1">
                                                 <Button
                                                     size="icon"
-                                                    variant="outline"
+                                                    variant="ghost"
                                                     onClick={() => navigate(`/user/${resume.user.id}`)}
                                                     title="Xem hồ sơ"
-                                                    className="hover:bg-primary hover:text-white transition-colors"
+                                                    className="h-8 w-8 hover:bg-gray-100"
                                                 >
-                                                    <Eye size={18} />
+                                                    <Eye size={16} />
                                                 </Button>
                                                 {resume.link && (
                                                     <Button
                                                         size="icon"
-                                                        variant="outline"
-                                                        onClick={() => window.open(resume.link, "_blank")}
-                                                        title="Xem CV ứng tuyển"
-                                                        className="hover:bg-primary hover:text-white transition-colors"
+                                                        variant="ghost"
+                                                        onClick={() => {
+                                                            if (resume.status === "NOT VIEW" && !(resume.job.status === "BANNED" || resume.job.isBanned)) {
+                                                                handleStatusChange(resume.id, "VIEWED");
+                                                            }
+                                                            window.open(resume.link, "_blank");
+                                                        }}
+                                                        title="Xem CV"
+                                                        className="h-8 w-8 hover:bg-gray-100"
                                                     >
-                                                        <FileText size={18} />
+                                                        <FileText size={16} />
                                                     </Button>
                                                 )}
                                                 <Button
                                                     size="icon"
-                                                    variant="outline"
+                                                    variant="ghost"
                                                     onClick={() => navigate(`/chat/${resume.user.id}`)}
-                                                    title="Nhắn tin cho ứng viên"
-                                                    className="hover:bg-primary hover:text-white transition-colors"
+                                                    title="Nhắn tin"
+                                                    className="h-8 w-8 hover:bg-gray-100"
                                                 >
-                                                    <MessageCircle size={18} />
+                                                    <MessageCircle size={16} />
                                                 </Button>
                                             </div>
                                         </TableCell>
