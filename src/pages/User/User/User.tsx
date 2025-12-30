@@ -1,5 +1,5 @@
 import { RecommendedJobs } from "../Profile/components/layout/RecommendedJobs";
-import { useParams } from "react-router";
+import { useParams, Navigate } from "react-router";
 import { RecommendedUsers } from "../Profile/components/layout/RecommendedUsers";
 
 import { useUserById } from "@/hooks/useUser";
@@ -14,6 +14,12 @@ export const User = () => {
   const { data: user } = useUserById(Number(userId)) || {};
 
   console.log(user, "!!");
+
+  // Redirect to company-details if user is a recruiter
+  if (user && user.role?.name?.toLowerCase() === "recruiter") {
+    return <Navigate to={`/company-details/${userId}`} replace />;
+  }
+
   return (
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] h-full gap-15">
       <div className="flex flex-col items-center justify-center gap-10 w-9/10 md:w-4/5 lg:w-3/5">

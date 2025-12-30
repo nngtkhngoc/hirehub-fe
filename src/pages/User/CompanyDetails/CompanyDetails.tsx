@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams, Navigate } from "react-router";
 import { useUserById } from "@/hooks/useUser";
 import { CompanyBasicInfo } from "./components/CompanyBasicInfo";
 import { CompanyDetailsInfo } from "./components/CompanyDetailsInfo";
@@ -21,6 +21,11 @@ export const CompanyDetails = () => {
       setCompanyData(company);
     }
   }, [company]);
+
+  // Redirect to user profile if not a recruiter
+  if (company && company.role?.name?.toLowerCase() !== "recruiter") {
+    return <Navigate to={`/user/${id}`} replace />;
+  }
 
   if (isLoading) {
     return (

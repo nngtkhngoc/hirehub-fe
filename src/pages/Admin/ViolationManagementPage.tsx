@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllReports, updateReportStatus, deleteReport } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Check, X, Trash2, Filter, Eye, User, Briefcase } from "lucide-react";
+import { Trash2, Filter, Eye, User, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -44,7 +44,7 @@ export const ViolationManagementPage = () => {
     const [page, setPage] = useState(0);
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
-        type: "approve" | "reject" | "delete";
+        type: "delete";
         reportId: number;
     } | null>(null);
     const [viewReport, setViewReport] = useState<Report | null>(null);
@@ -60,19 +60,11 @@ export const ViolationManagementPage = () => {
             }),
     });
 
-    const approveMutation = useMutation({
-        mutationFn: (reportId: number) => updateReportStatus(reportId, "approved"),
+    const updateStatusMutation = useMutation({
+        mutationFn: ({ reportId, status }: { reportId: number; status: string }) =>
+            updateReportStatus(reportId, status),
         onSuccess: () => {
-            toast.success("Đã chấp nhận báo cáo");
-            queryClient.invalidateQueries({ queryKey: ["admin-reports"] });
-        },
-        onError: () => toast.error("Có lỗi xảy ra"),
-    });
-
-    const rejectMutation = useMutation({
-        mutationFn: (reportId: number) => updateReportStatus(reportId, "rejected"),
-        onSuccess: () => {
-            toast.success("Đã từ chối báo cáo");
+            toast.success("Đã cập nhật trạng thái");
             queryClient.invalidateQueries({ queryKey: ["admin-reports"] });
         },
         onError: () => toast.error("Có lỗi xảy ra"),
@@ -90,16 +82,8 @@ export const ViolationManagementPage = () => {
     const handleConfirmAction = () => {
         if (!confirmDialog) return;
 
-        switch (confirmDialog.type) {
-            case "approve":
-                approveMutation.mutate(confirmDialog.reportId);
-                break;
-            case "reject":
-                rejectMutation.mutate(confirmDialog.reportId);
-                break;
-            case "delete":
-                deleteMutation.mutate(confirmDialog.reportId);
-                break;
+        if (confirmDialog.type === "delete") {
+            deleteMutation.mutate(confirmDialog.reportId);
         }
         setConfirmDialog(null);
     };
@@ -110,45 +94,68 @@ export const ViolationManagementPage = () => {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "pending":
-                return (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-                        Chờ xử lý
-                    </span>
-                );
+                return "Đang xử lý";
             case "approved":
-                return (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        <Check size={12} className="mr-1" />
-                        Đã chấp nhận
-                    </span>
-                );
+                return "Đã xử lý";
             case "rejected":
-                return (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                        <X size={12} className="mr-1" />
-                        Đã từ chối
-                    </span>
-                );
+                return "Đã từ chối";
             default:
-                return (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        {status}
-                    </span>
-                );
+                return status;
         }
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "pending":
+                return "bg-yellow-100 text-yellow-700 border-yellow-200";
+            case "approved":
+                return "bg-green-100 text-green-700 border-green-200";
+            case "rejected":
+                return "bg-red-100 text-red-700 border-red-200";
+            default:
+                return "bg-gray-100 text-gray-700 border-gray-200";
+        }
+    };
+
+    const handleStatusChange = (reportId: number, currentStatus: string, newStatus: string) => {
+        // Không cho phép chuyển từ approved về pending
+        if (currentStatus === "approved" && newStatus === "pending") {
+            toast.error("Không thể chuyển từ 'Đã xử lý' về 'Đang xử lý'");
+            return;
+        }
+        updateStatusMutation.mutate({ reportId, status: newStatus });
     };
 
     const getResourceInfo = (report: Report) => {
         const resource = report.resource;
-        if (!resource) return { name: "N/A", type: "unknown" };
+        if (!resource) return { name: "N/A", type: "unknown", id: null };
 
         if (resource.title) {
-            return { name: resource.title, type: "job" };
+            return { name: resource.title, type: "job", id: resource.id };
         }
         if (resource.name || resource.email) {
-            return { name: resource.name || resource.email, type: "user" };
+            return { name: resource.name || resource.email, type: "user", id: resource.id };
         }
-        return { name: `ID: ${resource.id}`, type: "unknown" };
+        return { name: `ID: ${resource.id}`, type: "unknown", id: resource.id };
+    };
+
+    const handleResourceClick = (report: Report) => {
+        const resourceInfo = getResourceInfo(report);
+        if (!resourceInfo.id) return;
+
+        if (resourceInfo.type === "job") {
+            window.open(`/job-details/${resourceInfo.id}`, "_blank");
+        } else if (resourceInfo.type === "user") {
+            // Check if it's a recruiter to redirect to company-details
+            const resource = report.resource as any;
+            const isRecruiter = resource?.role?.name?.toLowerCase() === "recruiter";
+            
+            if (isRecruiter) {
+                window.open(`/company-details/${resourceInfo.id}`, "_blank");
+            } else {
+                window.open(`/user/${resourceInfo.id}`, "_blank");
+            }
+        }
     };
 
     return (
@@ -179,8 +186,8 @@ export const ViolationManagementPage = () => {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                            <SelectItem value="pending">Chờ xử lý</SelectItem>
-                            <SelectItem value="approved">Đã chấp nhận</SelectItem>
+                            <SelectItem value="pending">Đang xử lý</SelectItem>
+                            <SelectItem value="approved">Đã xử lý</SelectItem>
                             <SelectItem value="rejected">Đã từ chối</SelectItem>
                         </SelectContent>
                     </Select>
@@ -260,7 +267,10 @@ export const ViolationManagementPage = () => {
 
                                             {/* Resource */}
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2">
+                                                <div
+                                                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
+                                                    onClick={() => handleResourceClick(report)}
+                                                >
                                                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
                                                         {resourceInfo.type === "job" ? (
                                                             <Briefcase size={14} className="text-gray-500" />
@@ -269,7 +279,7 @@ export const ViolationManagementPage = () => {
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <p className="font-medium text-gray-900 line-clamp-1">
+                                                        <p className="font-medium text-gray-900 line-clamp-1 hover:text-primary transition-colors">
                                                             {resourceInfo.name}
                                                         </p>
                                                         <p className="text-xs text-gray-500 capitalize">
@@ -310,7 +320,32 @@ export const ViolationManagementPage = () => {
 
                                             {/* Status */}
                                             <td className="px-6 py-4 text-center">
-                                                {getStatusBadge(report.status)}
+                                                <Select
+                                                    value={report.status}
+                                                    onValueChange={(value) =>
+                                                        handleStatusChange(report.id, report.status, value)
+                                                    }
+                                                    disabled={updateStatusMutation.isPending}
+                                                >
+                                                    <SelectTrigger
+                                                        className={`w-36 h-8 text-xs font-medium border ${getStatusColor(
+                                                            report.status
+                                                        )}`}
+                                                    >
+                                                        <SelectValue>
+                                                            {getStatusBadge(report.status)}
+                                                        </SelectValue>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem
+                                                            value="pending"
+                                                            disabled={report.status === "approved"}
+                                                        >
+                                                            Đang xử lý
+                                                        </SelectItem>
+                                                        <SelectItem value="approved">Đã xử lý</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </td>
 
                                             {/* Actions */}
@@ -323,39 +358,6 @@ export const ViolationManagementPage = () => {
                                                     >
                                                         <Eye size={14} />
                                                     </Button>
-
-                                                    {report.status === "pending" && (
-                                                        <>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="text-green-600 border-green-300 hover:bg-green-50"
-                                                                onClick={() =>
-                                                                    setConfirmDialog({
-                                                                        open: true,
-                                                                        type: "approve",
-                                                                        reportId: report.id,
-                                                                    })
-                                                                }
-                                                            >
-                                                                <Check size={14} />
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="text-red-600 border-red-300 hover:bg-red-50"
-                                                                onClick={() =>
-                                                                    setConfirmDialog({
-                                                                        open: true,
-                                                                        type: "reject",
-                                                                        reportId: report.id,
-                                                                    })
-                                                                }
-                                                            >
-                                                                <X size={14} />
-                                                            </Button>
-                                                        </>
-                                                    )}
 
                                                     <Button
                                                         size="sm"
@@ -436,15 +438,26 @@ export const ViolationManagementPage = () => {
                                 <label className="text-sm font-medium text-gray-500">
                                     Trạng thái
                                 </label>
-                                <div className="mt-1">{getStatusBadge(viewReport.status)}</div>
+                                <div className="mt-1">
+                                    <span
+                                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor(
+                                            viewReport.status
+                                        )}`}
+                                    >
+                                        {getStatusBadge(viewReport.status)}
+                                    </span>
+                                </div>
                             </div>
 
                             <div>
                                 <label className="text-sm font-medium text-gray-500">
                                     Đối tượng bị báo cáo
                                 </label>
-                                <div className="mt-1 p-3 bg-gray-50 rounded-lg">
-                                    <p className="font-medium">
+                                <div
+                                    className="mt-1 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                    onClick={() => handleResourceClick(viewReport)}
+                                >
+                                    <p className="font-medium text-primary hover:underline">
                                         {getResourceInfo(viewReport).name}
                                     </p>
                                     <p className="text-sm text-gray-500 capitalize">
@@ -500,18 +513,9 @@ export const ViolationManagementPage = () => {
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>
-                            {confirmDialog?.type === "approve" && "Xác nhận chấp nhận báo cáo"}
-                            {confirmDialog?.type === "reject" && "Xác nhận từ chối báo cáo"}
-                            {confirmDialog?.type === "delete" && "Xác nhận xóa báo cáo"}
-                        </AlertDialogTitle>
+                        <AlertDialogTitle>Xác nhận xóa báo cáo</AlertDialogTitle>
                         <AlertDialogDescription>
-                            {confirmDialog?.type === "approve" &&
-                                "Chấp nhận báo cáo này? Đối tượng bị báo cáo có thể bị xử lý."}
-                            {confirmDialog?.type === "reject" &&
-                                "Từ chối báo cáo này? Báo cáo sẽ được đánh dấu là không hợp lệ."}
-                            {confirmDialog?.type === "delete" &&
-                                "Xóa báo cáo này? Hành động này không thể hoàn tác."}
+                            Xóa báo cáo này? Hành động này không thể hoàn tác.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

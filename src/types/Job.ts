@@ -13,6 +13,7 @@ export type Job = {
   recruiter: Recruiter;
   type: string;
   address: string;
+  status?: string; // PENDING, APPROVED, BANNED, CLOSED, DRAFT
 };
 
 export type CreateJobData = {

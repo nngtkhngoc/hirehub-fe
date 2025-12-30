@@ -1,8 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-refresh/only-export-components */
 import type { ApplyJob, ApplyJobFormData, Job } from "@/types/Job";
 import companyDefault from "@/assets/illustration/company.png";
-import { Bookmark, FolderClosed, Send, Upload } from "lucide-react";
+import { Bookmark, EllipsisVertical, FolderClosed, Send, Upload } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { JobStatusBadge, type JobStatus } from "@/components/ui/JobStatusBadge";
+import { useCreateReport } from "@/hooks/useReport";
 import {
   Dialog,
   DialogClose,
@@ -39,6 +44,11 @@ const ALLOWED_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 
+// Helper function to check if status badge should be shown
+const shouldShowStatusBadge = (status?: string): status is JobStatus => {
+  return !!status && status !== "APPROVED";
+};
+
 export const applyJobSchema: yup.ObjectSchema<ApplyJobFormData> = yup.object({
   jobId: yup.string().required(),
   userId: yup.string().required(),
@@ -56,6 +66,36 @@ export const applyJobSchema: yup.ObjectSchema<ApplyJobFormData> = yup.object({
 
 export const JobTitle = ({ job }: { job: Job }) => {
   const user = useAuthStore((state) => state.user);
+  const [reportReason, setReportReason] = useState("");
+  const { mutate: createReport, isPending: pendingReport } = useCreateReport();
+  const [openReport, setOpenReport] = useState(false);
+
+  const handleReport = () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để báo cáo!");
+      return;
+    }
+    if (!reportReason.trim()) {
+      toast.error("Vui lòng nhập lý do báo cáo!");
+      return;
+    }
+
+    createReport(
+      {
+        resourceId: Number(job.id),
+        resourceName: "job",
+        reason: reportReason,
+        reporterId: Number(user.id),
+      },
+      {
+        onSuccess: () => {
+          setOpenReport(false);
+          setReportReason("");
+        },
+      }
+    );
+  };
+
   const role = user?.role?.name?.toLowerCase();
   const showActions = role !== "recruiter" && role !== "admin";
 
@@ -162,15 +202,21 @@ export const JobTitle = ({ job }: { job: Job }) => {
           className="w-[50px] h-[50px] sm:w-[80px] sm:h-[80px]  md:w-[96px] md:h-[96px] rounded-full object-cover object-center"
         />
         <div className="flex flex-col justify-center gap-1 md:justify-start md:gap-3 md:py-2">
-          <div className="font-bold text-primary text-lg sm:text-2xl md:text-3xl">
-            {job?.title}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="font-bold text-primary text-lg sm:text-2xl md:text-3xl">
+              {job?.title}
+            </div>
+            {shouldShowStatusBadge(job?.status) && (
+              <JobStatusBadge status={job.status as JobStatus} />
+            )}
           </div>
           <div className="text-xs text-zinc-500 sm:text-sm">
             tại {job?.recruiter?.name}
           </div>
         </div>
       </div>
-      <div className="flex flex-row justfiy-end gap-2">
+      <div className="flex flex-row justify-end items-center gap-2">
+
         {" "}
         {showActions && (
           <button
@@ -300,6 +346,50 @@ export const JobTitle = ({ job }: { job: Job }) => {
               </DialogContent>
             </Dialog>
           )
+        )}
+        {showActions && (
+          <Popover open={openReport} onOpenChange={setOpenReport}>
+            <PopoverTrigger asChild>
+              <button className="rounded-[10px] bg-slate-100 w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-500 cursor-pointer text-slate-600">
+                <EllipsisVertical size={20} />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-bold leading-none">Báo cáo vi phạm</h4>
+                  <p className="text-sm text-slate-500">
+                    Mô tả chi tiết vi phạm của tin tuyển dụng này.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="report-reason">Lý do</Label>
+                  <Textarea
+                    id="report-reason"
+                    placeholder="Ví dụ: Tin giả, lừa đảo, nội dung không phù hợp..."
+                    className="h-24"
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <OutlineButton
+                    label="Hủy"
+                    paddingY="py-3"
+                    textSize="text-xs"
+                    onClick={() => setOpenReport(false)}
+                  />
+                  <PrimaryButton
+                    label="Gửi báo cáo"
+                    paddingY="py-3"
+                    textSize="text-xs"
+                    onClick={handleReport}
+                    disabled={pendingReport}
+                  />
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
     </div>

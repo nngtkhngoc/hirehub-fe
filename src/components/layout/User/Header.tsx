@@ -115,14 +115,15 @@ export const Header = () => {
 
   // Handle notification click
   const handleNotificationClick = (noti: Notification) => {
-    console.log("kkk");
+    console.log("Notification clicked:", noti);
+    console.log("Redirect URL:", noti.redirectUrl);
     if (!noti.isRead) {
       markAsRead.mutate(noti.id);
     }
-    // if (noti.redirectUrl) {
-    //   setShowNotifications(false);
-    //   nav(noti.redirectUrl);
-    // }
+    if (noti.redirectUrl) {
+      setShowNotifications(false);
+      nav(noti.redirectUrl);
+    }
   };
 
   return (
