@@ -47,6 +47,7 @@ export const useUpdateUser = () => {
       // setUser(user);
       toast.success("Cập nhật thành công!");
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
 
       toast.dismiss("loading-toast-update-user");
     },

@@ -1,4 +1,6 @@
 import { Building, Camera, Edit3, MapPin } from "lucide-react";
+import { COMPANY_FIELDS, COMPANY_SCALES } from "@/constants/companyFields";
+import { toast } from "sonner";
 import type { UserProfile } from "@/types/Auth";
 import { useEffect, useState } from "react";
 import { useUpdateUser } from "@/hooks/useUser";
@@ -81,13 +83,6 @@ export const CompanyBasicInfo = ({
     const formData = new FormData();
     formData.append("id", company.id);
     formData.append("name", draftUser?.name ?? "");
-    formData.append("address", draftUser?.address ?? "");
-    formData.append("field", draftUser?.field ?? "");
-    formData.append("numberOfEmployees", draftUser?.numberOfEmployees ?? "");
-    formData.append(
-      "foundedYear",
-      draftUser?.foundedYear?.toString() ?? ""
-    );
 
     mutate(formData);
     if (setUserData) {
@@ -155,11 +150,11 @@ export const CompanyBasicInfo = ({
                   <span>Sửa</span>
                 </div>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+              <DialogContent className="sm:max-w-[450px]">
                 <DialogHeader>
-                  <DialogTitle>Chỉnh sửa thông tin công ty</DialogTitle>
+                  <DialogTitle>Chỉnh sửa thông tin cơ bản</DialogTitle>
                   <DialogDescription>
-                    Cập nhật thông tin công ty của bạn tại đây.
+                    Thay đổi tên hiển thị của công ty bạn.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -175,75 +170,6 @@ export const CompanyBasicInfo = ({
                         }))
                       }
                     />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="address">Địa chỉ</Label>
-                    <Select
-                      value={draftUser?.address || ""}
-                      onValueChange={(value) =>
-                        setDraftUser((prev) => ({ ...prev, address: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn tỉnh/thành phố" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Tỉnh/Thành phố</SelectLabel>
-                          {provinces?.map((province) => (
-                            <SelectItem
-                              key={province.code}
-                              value={province.name}
-                            >
-                              {province.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="field">Lĩnh vực</Label>
-                    <Input
-                      id="field"
-                      value={draftUser?.field || ""}
-                      onChange={(e) =>
-                        setDraftUser((prev) => ({
-                          ...prev,
-                          field: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="scale">Quy mô</Label>
-                      <Input
-                        id="scale"
-                        value={draftUser?.numberOfEmployees || ""}
-                        onChange={(e) =>
-                          setDraftUser((prev) => ({
-                            ...prev,
-                            numberOfEmployees: e.target.value,
-                          }))
-                        }
-                        placeholder="VD: 100-200"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="foundedYear">Năm thành lập</Label>
-                      <Input
-                        id="foundedYear"
-                        type="number"
-                        value={draftUser?.foundedYear || ""}
-                        onChange={(e) =>
-                          setDraftUser((prev) => ({
-                            ...prev,
-                            foundedYear: parseInt(e.target.value) || 0,
-                          }))
-                        }
-                      />
-                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -277,7 +203,10 @@ export const CompanyBasicInfo = ({
         {company?.numberOfEmployees && (
           <div className="text-[#7A7D87] text-[12px] md:text-[14px] flex gap-1 items-center">
             <span className="font-medium">Quy mô:</span>
-            <span>{company.numberOfEmployees}</span>
+            <span>
+              {COMPANY_SCALES.find((s) => s.value === company.numberOfEmployees)
+                ?.label || company.numberOfEmployees}
+            </span>
           </div>
         )}
 

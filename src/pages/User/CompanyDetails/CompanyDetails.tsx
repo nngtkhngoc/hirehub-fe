@@ -3,10 +3,22 @@ import { useUserById } from "@/hooks/useUser";
 import { CompanyBasicInfo } from "./components/CompanyBasicInfo";
 import { CompanyDetailsInfo } from "./components/CompanyDetailsInfo";
 import { Spinner } from "@/components/ui/spinner";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useEffect, useState } from "react";
+import type { UserProfile } from "@/types/Auth";
 
 export const CompanyDetails = () => {
   const { id } = useParams();
+  const { user: currentUser } = useAuthStore();
   const { data: company, isLoading } = useUserById(Number(id));
+
+  const [companyData, setCompanyData] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (company) {
+      setCompanyData(company);
+    }
+  }, [company]);
 
   if (isLoading) {
     return (
@@ -16,7 +28,7 @@ export const CompanyDetails = () => {
     );
   }
 
-  if (!company) {
+  if (!companyData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#F8F9FB]">
         <div className="text-center">
@@ -29,11 +41,21 @@ export const CompanyDetails = () => {
     );
   }
 
+  const isEditable = currentUser?.id === companyData.id;
+
   return (
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] min-h-screen gap-15 px-4 md:px-20">
       <div className="flex flex-col items-center justify-center gap-10 w-full md:w-4/5 lg:w-3/5">
-        <CompanyBasicInfo company={company} />
-        <CompanyDetailsInfo company={company} />
+        <CompanyBasicInfo
+          company={companyData}
+          isEditable={isEditable}
+          setUserData={setCompanyData}
+        />
+        <CompanyDetailsInfo
+          company={companyData}
+          isEditable={isEditable}
+          setUserData={setCompanyData}
+        />
       </div>
     </div>
   );

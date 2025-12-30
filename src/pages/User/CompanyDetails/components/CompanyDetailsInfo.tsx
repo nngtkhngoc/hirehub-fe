@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { COMPANY_FIELDS, COMPANY_SCALES } from "@/constants/companyFields";
+import { toast } from "sonner";
 import {
   Mail,
   MapPin,
@@ -24,6 +26,18 @@ import {
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { getAllProvinces } from "@/apis/map.api";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DetailedInformation {
   icon: LucideIcon;
@@ -46,6 +60,11 @@ export const CompanyDetailsInfo = ({
   const [isOverflowing, setIsOverflowing] = useState(false);
   const introduceRef = useRef<HTMLDivElement>(null);
   const isMedium = useMediaQuery("(min-width:768px)");
+
+  const { data: provinces } = useQuery({
+    queryKey: ["provinces"],
+    queryFn: getAllProvinces,
+  });
 
   const { mutate, isPending } = useUpdateUser();
   const [draftUser, setDraftUser] = useState<UserProfile>(company);
@@ -78,7 +97,11 @@ export const CompanyDetailsInfo = ({
     {
       icon: Users,
       title: "Quy mô nhân sự",
-      content: company?.numberOfEmployees || "Chưa có",
+      content:
+        COMPANY_SCALES.find((s) => s.value === company?.numberOfEmployees)
+          ?.label ||
+        company?.numberOfEmployees ||
+        "Chưa có",
     },
     {
       icon: Calendar,
@@ -109,10 +132,23 @@ export const CompanyDetailsInfo = ({
     ));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (fieldsToUpdate: string[]) => {
+    const currentYear = new Date().getFullYear();
+    if (
+      fieldsToUpdate.includes("foundedYear") &&
+      draftUser.foundedYear &&
+      (draftUser.foundedYear < 1900 || draftUser.foundedYear > currentYear)
+    ) {
+      toast.error(`Năm thành lập phải từ 1900 đến ${currentYear}`);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("id", company.id);
-    formData.append("description", draftUser?.description ?? "");
+
+    fieldsToUpdate.forEach((field) => {
+      formData.append(field, (draftUser as any)[field]?.toString() ?? "");
+    });
 
     mutate(formData);
     if (setUserData) {
@@ -138,7 +174,7 @@ export const CompanyDetailsInfo = ({
                   <span>Sửa</span>
                 </div>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Chỉnh sửa giới thiệu</DialogTitle>
                   <DialogDescription>
@@ -150,9 +186,9 @@ export const CompanyDetailsInfo = ({
                     <Label htmlFor="description">Mô tả chi tiết</Label>
                     <Textarea
                       id="description"
-                      className="min-h-[150px]"
+                      className="min-h-[250px]"
                       value={draftUser?.description || ""}
-                      onChange={(e) =>
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                         setDraftUser((prev) => ({
                           ...prev,
                           description: e.target.value,
@@ -167,7 +203,7 @@ export const CompanyDetailsInfo = ({
                   </DialogClose>
                   <PrimaryButton
                     label="Xác nhận"
-                    onClick={handleSubmit}
+                    onClick={() => handleSubmit(["description"])}
                     disabled={isPending}
                     loadingText="Đang tải..."
                   />
@@ -199,6 +235,133 @@ export const CompanyDetailsInfo = ({
           <div className="font-bold text-[16px] md:text-[20px]">
             Thông tin công ty
           </div>
+          {isEditable && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="flex flex-row items-center gap-2 text-[12px] md:text-[14px] text-primary cursor-pointer">
+                  <Edit3 size={isMedium ? 16 : 12} />
+                  <span>Sửa</span>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Chỉnh sửa thông tin công ty</DialogTitle>
+                  <DialogDescription>
+                    Cập nhật các thông tin chi tiết về công ty.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                  <div className="grid gap-2 md:col-span-2">
+                    <Label htmlFor="address">Địa chỉ</Label>
+                    <Select
+                      value={draftUser?.address || ""}
+                      onValueChange={(value) =>
+                        setDraftUser((prev) => ({ ...prev, address: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn tỉnh/thành phố" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Tỉnh/Thành phố</SelectLabel>
+                          {provinces?.map((province) => (
+                            <SelectItem
+                              key={province.code}
+                              value={province.name}
+                            >
+                              {province.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="field">Lĩnh vực</Label>
+                    <Select
+                      value={draftUser?.field || ""}
+                      onValueChange={(value) =>
+                        setDraftUser((prev) => ({ ...prev, field: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn lĩnh vực" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Lĩnh vực</SelectLabel>
+                          {COMPANY_FIELDS.map((field) => (
+                            <SelectItem key={field} value={field}>
+                              {field}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="foundedYear">Năm thành lập</Label>
+                    <Input
+                      id="foundedYear"
+                      type="number"
+                      value={draftUser?.foundedYear || ""}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setDraftUser((prev) => ({
+                          ...prev,
+                          foundedYear: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="grid gap-2 md:col-span-2">
+                    <Label htmlFor="scale">Quy mô nhân sự</Label>
+                    <Select
+                      value={draftUser?.numberOfEmployees || ""}
+                      onValueChange={(value) =>
+                        setDraftUser((prev) => ({
+                          ...prev,
+                          numberOfEmployees: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn quy mô" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Quy mô nhân sự</SelectLabel>
+                          {COMPANY_SCALES.map((scale) => (
+                            <SelectItem key={scale.value} value={scale.value}>
+                              {scale.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <OutlineButton label="Hủy" onClick={handleCancel} />
+                  </DialogClose>
+                  <PrimaryButton
+                    label="Xác nhận"
+                    onClick={() =>
+                      handleSubmit([
+                        "address",
+                        "field",
+                        "numberOfEmployees",
+                        "foundedYear",
+                      ])
+                    }
+                    disabled={isPending}
+                    loadingText="Đang tải..."
+                  />
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <div className="w-full flex flex-col justify-center items-center gap-5 py-4 md:grid md:grid-cols-2 md:justify-between">
           {renderInfor()}
