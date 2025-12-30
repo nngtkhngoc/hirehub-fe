@@ -36,7 +36,7 @@ export default function MediaDetail({
         <ArrowLeft onClick={() => setView("default")} />
         Hình ảnh và files
       </div>
-      <div className="font-semi text-xl pt-5 text-left w-full flex items-center gap-3">
+      <div className="font-semi text-lg pt-5 text-left w-full flex items-center gap-3">
         <p
           className={cn(
             "px-5 border-b-2 border-b-transparent",
@@ -51,7 +51,7 @@ export default function MediaDetail({
         </p>
         <p
           className={cn(
-            "px-5 border-b-2 border-b-transparent",
+            "px-5 border-b-2 border-b-transparent  text-lg ",
             tab == "file" && "border-b-2 border-b-primary"
           )}
           onClick={() => {
