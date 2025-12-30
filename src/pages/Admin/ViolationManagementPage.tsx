@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllReports, updateReportStatus, deleteReport } from "@/apis/admin.api";
 import { toast } from "sonner";
 import { Trash2, Filter, Eye, User, Briefcase } from "lucide-react";
+import { SortableTableHeader } from "@/components/ui/SortableTableHeader";
+import { useTableSort } from "@/hooks/useTableSort";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -42,6 +44,7 @@ export const ViolationManagementPage = () => {
     const [status, setStatus] = useState<string>("all");
     const [resourceName, setResourceName] = useState<string>("all");
     const [page, setPage] = useState(0);
+    const { sortState, handleSort, sortData } = useTableSort();
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
         type: "delete";
@@ -90,6 +93,9 @@ export const ViolationManagementPage = () => {
 
     const reports = data?.content || [];
     const totalPages = data?.totalPages || 0;
+    
+    // Apply client-side sorting
+    const sortedReports = useMemo(() => sortData(reports), [reports, sortState]);
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -218,9 +224,13 @@ export const ViolationManagementPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    ID
-                                </th>
+                                <SortableTableHeader
+                                    label="ID"
+                                    sortKey="id"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Đối tượng bị báo cáo
                                 </th>
@@ -245,7 +255,7 @@ export const ViolationManagementPage = () => {
                                         <div className="animate-pulse">Đang tải...</div>
                                     </td>
                                 </tr>
-                            ) : reports.length === 0 ? (
+                            ) : sortedReports.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={6}
@@ -255,7 +265,7 @@ export const ViolationManagementPage = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                reports.map((report) => {
+                                sortedReports.map((report) => {
                                     const resourceInfo = getResourceInfo(report);
                                     return (
                                         <tr

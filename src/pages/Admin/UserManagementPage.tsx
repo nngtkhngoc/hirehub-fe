@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllUsersAdmin, verifyUser, banUser, unbanUser } from "@/apis/admin.api";
 import { toast } from "sonner";
@@ -42,6 +42,8 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SortableTableHeader } from "@/components/ui/SortableTableHeader";
+import { useTableSort } from "@/hooks/useTableSort";
 
 export const UserManagementPage = () => {
     const queryClient = useQueryClient();
@@ -49,6 +51,7 @@ export const UserManagementPage = () => {
     const [role, setRole] = useState<string>("all");
     const [status, setStatus] = useState<string>("all");
     const [page, setPage] = useState(0);
+    const { sortState, handleSort, sortData } = useTableSort();
 
     // Helper function to format date or return '-' for null/undefined
     const formatDate = (dateString: string | null | undefined): string => {
@@ -126,6 +129,9 @@ export const UserManagementPage = () => {
 
     const users = data?.content || [];
     const totalPages = data?.totalPages || 0;
+    
+    // Apply client-side sorting
+    const sortedUsers = useMemo(() => sortData(users), [users, sortState]);
 
     return (
         <div className="space-y-6">
@@ -201,21 +207,44 @@ export const UserManagementPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Người dùng
-                                </th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Email
-                                </th>
+                                <SortableTableHeader
+                                    label="ID"
+                                    sortKey="id"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
+                                <SortableTableHeader
+                                    label="Người dùng"
+                                    sortKey="name"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
+                                <SortableTableHeader
+                                    label="Email"
+                                    sortKey="email"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Vai trò
                                 </th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Ngày tạo
-                                </th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Đăng nhập cuối
-                                </th>
+                                <SortableTableHeader
+                                    label="Ngày tạo"
+                                    sortKey="createdAt"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
+                                <SortableTableHeader
+                                    label="Đăng nhập cuối"
+                                    sortKey="lastLogin"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
                                 </th>
@@ -230,11 +259,13 @@ export const UserManagementPage = () => {
                                 Array.from({ length: 5 }).map((_, index) => (
                                     <tr key={index} className="animate-pulse">
                                         <td className="px-6 py-4">
+                                            <div className="h-4 bg-gray-200 rounded w-12"></div>
+                                        </td>
+                                        <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                                                 <div className="space-y-2">
                                                     <div className="h-4 bg-gray-200 rounded w-24"></div>
-                                                    <div className="h-3 bg-gray-100 rounded w-16"></div>
                                                 </div>
                                             </div>
                                         </td>
@@ -258,9 +289,9 @@ export const UserManagementPage = () => {
                                         </td>
                                     </tr>
                                 ))
-                            ) : users.length === 0 ? (
+                            ) : sortedUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7}>
+                                    <td colSpan={8}>
                                         <Empty className="py-12">
                                             <EmptyHeader>
                                                 <EmptyMedia variant="icon">
@@ -275,7 +306,7 @@ export const UserManagementPage = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((user) => (
+                                sortedUsers.map((user) => (
                                     <tr
                                         key={user.id}
                                         className={`transition-colors ${user.isBanned
@@ -283,6 +314,9 @@ export const UserManagementPage = () => {
                                             : "hover:bg-gray-50"
                                             }`}
                                     >
+                                        {/* ID */}
+                                        <td className="px-6 py-4 text-gray-600">#{user.id}</td>
+
                                         {/* User Info */}
                                         <td className="px-6 py-4 max-w-[180px]">
                                             <a
@@ -316,9 +350,6 @@ export const UserManagementPage = () => {
                                                             {user.name || "Chưa đặt tên"}
                                                         </TooltipContent>
                                                     </Tooltip>
-                                                    <p className="text-sm text-gray-500">
-                                                        ID: {user.id}
-                                                    </p>
                                                 </div>
                                             </a>
                                         </td>

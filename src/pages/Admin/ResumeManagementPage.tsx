@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllResumesAdmin, banResume, unbanResume, getAllUsersAdmin } from "@/apis/admin.api";
 import { Search, FileText, Eye, Filter, Ban, UserCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { SortableTableHeader } from "@/components/ui/SortableTableHeader";
+import { useTableSort } from "@/hooks/useTableSort";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,6 +51,7 @@ export const ResumeManagementPage = () => {
     const [selectedUserId, setSelectedUserId] = useState<number | "">("");
     const [selectedCompanyId, setSelectedCompanyId] = useState<number | "">("");
     const [currentPage, setCurrentPage] = useState(1);
+    const { sortState, handleSort, sortData } = useTableSort();
     const [coverLetterDialog, setCoverLetterDialog] = useState<{
         open: boolean;
         content: string | null;
@@ -124,9 +127,12 @@ export const ResumeManagementPage = () => {
         return matchesKeyword;
     }) || [];
 
+    // Apply sorting
+    const sortedResumes = useMemo(() => sortData(filteredResumes), [filteredResumes, sortState]);
+
     // Pagination
-    const totalPages = Math.ceil(filteredResumes.length / ITEMS_PER_PAGE);
-    const paginatedResumes = filteredResumes.slice(
+    const totalPages = Math.ceil(sortedResumes.length / ITEMS_PER_PAGE);
+    const paginatedResumes = sortedResumes.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
@@ -284,6 +290,13 @@ export const ResumeManagementPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
+                                <SortableTableHeader
+                                    label="ID"
+                                    sortKey="id"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Ứng viên
                                 </th>
@@ -293,9 +306,13 @@ export const ResumeManagementPage = () => {
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
                                 </th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Ngày nộp
-                                </th>
+                                <SortableTableHeader
+                                    label="Ngày nộp"
+                                    sortKey="createdAt"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Hành động
                                 </th>
@@ -304,14 +321,14 @@ export const ResumeManagementPage = () => {
                         <tbody className="divide-y divide-gray-100">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center">
+                                    <td colSpan={6} className="px-6 py-12 text-center">
                                         <div className="animate-pulse">Đang tải...</div>
                                     </td>
                                 </tr>
                             ) : paginatedResumes.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={5}
+                                        colSpan={6}
                                         className="px-6 py-12 text-center text-gray-400"
                                     >
                                         <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -327,6 +344,9 @@ export const ResumeManagementPage = () => {
                                             : "hover:bg-gray-50"
                                             }`}
                                     >
+                                        {/* ID */}
+                                        <td className="px-6 py-4 text-gray-600">#{resume.id}</td>
+
                                         {/* User Info - Click to open CV */}
                                         <td
                                             className="px-6 py-4 cursor-pointer"

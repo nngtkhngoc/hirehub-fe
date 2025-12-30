@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllJobsAdmin, banJob, unbanJob, approveJob, rejectJob } from "@/apis/admin.api";
 import { toast } from "sonner";
 import { Search, Ban, UserCheck, Filter, Briefcase, CheckCircle, AlertCircle } from "lucide-react";
+import { SortableTableHeader } from "@/components/ui/SortableTableHeader";
+import { useTableSort } from "@/hooks/useTableSort";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,6 +49,7 @@ export const JobManagementPage = () => {
     const [status, setStatus] = useState<string>("all");
     const [companySearch, setCompanySearch] = useState("");
     const [page, setPage] = useState(0);
+    const { sortState, handleSort, sortData } = useTableSort();
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
         type: "ban" | "unban" | "review"; // review = for pending jobs
@@ -137,6 +140,9 @@ export const JobManagementPage = () => {
     const jobs = data?.content || [];
     const totalPages = data?.totalPages || 0;
     console.log(jobs, "JOBS");
+    
+    // Apply client-side sorting
+    const sortedJobs = useMemo(() => sortData(jobs), [jobs, sortState]);
     const formatDate = (dateStr: string) => {
         try {
             return new Date(dateStr).toLocaleDateString("vi-VN");
@@ -241,21 +247,41 @@ export const JobManagementPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Công việc
-                                </th>
+                                <SortableTableHeader
+                                    label="ID"
+                                    sortKey="id"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
+                                <SortableTableHeader
+                                    label="Công việc"
+                                    sortKey="title"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Công ty
                                 </th>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                                     Cấp bậc
                                 </th>
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
-                                    Ngày đăng
-                                </th>
-                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
-                                    Ứng viên
-                                </th>
+                                <SortableTableHeader
+                                    label="Ngày đăng"
+                                    sortKey="postingDate"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                />
+                                <SortableTableHeader
+                                    label="Ứng viên"
+                                    sortKey="candidatesCount"
+                                    currentSortKey={sortState.key}
+                                    currentSortDirection={sortState.direction}
+                                    onSort={handleSort}
+                                    className="text-center"
+                                />
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
                                 </th>
@@ -269,6 +295,9 @@ export const JobManagementPage = () => {
                                 // Skeleton loading
                                 Array.from({ length: 5 }).map((_, index) => (
                                     <tr key={index} className="animate-pulse">
+                                        <td className="px-6 py-4">
+                                            <div className="h-4 bg-gray-200 rounded w-12"></div>
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="space-y-2">
                                                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -298,9 +327,9 @@ export const JobManagementPage = () => {
                                         </td>
                                     </tr>
                                 ))
-                            ) : jobs.length === 0 ? (
+                            ) : sortedJobs.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7}>
+                                    <td colSpan={8}>
                                         <Empty className="py-12">
                                             <EmptyHeader>
                                                 <EmptyMedia variant="icon">
@@ -315,7 +344,7 @@ export const JobManagementPage = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                jobs.map((job) => (
+                                sortedJobs.map((job) => (
                                     <tr
                                         key={job.id}
                                         className={`transition-colors ${job.status == "BANNED"
@@ -323,6 +352,9 @@ export const JobManagementPage = () => {
                                             : "hover:bg-gray-50"
                                             }`}
                                     >
+                                        {/* ID */}
+                                        <td className="px-6 py-4 text-gray-600">#{job.id}</td>
+
                                         {/* Job Info */}
                                         <td className="px-6 py-4">
                                             <a
