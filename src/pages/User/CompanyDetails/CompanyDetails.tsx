@@ -6,6 +6,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect, useState } from "react";
 import type { UserProfile } from "@/types/Auth";
+import { RecommendedCompanies } from "./components/RecommendedCompanies";
+import { RecommendedJobs } from "@/pages/User/Profile/components/layout/RecommendedJobs";
 
 export const CompanyDetails = () => {
   const { id } = useParams();
@@ -45,7 +47,7 @@ export const CompanyDetails = () => {
 
   return (
     <div className="flex flex-row py-40 items-start justify-center bg-[#F8F9FB] min-h-screen gap-15 px-4 md:px-20">
-      <div className="flex flex-col items-center justify-center gap-10 w-full md:w-4/5 lg:w-3/5">
+      <div className="flex flex-col items-center justify-center gap-10 w-full md:w-3/5 lg:w-3/5">
         <CompanyBasicInfo
           company={companyData}
           isEditable={isEditable}
@@ -56,6 +58,10 @@ export const CompanyDetails = () => {
           isEditable={isEditable}
           setUserData={setCompanyData}
         />
+      </div>
+      <div className="lg:flex lg:flex-col hidden lg:block lg:justify-start lg:h-full lg:gap-10 lg:w-1/3">
+        <RecommendedCompanies />
+        <RecommendedJobs />
       </div>
     </div>
   );
