@@ -13,35 +13,50 @@ import {
 import { useUsers } from "@/hooks/useUser";
 import { useEffect, useRef, useState } from "react";
 import { UserCardSkeleton } from "@/components/ui/User/UserCardSkeleton";
+import type { UserProfile } from "@/types/Auth";
 
 export const UserListPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [keyword, setKeyword] = useState<null | string>(null);
+  const [province, setProvince] = useState<null | string>(null);
   const [page, setPage] = useState(0);
-  const usersPerPage = 8;
-  const size = 100;
-  const { data: users, isPending, error } = useUsers(page, size);
+  const size = 8;
+  const {
+    data: usersData,
+    isPending,
+    error,
+  } = useUsers(
+    keyword || undefined,
+    province
+      ? province
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .trim()
+      : undefined,
+    page,
+    size
+  );
 
-  const totalPages = Math.ceil(((users && users.length) || 0) / usersPerPage);
-  const startIndex = (currentPage - 1) * usersPerPage;
-  const endIndex = startIndex + usersPerPage;
+  const users = usersData?.content;
+  const totalPages = usersData?.totalPages || 0;
 
+  // Reset page when filters change
   useEffect(() => {
-    const totalLoadedrecruiters = (page + 1) * size;
-    const totalDisplayedrecruiters = currentPage * usersPerPage;
-    if (totalDisplayedrecruiters >= totalLoadedrecruiters - usersPerPage) {
-      setPage((prev) => prev + 1);
-    }
-  }, [currentPage, page, usersPerPage, size]);
+    setPage(0);
+  }, [keyword, province]);
 
-  const currentUsers =
-    users && users.length && users?.slice(startIndex, endIndex);
   const renderUsers = () => {
-    return currentUsers && currentUsers.map((user) => <UserCard user={user} />);
+    return (
+      users?.map((user: UserProfile) => (
+        <UserCard key={user.id} user={user} />
+      )) || <></>
+    );
   };
 
   const userListRef = useRef<HTMLDivElement>(null);
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage - 1); // Frontend 1-indexed, Backend 0-indexed
     userListRef.current?.scrollIntoView({ behavior: "smooth" });
   };
   return (
@@ -58,6 +73,10 @@ export const UserListPage = () => {
         description="Kết nối với những người có cùng chí hướng, khám phá cơ hội mới và xây dựng những mối quan hệ ý nghĩa giúp bạn phát triển bản thân và sự nghiệp."
         illustration={userList}
         type="người dùng"
+        onSearch={(kw, prov) => {
+          setKeyword(kw);
+          setProvince(prov);
+        }}
       />
 
       <div
@@ -74,7 +93,7 @@ export const UserListPage = () => {
           <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
             Lỗi khi tải danh sách người dùng.
           </div>
-        ) : !currentUsers || currentUsers.length === 0 ? (
+        ) : !users || users.length === 0 ? (
           <div className="italic h-full w-full flex items-center justify-center pt-20">
             Không có dữ liệu để hiển thị.
           </div>
@@ -89,7 +108,7 @@ export const UserListPage = () => {
               <PaginationPrevious
                 onClick={(e) => {
                   e.preventDefault();
-                  if (currentPage > 1) handlePageChange(currentPage - 1);
+                  if (page > 0) handlePageChange(page);
                 }}
                 hidden={totalPages <= 1}
               />
@@ -98,7 +117,7 @@ export const UserListPage = () => {
             {Array.from({ length: totalPages }, (_, i) => (
               <PaginationItem key={i}>
                 <PaginationLink
-                  isActive={currentPage === i + 1}
+                  isActive={page === i}
                   onClick={(e) => {
                     e.preventDefault();
                     handlePageChange(i + 1);
@@ -113,8 +132,7 @@ export const UserListPage = () => {
               <PaginationNext
                 onClick={(e) => {
                   e.preventDefault();
-                  if (currentPage < totalPages)
-                    handlePageChange(currentPage + 1);
+                  if (page < totalPages - 1) handlePageChange(page + 2);
                 }}
                 hidden={totalPages <= 1}
               />

@@ -5,7 +5,7 @@ import { Link } from "react-router";
 export const JobCard = ({ job }: { job: Job }) => {
   const daysAgo = Math.floor(
     (new Date().getTime() - new Date(job?.postingDate).getTime()) /
-      (1000 * 60 * 60 * 24)
+    (1000 * 60 * 60 * 24)
   );
 
   let postedText = "";
@@ -16,7 +16,7 @@ export const JobCard = ({ job }: { job: Job }) => {
   return (
     <Link
       to={`/job-details/${job?.id}`}
-      className="w-[315px] h-[315px] rounded-[10px] px-5 py-5 space-y-2 bg-white hover:bg-primary cursor-pointer transition-all duration-300 group border border-[#DBDBDB] hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02]"
+      className="w-[315px] h-[350px] rounded-[10px] px-5 py-5 space-y-2 bg-white hover:bg-primary cursor-pointer transition-all duration-300 group border border-[#DBDBDB] hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02]"
     >
       <div className="w-full space-y-2 pb-4 border-b-2 border-[#C7C7C7]">
         <div className="flex flex-row justify-between items-center gap-5">
@@ -53,9 +53,10 @@ export const JobCard = ({ job }: { job: Job }) => {
             {job?.level}
           </div>
         </div>
-        <div className="text-[13px] leading-[24px] text-[#7A7D87] line-clamp-2 group-hover:text-white">
-          {job?.description}
-        </div>
+        <div
+          className="text-[13px] leading-[24px] text-[#7A7D87] line-clamp-2 h-[80px] overflow-hidden group-hover:text-white prose prose-sm max-w-none prose-p:my-0 prose-ul:my-0 prose-ol:my-0"
+          dangerouslySetInnerHTML={{ __html: job?.description || "" }}
+        />
       </div>
 
       <div className="w-full flex flex-row justify-end items-center gap-2 pt-1">

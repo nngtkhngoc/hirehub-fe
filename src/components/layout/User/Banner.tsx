@@ -40,7 +40,7 @@ export const Banner = ({
   const isMedium = useMediaQuery("(min-width:768px)");
 
   const handleSearch = () => {
-    if (type === "việc làm" && onSearch) {
+    if (onSearch) {
       onSearch(keyword.trim(), province);
     }
   };

@@ -20,10 +20,15 @@ export const useRecruiter = (
   });
 };
 
-export const useUsers = (page?: number, size?: number) => {
+export const useUsers = (
+  keyword?: string,
+  province?: string,
+  page?: number,
+  size?: number
+) => {
   return useQuery({
-    queryKey: ["users", page, size],
-    queryFn: () => getAllUsers({ page, size }),
+    queryKey: ["users", keyword, province, page, size],
+    queryFn: () => getAllUsers({ keyword, province, page, size }),
   });
 };
 

@@ -22,7 +22,7 @@ export const RecommendedJobs = () => {
           <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
             Lỗi khi tải danh sách công việc.
           </div>
-        ) : !jobs || jobs.length === 0 ? (
+        ) : !jobs || jobs.content.length === 0 ? (
           <div className="italic h-full w-full flex items-center justify-center pt-20">
             Không có dữ liệu để hiển thị.
           </div>

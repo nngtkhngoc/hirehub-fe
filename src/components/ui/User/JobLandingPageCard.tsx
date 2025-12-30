@@ -2,8 +2,10 @@ import type { Job } from "@/types/Job";
 import companyDefault from "@/assets/illustration/company.png";
 import { Link } from "react-router-dom";
 import { Button } from "../button";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const JobLandingPageCard = ({ job }: { job: Job }) => {
+  const { user } = useAuthStore();
   return (
     <Link to={`/job-details/${job?.id}`}>
       <div className="w-[280px] sm:w-[320px] h-[350px] rounded-[10px] shadow-[0_4px_10px_rgba(0,0,0,0.25)] px-5 py-5 space-y-2 bg-white hover:bg-primary cursor-pointer transition-all duration-300 group">
@@ -33,14 +35,19 @@ export const JobLandingPageCard = ({ job }: { job: Job }) => {
           </div>
         </div>
 
-        <div className="text-[13px] leading-[24px] text-[#7A7D87] overflow-hidden text-ellipsis group-hover:text-white line-clamp-4">
-          {job?.description}
-        </div>
-        <div className="float-right">
-          <Button variant="outline" className="py-5">
-            Ứng tuyển ngay
-          </Button>
-        </div>
+        <div
+          className="text-[13px] leading-[24px] text-[#7A7D87] overflow-hidden text-ellipsis group-hover:text-white line-clamp-4 h-[96px] prose prose-sm max-w-none prose-p:my-0 prose-ul:my-0 prose-ol:my-0"
+          dangerouslySetInnerHTML={{ __html: job?.description || "" }}
+        />
+        {(!user ||
+          (user.role?.name?.toLowerCase() !== "recruiter" &&
+            user.role?.name?.toLowerCase() !== "admin")) && (
+            <div className="float-right">
+              <Button variant="outline" className="py-5">
+                Ứng tuyển ngay
+              </Button>
+            </div>
+          )}
       </div>
     </Link>
   );

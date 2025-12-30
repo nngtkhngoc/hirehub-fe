@@ -13,7 +13,7 @@ export const getAllRecruiters = async (
     page?: number;
     size?: number;
   } = {}
-): Promise<Recruiter[]> => {
+): Promise<any> => {
   const finalParams = {
     role: "recruiter",
     ...getAllJobQueries,
@@ -23,7 +23,7 @@ export const getAllRecruiters = async (
     params: finalParams,
   });
 
-  return res.data.content;
+  return res.data;
 };
 
 export const getAllUsers = async (
@@ -34,7 +34,7 @@ export const getAllUsers = async (
     page?: number;
     size?: number;
   } = {}
-): Promise<Recruiter[]> => {
+): Promise<any> => {
   const finalParams = {
     role: "user",
     ...getAllJobQueries,
@@ -43,7 +43,7 @@ export const getAllUsers = async (
     params: finalParams,
   });
 
-  return res.data.content;
+  return res.data;
 };
 
 export const updateUser = async (data: FormData): Promise<UserProfile> => {
