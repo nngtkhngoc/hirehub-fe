@@ -4,10 +4,11 @@ import { useJobs } from "@/hooks/useJob";
 import { RecommendedJobCardSkeleton } from "../ui/RecommenedJobCardSkeleton";
 
 export const RecommendedJobs = () => {
-  const { data: jobs, isPending, error } = useJobs("", "", 0, 6);
+  const { data: jobs, isPending, error } = useJobs(undefined, undefined, 0, 6);
+  console.log("jobs", jobs)
 
   const renderCompanies = () =>
-    jobs?.content?.map((job) => <RecommendedJobCard job={job} />);
+    jobs?.content?.map((job: any) => <RecommendedJobCard job={job} />);
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 pt-2 pb-8">

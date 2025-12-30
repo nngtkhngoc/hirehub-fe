@@ -19,8 +19,13 @@ export const getAllRecruiters = async (
     ...getAllJobQueries,
   };
 
+  // Remove undefined values to prevent sending empty query params
+  const cleanParams = Object.fromEntries(
+    Object.entries(finalParams).filter(([_, value]) => value !== undefined)
+  );
+
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
-    params: finalParams,
+    params: cleanParams,
   });
 
   return res.data;
@@ -39,8 +44,14 @@ export const getAllUsers = async (
     role: "user",
     ...getAllJobQueries,
   };
+
+  // Remove undefined values to prevent sending empty query params
+  const cleanParams = Object.fromEntries(
+    Object.entries(finalParams).filter(([_, value]) => value !== undefined)
+  );
+
   const res = await axiosClient.get(`${BASE_URL}/api/users`, {
-    params: finalParams,
+    params: cleanParams,
   });
 
   return res.data;

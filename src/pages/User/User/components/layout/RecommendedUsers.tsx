@@ -4,10 +4,10 @@ import { SideTitle } from "@/pages/User/Profile/components/ui/SideTitle";
 import { useUsers } from "@/hooks/useUser";
 
 export const RecommendedUsers = () => {
-  const { data: users, isPending, error } = useUsers(0, 6);
+  const { data: users, isPending, error } = useUsers(undefined, undefined, 0, 6);
 
   const renderUsers = () =>
-    users?.content?.map((user) => <RecommendedUserCard user={user} />);
+    users?.content?.map((user: any) => <RecommendedUserCard user={user} />);
 
   return (
     <div className="w-full bg-white rounded-[20px] border-2 border-[#f2f2f2] flex flex-col justify-center items-center px-4 gap-4 relative md:px-10 pt-2 pb-8">

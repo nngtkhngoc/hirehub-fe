@@ -14,8 +14,10 @@ import { useUsers } from "@/hooks/useUser";
 import { useEffect, useRef, useState } from "react";
 import { UserCardSkeleton } from "@/components/ui/User/UserCardSkeleton";
 import type { UserProfile } from "@/types/Auth";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export const UserListPage = () => {
+  const currentUser = useAuthStore((state) => state.user);
   const [keyword, setKeyword] = useState<null | string>(null);
   const [province, setProvince] = useState<null | string>(null);
   const [page, setPage] = useState(0);
@@ -47,8 +49,11 @@ export const UserListPage = () => {
   }, [keyword, province]);
 
   const renderUsers = () => {
+    // Filter out current user from the list
+    const filteredUsers = users?.filter((user: UserProfile) => user.id !== currentUser?.id);
+
     return (
-      users?.map((user: UserProfile) => (
+      filteredUsers?.map((user: UserProfile) => (
         <UserCard key={user.id} user={user} />
       )) || <></>
     );

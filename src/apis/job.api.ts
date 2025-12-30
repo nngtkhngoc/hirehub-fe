@@ -25,8 +25,13 @@ export const getAllJobs = async (getAllJobQueries: {
   size: number;
   number: number; // current page
 }> => {
+  // Remove undefined values to prevent sending empty query params
+  const cleanParams = Object.fromEntries(
+    Object.entries(getAllJobQueries).filter(([_, value]) => value !== undefined && value !== "")
+  );
+
   const res = await axiosClient.get(`${BASE_URL}/api/jobs`, {
-    params: getAllJobQueries,
+    params: cleanParams,
     paramsSerializer: {
       indexes: null, // to produce levels=A&levels=B instead of levels[0]=A
     },

@@ -333,7 +333,7 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                           <CommandList>
                             <CommandEmpty>Không tìm thấy công ty.</CommandEmpty>
                             <CommandGroup>
-                              {companies?.map((c) => (
+                              {companies?.content?.map((c) => (
                                 <CommandItem
                                   key={c.id}
                                   value={c.id}

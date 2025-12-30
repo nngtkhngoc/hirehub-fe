@@ -4,8 +4,7 @@ import { SideTitle } from "../ui/SideTitle";
 import { useUsers } from "@/hooks/useUser";
 
 export const RecommendedUsers = () => {
-  const { data: users, isPending, error } = useUsers(0, 6);
-
+  const { data: users, isPending, error } = useUsers(undefined, undefined, 0, 6);
   const renderUsers = () =>
     users?.content?.map((user) => <RecommendedUserCard user={user} />);
 
