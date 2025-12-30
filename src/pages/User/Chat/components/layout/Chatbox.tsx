@@ -102,6 +102,16 @@ export const Chatbox = ({
     const file = e.target.files?.[0];
     if (!file || !conversationId) return;
 
+    // Check file size (10MB limit)
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      import("sonner").then(({ toast }) => {
+        toast.error("Kích thước file không được vượt quá 10MB!");
+      });
+      e.target.value = "";
+      return;
+    }
+
     const url = await uploadFile(file);
 
     const isImage = file.type.startsWith("image/");

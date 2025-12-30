@@ -29,14 +29,29 @@ import {
   useSaveJob,
 } from "@/hooks/useJob";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
 export const applyJobSchema: yup.ObjectSchema<ApplyJobFormData> = yup.object({
   jobId: yup.string().required(),
   userId: yup.string().required(),
   cover_letter: yup.string().nullable(),
-  resumeFile: yup.mixed<File>().required("Vui lòng tải resume"),
+  resumeFile: yup
+    .mixed<File>()
+    .required("Vui lòng tải resume")
+    .test("fileSize", "Kích thước file không được vượt quá 5MB", (value) => {
+      return value && value.size <= MAX_FILE_SIZE;
+    })
+    .test("fileType", "Vui lòng tải file PDF hoặc Word (.doc, .docx)", (value) => {
+      return value && ALLOWED_FILE_TYPES.includes(value.type);
+    }),
 });
 
 export const JobTitle = ({ job }: { job: Job }) => {
@@ -67,15 +82,22 @@ export const JobTitle = ({ job }: { job: Job }) => {
     handleSubmit,
     setValue,
     formState: { errors },
+    reset,
   } = useForm<ApplyJobFormData>({
     resolver: yupResolver(applyJobSchema),
     defaultValues: {
       userId: user?.id ?? "",
-      jobId: job?.id,
-      cover_letter: undefined,
+      jobId: job?.id ?? "",
+      cover_letter: "",
       resumeFile: undefined,
     },
   });
+
+  // Sync form with user and job data when they load
+  useEffect(() => {
+    if (user?.id) setValue("userId", user.id);
+    if (job?.id) setValue("jobId", job.id);
+  }, [user?.id, job?.id, setValue]);
 
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -84,22 +106,52 @@ export const JobTitle = ({ job }: { job: Job }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Kích thước file không được vượt quá 5MB!");
+      e.target.value = "";
+      return;
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error("Vui lòng tải file PDF hoặc Word (.doc, .docx)!");
+      e.target.value = "";
+      return;
+    }
+
     setPreviewURL(URL.createObjectURL(file));
     setFileName(file.name);
+    setValue("resumeFile", file, { shouldValidate: true });
   };
 
   const [openDialog, setOpenDialog] = useState(false);
   const { mutate: applyMutate, isPending: pendingApply } = useApplyJob();
+
   const onSubmit = (data: ApplyJobFormData) => {
     if (!user) {
       toast.error("Vui lòng đăng nhập!");
+      return;
     }
-    applyMutate(data as any, {
+
+    console.log("Submitting application data:", data);
+
+    const formData = new FormData();
+    formData.append("jobId", data.jobId);
+    formData.append("userId", data.userId);
+    if (data.cover_letter) {
+      formData.append("cover_letter", data.cover_letter);
+    }
+    formData.append("resumeFile", data.resumeFile);
+
+    applyMutate(formData as any, {
       onSuccess: () => {
         setOpenDialog(false);
         setPreviewURL(null);
         setFileName(null);
+        reset();
       },
+      onError: (error: any) => {
+        console.error("Application error:", error);
+      }
     });
   };
   return (
@@ -211,9 +263,10 @@ export const JobTitle = ({ job }: { job: Job }) => {
                         id="files"
                         type="file"
                         hidden
+                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         onChange={(e) => {
                           handleFileChange(e);
-                          if (e.target.files) {
+                          if (e.target.files && e.target.files[0] && ALLOWED_FILE_TYPES.includes(e.target.files[0].type)) {
                             setValue("resumeFile", e.target.files[0]);
                           }
                         }}
