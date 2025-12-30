@@ -5,7 +5,6 @@ import {
   MapPin,
   EllipsisVertical,
 } from "lucide-react";
-import { COMPANY_SCALES } from "@/constants/companyFields";
 import type { UserProfile } from "@/types/Auth";
 import { useEffect, useState } from "react";
 import { useUpdateUser } from "@/hooks/useUser";

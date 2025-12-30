@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProvinces } from "@/apis/map.api";
 import { useUpdateUser } from "@/hooks/useUser";
+import { getAllCompanyDomains } from "@/api/systemOptions";
 
 interface DetailedInformation {
   icon: LucideIcon;
@@ -120,6 +121,10 @@ export const CompanyDetailsInfoEdit = ({
   const { data: provinces } = useQuery({
     queryKey: ["provinces"],
     queryFn: getAllProvinces,
+  });
+  const { data: companyDomains } = useQuery({
+    queryKey: ["companyDomains"],
+    queryFn: getAllCompanyDomains,
   });
   const { mutate, isPending } = useUpdateUser();
 
@@ -302,17 +307,33 @@ export const CompanyDetailsInfoEdit = ({
                   </div>
                   <div className="grid gap-3">
                     <Label htmlFor="field-1">Lĩnh vực</Label>
-                    <Input
-                      id="field-1"
-                      defaultValue={draftUser?.field || ""}
-                      onChange={(e) =>
+                    <Select
+                      value={draftUser?.field || ""}
+                      onValueChange={(value) =>
                         setDraftUser((prev) => ({
                           ...prev,
-                          field: e.target.value,
+                          field: value,
                         }))
                       }
-                      placeholder="Ví dụ: Công nghệ thông tin, Tài chính..."
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn lĩnh vực" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Lĩnh vực</SelectLabel>
+                          {companyDomains?.map((domain: any) => (
+                            <SelectItem
+                              key={domain.id}
+                              value={domain.domain}
+                              className="text-black"
+                            >
+                              {domain.domain}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="grid gap-3">
                     <Label htmlFor="employees-1">Quy mô nhân sự</Label>

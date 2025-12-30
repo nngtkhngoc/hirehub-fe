@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { getAllJobTypes, getAllJobLevels, getAllWorkTypes } from "@/api/systemOptions";
 import type { SelectedFilters } from "../../JobListPage";
 
 interface FilterBarProps {
@@ -9,6 +11,22 @@ export const FilterBar = ({
   selectedFilters,
   setSelectedFilters,
 }: FilterBarProps) => {
+  // Fetch dynamic data from APIs
+  const { data: jobTypesData } = useQuery({
+    queryKey: ["jobTypes"],
+    queryFn: getAllJobTypes,
+  });
+
+  const { data: jobLevelsData } = useQuery({
+    queryKey: ["jobLevels"],
+    queryFn: getAllJobLevels,
+  });
+
+  const { data: workTypesData } = useQuery({
+    queryKey: ["workTypes"],
+    queryFn: getAllWorkTypes,
+  });
+
   const filterOptions: {
     key: keyof SelectedFilters;
     title: string;
@@ -17,26 +35,23 @@ export const FilterBar = ({
     {
       key: "jobType",
       title: "Loại hình",
-      options: [
-        { label: "Thực tập", value: "internship" },
-        { label: "Full time", value: "fulltime" },
-        { label: "Part time", value: "parttime" },
-        { label: "Tình nguyện", value: "volunteer" },
-      ],
+      options: jobTypesData?.map((item: { id: number; type: string }) => ({
+        label: item.type,
+        value: item.type,
+      })) || [],
     },
     {
       key: "level",
       title: "Trình độ",
-      options: [
-        { label: "Intern", value: "intern" },
-        { label: "Fresher", value: "fresher" },
-        { label: "Junior", value: "junior" },
-        { label: "Senior", value: "senior" },
-      ],
+      options: jobLevelsData?.map((item: { id: number; level: string }) => ({
+        label: item.level,
+        value: item.level,
+      })) || [],
     },
     {
       key: "field",
       title: "Lĩnh vực",
+      // Hard-coded temporarily (no backend table yet)
       options: [
         { label: "Software Engineering", value: "software_engineering" },
         { label: "Game Development", value: "game_development" },
@@ -47,11 +62,10 @@ export const FilterBar = ({
     {
       key: "workMode",
       title: "Hình thức làm việc",
-      options: [
-        { label: "Remote", value: "remote" },
-        { label: "Hybrid", value: "hybrid" },
-        { label: "Onsite", value: "onsite" },
-      ],
+      options: workTypesData?.map((item: { id: number; workspace: string }) => ({
+        label: item.workspace,
+        value: item.workspace,
+      })) || [],
     },
   ] as const;
 

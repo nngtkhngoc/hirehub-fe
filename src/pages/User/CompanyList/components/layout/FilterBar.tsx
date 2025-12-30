@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { getAllCompanyDomains } from "@/api/systemOptions";
 import type { CompanyFilter } from "../../CompanyListPage";
 
 interface FilterBarProps {
@@ -5,39 +7,40 @@ interface FilterBarProps {
   setCompanyFilter: React.Dispatch<React.SetStateAction<CompanyFilter>>;
 }
 
-const filterOptions: {
-  key: keyof CompanyFilter;
-  title: string;
-  options: { label: string; value: string }[];
-}[] = [
-  {
-    key: "field",
-    title: "Lĩnh vực",
-    options: [
-      { label: "Công nghệ thông tin", value: "Công nghệ thông tin" },
-      { label: "Tài chính – Ngân hàng", value: "Tài chính – Ngân hàng" },
-      { label: "Sản xuất & Chế tạo", value: "Sản xuất & Chế tạo" },
-      { label: "Xây dựng & Bất động sản", value: "Xây dựng & Bất động sản" },
-      { label: "Vận tải & Logistics", value: "Vận tải & Logistics" },
-      { label: "Du lịch & Dịch vụ", value: "Du lịch & Dịch vụ" },
-      { label: "Khác", value: "Khác" },
-    ],
-  },
-  {
-    key: "employees",
-    title: "Số lượng nhân viên",
-    options: [
-      { label: "0 - 50", value: "small" },
-      { label: "50 - 100", value: "medium" },
-      { label: "> 100", value: "big" },
-    ],
-  },
-];
-
 export const FilterBar = ({
   companyFilter,
   setCompanyFilter,
 }: FilterBarProps) => {
+  // Fetch dynamic data from API
+  const { data: companyDomainsData } = useQuery({
+    queryKey: ["companyDomains"],
+    queryFn: getAllCompanyDomains,
+  });
+
+  const filterOptions: {
+    key: keyof CompanyFilter;
+    title: string;
+    options: { label: string; value: string }[];
+  }[] = [
+    {
+      key: "field",
+      title: "Lĩnh vực",
+      options: companyDomainsData?.map((item: { id: number; domain: string }) => ({
+        label: item.domain,
+        value: item.domain,
+      })) || [],
+    },
+    {
+      key: "employees",
+      title: "Số lượng nhân viên",
+      // Hard-coded temporarily (no backend table yet)
+      options: [
+        { label: "0 - 50", value: "small" },
+        { label: "50 - 100", value: "medium" },
+        { label: "> 100", value: "big" },
+      ],
+    },
+  ];
   const handleToggle = (groupKey: keyof CompanyFilter, value: string) => {
     setCompanyFilter((prev) => {
       const currentValues = prev[groupKey] || [];

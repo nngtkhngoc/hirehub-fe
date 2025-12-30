@@ -28,6 +28,7 @@ const navItems = [
   { path: "/admin/jobs", icon: Briefcase, label: "Quản lý công việc" },
   { path: "/admin/resumes", icon: FileText, label: "Quản lý hồ sơ" },
   { path: "/admin/violations", icon: AlertTriangle, label: "Vi phạm" },
+  { path: "/admin/system-options", icon: Settings, label: "Tùy chọn hệ thống" },
 ];
 
 export const AdminLayout = () => {
