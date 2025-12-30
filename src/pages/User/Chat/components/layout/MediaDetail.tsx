@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useChat } from "@/hooks/useChat";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useParams } from "react-router";
+import { ImagePreviewDialog } from "../ui/ImagePreviewDialog";
 
 export default function MediaDetail({
   view,
@@ -23,6 +24,11 @@ export default function MediaDetail({
     userId,
     messageTypes
   );
+
+  const [previewImage, setPreviewImage] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
 
   return (
     <div className="flex flex-col items-center gap-5 bg-white border border-zinc-300 rounded-xl bg-white h-full">
@@ -65,7 +71,13 @@ export default function MediaDetail({
                   <img
                     key={msg.id}
                     src={msg.content}
-                    className="m-2 w-24 h-24 object-cover"
+                    className="m-2 w-24 h-24 object-cover cursor-pointer hover:brightness-90 transition-all rounded-lg"
+                    onClick={() =>
+                      setPreviewImage({
+                        url: msg.content,
+                        name: msg.fileName || "image",
+                      })
+                    }
                   />
                 )
             )}
@@ -94,6 +106,12 @@ export default function MediaDetail({
             )}
         </div>
       )}
+      <ImagePreviewDialog
+        isOpen={!!previewImage}
+        onClose={() => setPreviewImage(null)}
+        imageUrl={previewImage?.url || ""}
+        imageName={previewImage?.name || ""}
+      />
     </div>
   );
 }

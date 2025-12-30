@@ -14,6 +14,7 @@ import { uploadFile } from "@/apis/chat.api";
 import { markConversationAsRead } from "@/apis/conversation.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { ImagePreviewDialog } from "../ui/ImagePreviewDialog";
 
 export const Chatbox = ({
   conversation,
@@ -169,7 +170,7 @@ export const Chatbox = ({
 
       // Nếu user hiện tại bị kick hoặc rời nhóm, chuyển sang conversation khác
       const isCurrentUserAffected = eventData.affectedUsers?.some(
-        (u) => u.id === userId || u.id?.toString() === user?.id
+        (u) => String(u.id) === String(userId) || String(u.id) === String(user?.id)
       );
 
       if (
@@ -255,11 +256,15 @@ export const Chatbox = ({
       setOpenPickerFor(msgId || null);
     }
   };
+  const [previewImage, setPreviewImage] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (messages.length === 0) return;
 
-    const lastMsg = messages[messages.length - 1];
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
@@ -372,8 +377,8 @@ export const Chatbox = ({
                   {m.type === "text" && (
                     <div
                       className={`px-4 py-2 rounded-2xl shadow-sm whitespace-pre-wrap break-words max-w-xs md:max-w-md ${isMine
-                          ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
-                          : "bg-zinc-200 text-zinc-800 rounded-bl-none"
+                        ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-br-none shadow-md"
+                        : "bg-zinc-200 text-zinc-800 rounded-bl-none"
                         }`}
                     >
                       <span>{m.content}</span>
@@ -383,8 +388,14 @@ export const Chatbox = ({
                   {m.type === "image" && (
                     <img
                       src={m.content}
-                      className="rounded-2xl max-w-[220px] w-full h-auto cursor-pointer border border-zinc-200 object-contain"
+                      className="rounded-2xl max-w-[220px] w-full h-auto cursor-pointer border border-zinc-200 object-contain hover:brightness-95 transition-all"
                       alt="img"
+                      onClick={() =>
+                        setPreviewImage({
+                          url: m.content!,
+                          name: m.fileName || "image",
+                        })
+                      }
                     />
                   )}
 
@@ -516,6 +527,13 @@ export const Chatbox = ({
           <Send className="w-5 h-5" />
         </button>
       </div>
+
+      <ImagePreviewDialog
+        isOpen={!!previewImage}
+        onClose={() => setPreviewImage(null)}
+        imageUrl={previewImage?.url || ""}
+        imageName={previewImage?.name || ""}
+      />
     </div>
   );
 };
