@@ -38,6 +38,7 @@ export type Conversation = {
   createdAt: string;
   updatedAt: string;
   unreadCount?: number;
+  deletedAt?: string | null;
 };
 
 // Group event types for socket notifications

@@ -30,9 +30,12 @@ export const ChatList = () => {
     }
 
     // Chỉ hiển thị những conversation đã có tin nhắn (lastMessage khác null)
-    const visibleConversations = conversations.filter(
-      (c: Conversation) => c.lastMessage != null
-    );
+    // Và không bị ẩn (lastMessage.createdAt sau deletedAt)
+    const visibleConversations = conversations.filter((c: Conversation) => {
+      if (!c.lastMessage) return false;
+      if (!c.deletedAt) return true;
+      return new Date(c.lastMessage.createdAt) > new Date(c.deletedAt);
+    });
 
     if (visibleConversations.length === 0) {
       return (

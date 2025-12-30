@@ -1,11 +1,8 @@
 import { Building, Camera, Edit3, MapPin } from "lucide-react";
-import { COMPANY_FIELDS, COMPANY_SCALES } from "@/constants/companyFields";
-import { toast } from "sonner";
+import { COMPANY_SCALES } from "@/constants/companyFields";
 import type { UserProfile } from "@/types/Auth";
 import { useEffect, useState } from "react";
 import { useUpdateUser } from "@/hooks/useUser";
-import { useQuery } from "@tanstack/react-query";
-import { getAllProvinces } from "@/apis/map.api";
 import {
   Dialog,
   DialogClose,
@@ -18,15 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
 import { useMediaQuery } from "@mui/material";
 
@@ -48,11 +36,6 @@ export const CompanyBasicInfo = ({
   useEffect(() => {
     setDraftUser(company);
   }, [company]);
-
-  const { data: provinces } = useQuery({
-    queryKey: ["provinces"],
-    queryFn: getAllProvinces,
-  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
