@@ -50,7 +50,12 @@ export const Header = () => {
   ];
   const location = window.location.pathname;
   const isActive = (link: string) => {
-    return location === link;
+    if (link === "/") return location === "/";
+    if (link === "/job-list" && location.startsWith("/job-details")) return true;
+    if (link === "/company-list" && location.startsWith("/company-details"))
+      return true;
+    if (link === "/user-list" && location.startsWith("/user/")) return true;
+    return location.startsWith(link);
   };
   const renderNavLinks = () => {
     return navLinks.map((navLink) => (
