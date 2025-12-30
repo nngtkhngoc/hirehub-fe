@@ -37,7 +37,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
-import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 
 interface CompanyDomain {
   id: number;
@@ -49,7 +55,9 @@ export const CompanyDomainManagement = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedDomain, setSelectedDomain] = useState<CompanyDomain | null>(null);
+  const [selectedDomain, setSelectedDomain] = useState<CompanyDomain | null>(
+    null
+  );
   const [inputValue, setInputValue] = useState("");
 
   const { data: domains = [], isLoading } = useQuery({
@@ -106,7 +114,10 @@ export const CompanyDomainManagement = () => {
 
   const handleEdit = () => {
     if (selectedDomain && inputValue.trim()) {
-      updateMutation.mutate({ id: selectedDomain.id, domain: inputValue.trim() });
+      updateMutation.mutate({
+        id: selectedDomain.id,
+        domain: inputValue.trim(),
+      });
     }
   };
 
@@ -132,13 +143,14 @@ export const CompanyDomainManagement = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Tổng số: <span className="font-semibold">{domains.length}</span> lĩnh vực
-        </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}
+          size="lg"
+          className="h-10 px-6"
+        >
+          <Plus className="w-5 h-5 mr-2" />
           Thêm lĩnh vực
         </Button>
       </div>
@@ -156,35 +168,52 @@ export const CompanyDomainManagement = () => {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border rounded-xl shadow-sm overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-20">ID</TableHead>
-                <TableHead>Tên lĩnh vực</TableHead>
-                <TableHead className="w-32 text-right">Thao tác</TableHead>
+              <TableRow className="bg-gray-50 hover:bg-gray-50">
+                <TableHead className="w-24 py-4 px-6 text-base font-semibold">
+                  ID
+                </TableHead>
+                <TableHead className="py-4 px-6 text-base font-semibold">
+                  Tên lĩnh vực
+                </TableHead>
+                <TableHead className="w-40 text-right py-4 px-6 text-base font-semibold">
+                  Thao tác
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {domains.map((domain: CompanyDomain) => (
-                <TableRow key={domain.id}>
-                  <TableCell>{domain.id}</TableCell>
-                  <TableCell className="font-medium">{domain.domain}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                <TableRow
+                  key={domain.id}
+                  className="hover:bg-gray-50/50 transition-colors"
+                >
+                  <TableCell className="py-5 px-6 text-base font-medium text-gray-700">
+                    {domain.id}
+                  </TableCell>
+                  <TableCell className="py-5 px-6 text-base font-medium">
+                    {domain.domain}
+                  </TableCell>
+                  <TableCell className="text-right py-5 px-6">
+                    <div className="flex justify-end gap-3">
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="outline"
+                        size="sm"
+                        className="h-9 px-4"
                         onClick={() => openEditDialog(domain)}
                       >
-                        <Pencil className="w-4 h-4" />
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Sửa
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="outline"
+                        size="sm"
+                        className="h-9 px-4 text-destructive hover:text-destructive"
                         onClick={() => openDeleteDialog(domain)}
                       >
-                        <Trash2 className="w-4 h-4 text-destructive" />
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Xóa
                       </Button>
                     </div>
                   </TableCell>
@@ -197,33 +226,43 @@ export const CompanyDomainManagement = () => {
 
       {/* Create Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Thêm lĩnh vực mới</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl">Thêm lĩnh vực mới</DialogTitle>
+            <DialogDescription className="text-base">
               Nhập tên lĩnh vực công ty mới
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="domain">Tên lĩnh vực</Label>
-            <Input
-              id="domain"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="VD: Công nghệ thông tin"
-            />
+          <div className="space-y-4 py-4">
+            <div className="space-y-3">
+              <Label htmlFor="domain" className="text-base font-medium">
+                Tên lĩnh vực
+              </Label>
+              <Input
+                id="domain"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="VD: Công nghệ thông tin"
+                className="h-12 text-base"
+              />
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => {
                 setIsCreateDialogOpen(false);
                 setInputValue("");
               }}
+              className="h-11 px-6"
             >
               Hủy
             </Button>
-            <Button onClick={handleCreate} disabled={!inputValue.trim()}>
+            <Button
+              onClick={handleCreate}
+              disabled={!inputValue.trim()}
+              className="h-11 px-6"
+            >
               Thêm
             </Button>
           </DialogFooter>
@@ -232,23 +271,28 @@ export const CompanyDomainManagement = () => {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Chỉnh sửa lĩnh vực</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl">Chỉnh sửa lĩnh vực</DialogTitle>
+            <DialogDescription className="text-base">
               Cập nhật tên lĩnh vực công ty
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="edit-domain">Tên lĩnh vực</Label>
-            <Input
-              id="edit-domain"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="VD: Công nghệ thông tin"
-            />
+          <div className="space-y-4 py-4">
+            <div className="space-y-3">
+              <Label htmlFor="edit-domain" className="text-base font-medium">
+                Tên lĩnh vực
+              </Label>
+              <Input
+                id="edit-domain"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="VD: Công nghệ thông tin"
+                className="h-12 text-base"
+              />
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => {
@@ -256,10 +300,15 @@ export const CompanyDomainManagement = () => {
                 setSelectedDomain(null);
                 setInputValue("");
               }}
+              className="h-11 px-6"
             >
               Hủy
             </Button>
-            <Button onClick={handleEdit} disabled={!inputValue.trim()}>
+            <Button
+              onClick={handleEdit}
+              disabled={!inputValue.trim()}
+              className="h-11 px-6"
+            >
               Cập nhật
             </Button>
           </DialogFooter>
@@ -267,7 +316,10 @@ export const CompanyDomainManagement = () => {
       </Dialog>
 
       {/* Delete Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
@@ -292,4 +344,3 @@ export const CompanyDomainManagement = () => {
     </div>
   );
 };
-

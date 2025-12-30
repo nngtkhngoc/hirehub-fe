@@ -132,13 +132,10 @@ export const WorkTypeManagement = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Tổng số: <span className="font-semibold">{types.length}</span> hình thức
-        </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button onClick={() => setIsCreateDialogOpen(true)} size="lg" className="h-11 px-6">
+          <Plus className="w-5 h-5 mr-2" />
           Thêm hình thức
         </Button>
       </div>
@@ -156,35 +153,39 @@ export const WorkTypeManagement = () => {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border rounded-xl shadow-sm overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-20">ID</TableHead>
-                <TableHead>Hình thức làm việc</TableHead>
-                <TableHead className="w-32 text-right">Thao tác</TableHead>
+              <TableRow className="bg-gray-50 hover:bg-gray-50">
+                <TableHead className="w-24 py-4 px-6 text-base font-semibold">ID</TableHead>
+                <TableHead className="py-4 px-6 text-base font-semibold">Hình thức làm việc</TableHead>
+                <TableHead className="w-40 text-right py-4 px-6 text-base font-semibold">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {types.map((type: WorkType) => (
-                <TableRow key={type.id}>
-                  <TableCell>{type.id}</TableCell>
-                  <TableCell className="font-medium">{type.workspace}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                <TableRow key={type.id} className="hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="py-5 px-6 text-base font-medium text-gray-700">{type.id}</TableCell>
+                  <TableCell className="py-5 px-6 text-base font-medium">{type.workspace}</TableCell>
+                  <TableCell className="text-right py-5 px-6">
+                    <div className="flex justify-end gap-3">
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="outline"
+                        size="sm"
+                        className="h-9 px-4"
                         onClick={() => openEditDialog(type)}
                       >
-                        <Pencil className="w-4 h-4" />
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Sửa
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="icon"
+                        variant="outline"
+                        size="sm"
+                        className="h-9 px-4 text-destructive hover:text-destructive"
                         onClick={() => openDeleteDialog(type)}
                       >
-                        <Trash2 className="w-4 h-4 text-destructive" />
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Xóa
                       </Button>
                     </div>
                   </TableCell>
@@ -197,33 +198,37 @@ export const WorkTypeManagement = () => {
 
       {/* Create Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Thêm hình thức làm việc mới</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl">Thêm hình thức làm việc mới</DialogTitle>
+            <DialogDescription className="text-base">
               Nhập tên hình thức làm việc mới
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="workspace">Hình thức làm việc</Label>
-            <Input
-              id="workspace"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="VD: Remote"
-            />
+          <div className="space-y-4 py-4">
+            <div className="space-y-3">
+              <Label htmlFor="workspace" className="text-base font-medium">Hình thức làm việc</Label>
+              <Input
+                id="workspace"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="VD: Remote"
+                className="h-12 text-base"
+              />
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => {
                 setIsCreateDialogOpen(false);
                 setInputValue("");
               }}
+              className="h-11 px-6"
             >
               Hủy
             </Button>
-            <Button onClick={handleCreate} disabled={!inputValue.trim()}>
+            <Button onClick={handleCreate} disabled={!inputValue.trim()} className="h-11 px-6">
               Thêm
             </Button>
           </DialogFooter>
@@ -232,23 +237,26 @@ export const WorkTypeManagement = () => {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Chỉnh sửa hình thức làm việc</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl">Chỉnh sửa hình thức làm việc</DialogTitle>
+            <DialogDescription className="text-base">
               Cập nhật tên hình thức làm việc
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="edit-workspace">Hình thức làm việc</Label>
-            <Input
-              id="edit-workspace"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="VD: Remote"
-            />
+          <div className="space-y-4 py-4">
+            <div className="space-y-3">
+              <Label htmlFor="edit-workspace" className="text-base font-medium">Hình thức làm việc</Label>
+              <Input
+                id="edit-workspace"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="VD: Remote"
+                className="h-12 text-base"
+              />
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => {
@@ -256,10 +264,11 @@ export const WorkTypeManagement = () => {
                 setSelectedType(null);
                 setInputValue("");
               }}
+              className="h-11 px-6"
             >
               Hủy
             </Button>
-            <Button onClick={handleEdit} disabled={!inputValue.trim()}>
+            <Button onClick={handleEdit} disabled={!inputValue.trim()} className="h-11 px-6">
               Cập nhật
             </Button>
           </DialogFooter>
