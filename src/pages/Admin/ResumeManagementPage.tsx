@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllResumesAdmin, banResume, unbanResume } from "@/apis/admin.api";
+import { getAllResumesAdmin, banResume, unbanResume, getAllUsersAdmin } from "@/apis/admin.api";
 import { Search, FileText, Eye, Filter, Ban, UserCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Combobox } from "@/components/ui/combobox";
 import {
     Select,
     SelectContent,
@@ -45,6 +46,8 @@ const ITEMS_PER_PAGE = 10;
 export const ResumeManagementPage = () => {
     const [keyword, setKeyword] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [selectedUserId, setSelectedUserId] = useState<number | "">("");
+    const [selectedCompanyId, setSelectedCompanyId] = useState<number | "">("");
     const [currentPage, setCurrentPage] = useState(1);
     const [coverLetterDialog, setCoverLetterDialog] = useState<{
         open: boolean;
@@ -62,9 +65,25 @@ export const ResumeManagementPage = () => {
 
     const queryClient = useQueryClient();
 
+    // Fetch users for filter
+    const { data: usersData } = useQuery({
+        queryKey: ["admin-users-list"],
+        queryFn: () => getAllUsersAdmin({ role: "user", size: 1000 }),
+    });
+
+    // Fetch recruiters for company filter
+    const { data: recruitersData } = useQuery({
+        queryKey: ["admin-recruiters-list"],
+        queryFn: () => getAllUsersAdmin({ role: "recruiter", size: 1000 }),
+    });
+
     const { data: resumes, isLoading } = useQuery({
-        queryKey: ["admin-resumes"],
-        queryFn: () => getAllResumesAdmin(),
+        queryKey: ["admin-resumes", statusFilter, selectedUserId, selectedCompanyId],
+        queryFn: () => getAllResumesAdmin({
+            status: statusFilter === "all" ? undefined : statusFilter,
+            user: selectedUserId || undefined,
+            recruiter: selectedCompanyId || undefined,
+        }),
     });
 
     // Ban mutation
@@ -94,7 +113,7 @@ export const ResumeManagementPage = () => {
         },
     });
 
-    // Filter resumes based on search and status
+    // Filter resumes based on search (Frontend filtering for keyword only)
     const filteredResumes = resumes?.filter((resume) => {
         const matchesKeyword =
             keyword === "" ||
@@ -102,10 +121,7 @@ export const ResumeManagementPage = () => {
             resume.user?.email?.toLowerCase().includes(keyword.toLowerCase()) ||
             resume.job?.title?.toLowerCase().includes(keyword.toLowerCase());
 
-        const matchesStatus =
-            statusFilter === "all" || resume.status === statusFilter;
-
-        return matchesKeyword && matchesStatus;
+        return matchesKeyword;
     }) || [];
 
     // Pagination
@@ -123,6 +139,16 @@ export const ResumeManagementPage = () => {
 
     const handleStatusChange = (value: string) => {
         setStatusFilter(value);
+        setCurrentPage(1);
+    };
+
+    const handleUserChange = (value: string | number) => {
+        setSelectedUserId(value as number | "");
+        setCurrentPage(1);
+    };
+
+    const handleCompanyChange = (value: string | number) => {
+        setSelectedCompanyId(value as number | "");
         setCurrentPage(1);
     };
 
@@ -214,13 +240,41 @@ export const ResumeManagementPage = () => {
                             <SelectValue placeholder="Lọc theo trạng thái" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Tất cả</SelectItem>
+                            <SelectItem value="all">Tất cả trạng thái</SelectItem>
                             <SelectItem value="NOT VIEW">Chưa xem</SelectItem>
                             <SelectItem value="VIEWED">Đã xem</SelectItem>
                             <SelectItem value="ACCEPTED">Đã chấp nhận</SelectItem>
                             <SelectItem value="REJECTED">Đã từ chối</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    {/* User Filter */}
+                    <Combobox
+                        options={(usersData?.content || []).map((u: any) => ({
+                            value: u.id,
+                            label: u.name || u.email
+                        }))}
+                        value={selectedUserId}
+                        onChange={handleUserChange}
+                        placeholder="Lọc theo ứng viên"
+                        emptyMessage="Không tìm thấy ứng viên"
+                        className="w-full sm:w-48"
+                        icon={<Filter size={16} />}
+                    />
+
+                    {/* Company Filter */}
+                    <Combobox
+                        options={(recruitersData?.content || []).map((r: any) => ({
+                            value: r.id,
+                            label: r.name || r.email
+                        }))}
+                        value={selectedCompanyId}
+                        onChange={handleCompanyChange}
+                        placeholder="Lọc theo công ty"
+                        emptyMessage="Không tìm thấy công ty"
+                        className="w-full sm:w-48"
+                        icon={<Filter size={16} />}
+                    />
                 </div>
             </div>
 

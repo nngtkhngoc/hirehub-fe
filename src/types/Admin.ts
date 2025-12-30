@@ -58,6 +58,8 @@ export type AdminJob = {
     violationExplanation: string | null;
     // Admin ban reason
     banReason: string | null;
+    // Applicants count
+    candidatesCount?: number;
 };
 
 export type AdminResume = {

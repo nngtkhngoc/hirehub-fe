@@ -55,6 +55,7 @@ export const JobManagementPage = () => {
         violationType?: string | null;
         violationExplanation?: string | null;
         banReason?: string | null;
+        candidatesCount?: number;
     } | null>(null);
     const [reviewAction, setReviewAction] = useState<"approve" | "reject">("approve");
     const [actionReason, setActionReason] = useState("");
@@ -253,6 +254,9 @@ export const JobManagementPage = () => {
                                     Ngày đăng
                                 </th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
+                                    Ứng viên
+                                </th>
+                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
                                     Trạng thái
                                 </th>
                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
@@ -284,6 +288,9 @@ export const JobManagementPage = () => {
                                             <div className="h-4 bg-gray-200 rounded w-20"></div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
+                                            <div className="h-6 bg-gray-200 rounded-full w-10 mx-auto"></div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
                                             <div className="h-6 bg-gray-200 rounded-full w-16 mx-auto"></div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -293,7 +300,7 @@ export const JobManagementPage = () => {
                                 ))
                             ) : jobs.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6}>
+                                    <td colSpan={7}>
                                         <Empty className="py-12">
                                             <EmptyHeader>
                                                 <EmptyMedia variant="icon">
@@ -370,6 +377,16 @@ export const JobManagementPage = () => {
                                             {formatDate(job.postingDate)}
                                         </td>
 
+                                        {/* Candidates Count */}
+                                        <td className="px-6 py-4 text-center">
+                                            <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-1 rounded-full text-xs font-medium ${(job.candidatesCount || 0) > 0
+                                                ? "bg-purple-100 text-purple-700"
+                                                : "bg-gray-100 text-gray-500"
+                                                }`}>
+                                                {job.candidatesCount || 0}
+                                            </span>
+                                        </td>
+
                                         {/* Status */}
                                         <td className="px-6 py-4 text-center">
                                             {job.status === "PENDING" ? (
@@ -394,7 +411,7 @@ export const JobManagementPage = () => {
                                         {/* Actions */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-start justify-start gap-2 text-sm">
-                                                {job.status === "PENDING" ? (
+                                                {job.status === "PENDING" && (
                                                     <Button
                                                         size="sm"
                                                         variant={job.violationType ? "outline" : "outline"}
@@ -412,6 +429,7 @@ export const JobManagementPage = () => {
                                                                 jobTitle: job.title,
                                                                 violationType: job.violationType,
                                                                 violationExplanation: job.violationExplanation,
+                                                                candidatesCount: job.candidatesCount,
                                                             });
                                                         }}
                                                     >
@@ -427,24 +445,33 @@ export const JobManagementPage = () => {
                                                             </>
                                                         )}
                                                     </Button>
-                                                ) : (job.status === "APPROVED" || job.status === "ACTIVE") && !job.status == "BANNED" ? (
+                                                )}
+
+                                                {/* Ban button - show for all non-banned, non-pending jobs */}
+                                                {job.status !== "BANNED" && job.status !== "PENDING" && (
                                                     <Button
                                                         size="sm"
                                                         variant="destructive"
                                                         className="text-white hover:cursor-pointer text-sm"
-                                                        onClick={() =>
+                                                        onClick={() => {
+                                                            setActionReason("");
                                                             setConfirmDialog({
                                                                 open: true,
                                                                 type: "ban",
                                                                 jobId: job.id,
                                                                 jobTitle: job.title,
-                                                            })
-                                                        }
+                                                                violationType: job.violationType,
+                                                                candidatesCount: job.candidatesCount,
+                                                            });
+                                                        }}
                                                     >
                                                         <Ban size={14} className="mr-1" />
                                                         Cấm
                                                     </Button>
-                                                ) : (job.status === "BANNED" || job.status == "BANNED") ? (
+                                                )}
+
+                                                {/* Unban button - show for banned jobs */}
+                                                {job.status === "BANNED" && (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -464,7 +491,7 @@ export const JobManagementPage = () => {
                                                         <UserCheck size={14} className="mr-1" />
                                                         Bỏ cấm
                                                     </Button>
-                                                ) : null}
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -591,6 +618,24 @@ export const JobManagementPage = () => {
                                                 </span>
                                                 <p className="text-sm text-red-800 bg-red-100 rounded p-2">
                                                     {confirmDialog.banReason}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Warning for banning jobs without violations but with applicants */}
+                                {confirmDialog?.type === "ban" && !confirmDialog.violationType && (confirmDialog.candidatesCount || 0) >= 1 && (
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div className="flex items-start gap-3">
+                                            <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-sm font-medium text-yellow-800">
+                                                    Cảnh báo: Công việc này có {confirmDialog.candidatesCount} ứng viên đã ứng tuyển
+                                                </span>
+                                                <p className="text-sm text-yellow-700">
+                                                    Công việc này không được phát hiện vi phạm và đã có người ứng tuyển.
+                                                    Việc cấm có thể ảnh hưởng đến các ứng viên và nhà tuyển dụng. Bạn có chắc chắn muốn tiếp tục?
                                                 </p>
                                             </div>
                                         </div>

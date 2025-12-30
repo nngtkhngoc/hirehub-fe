@@ -109,6 +109,7 @@ export const getAllResumesAdmin = async (params?: {
     user?: number;
     job?: number;
     recruiter?: number;
+    status?: string;
 }): Promise<AdminResume[]> => {
     const res = await axiosClient.get(`${BASE_URL}/api/resumes`, { params });
     return res.data;
