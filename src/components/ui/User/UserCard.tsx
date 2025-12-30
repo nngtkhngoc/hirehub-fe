@@ -1,14 +1,32 @@
+import React from "react";
 import profile from "@/assets/illustration/default_profile.webp";
 
 import ConnectionButton from "./ConnectionButton";
 import type { UserProfile } from "@/types/Auth";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { MessageCircle, Eye } from "lucide-react";
+import { PrimaryButton } from "./Button";
 
 interface UserCardProps {
   user: UserProfile;
 }
 
 export const UserCard = ({ user }: UserCardProps) => {
+  const { user: currentUser } = useAuthStore();
+  const navigate = useNavigate();
+
+  const role = currentUser?.role?.name?.toLowerCase();
+  const isAdmin = role === "admin";
+  const isRecruiter = role === "recruiter";
+  const isCandidate = !currentUser || (role !== "admin" && role !== "recruiter");
+
+  const handleAction = (e: React.MouseEvent, path: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(path);
+  };
+
   return (
     <Link to={`/user/${user.id}`}>
       <div className="bg-white w-[292px] h-[410px] rounded-[30px] border border-[#DBDBDB] flex flex-col gap-[10px] items-center justify-center group hover:shadow-[0_4px_4px_#DFD2FA] hover:scale-[1.02] cursor-pointer transition-all duration-300">
@@ -36,7 +54,10 @@ export const UserCard = ({ user }: UserCardProps) => {
 
         <div className="flex flex-row justify-center items-center gap-[8px]  text-[10px]  font-title h-[36px]">
           {user.skills?.slice(0, 3).map((skill) => (
-            <div className="px-[10px] py-[5px] border border-[0.5px] border-[#A6A6A6] text-[#A6A6A6] font-medium rounded-[30px]">
+            <div
+              key={skill.id}
+              className="px-[10px] py-[5px] border border-[0.5px] border-[#A6A6A6] text-[#A6A6A6] font-medium rounded-[30px]"
+            >
               {skill.name}
             </div>
           ))}
@@ -50,9 +71,33 @@ export const UserCard = ({ user }: UserCardProps) => {
           )}
         </div>
 
-        <div className="border-b border-[#DBDBDB] my-2  w-1/2"></div>
+        {(isCandidate || isRecruiter || isAdmin) && (
+          <div className="border-b border-[#DBDBDB] my-2  w-1/2"></div>
+        )}
 
-        <ConnectionButton targetUser={user} variant="primary" />
+        {isCandidate && (
+          <ConnectionButton targetUser={user} variant="primary" />
+        )}
+
+        {isRecruiter && (
+          <PrimaryButton
+            label="Nhắn tin"
+            icon={<MessageCircle size={18} />}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+              handleAction(e, `/chat/${user.id}`)
+            }
+          />
+        )}
+
+        {isAdmin && (
+          <PrimaryButton
+            label="Xem chi tiết"
+            icon={<Eye size={18} />}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+              handleAction(e, `/user/${user.id}`)
+            }
+          />
+        )}
       </div>
     </Link>
   );

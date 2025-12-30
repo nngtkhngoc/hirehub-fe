@@ -41,6 +41,8 @@ export const applyJobSchema: yup.ObjectSchema<ApplyJobFormData> = yup.object({
 
 export const JobTitle = ({ job }: { job: Job }) => {
   const user = useAuthStore((state) => state.user);
+  const role = user?.role?.name?.toLowerCase();
+  const showActions = role !== "recruiter" && role !== "admin";
 
   const { data: savedJobs } = useGetSavedJobs();
   const { data: appliedJobs } = useGetAppliedJobs();
@@ -118,7 +120,7 @@ export const JobTitle = ({ job }: { job: Job }) => {
       </div>
       <div className="flex flex-row justfiy-end gap-2">
         {" "}
-        {user?.role?.name?.toLowerCase() !== "recruiter" && (
+        {showActions && (
           <button
             className="rounded-[10px] bg-[#EFE9FD] w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-500 cursor-pointer"
             onClick={() => toggleSaveJob(job?.id)}
@@ -134,7 +136,7 @@ export const JobTitle = ({ job }: { job: Job }) => {
             />
           </button>
         )}
-        {user?.role?.name?.toLowerCase() !== "recruiter" && (
+        {showActions && (
           isAppliedJob ? (
             <a
               target="_blank"

@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import React from "react";
 
 interface ButtonProps {
   label?: ReactNode;
-  onClick?: () => void;
+  icon?: ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   outlineColor?: string;
   bgColor?: string;
   hoverBgColor?: string;
@@ -20,6 +22,7 @@ interface ButtonProps {
 
 export const PrimaryButton = ({
   label = "Primary Button",
+  icon,
   onClick,
   outlineColor,
   bgColor = "bg-gradient-to-r from-[#7749DA] to-[#38128A]",
@@ -39,7 +42,8 @@ export const PrimaryButton = ({
     ${paddingX} ${paddingY} ${textSize}
     ${textColor} rounded-[30px] transition-all duration-500 shadow-[0_4px_4px_#DFD2FA]
     ${disabled ? disabledColor : loading ? loadingColor : bgColor} 
-    ${!disabled && !loading ? hoverBgColor : ""}`;
+    ${!disabled && !loading ? hoverBgColor : ""}
+    flex items-center justify-center gap-2`;
 
   return (
     <button
@@ -48,13 +52,21 @@ export const PrimaryButton = ({
       disabled={disabled}
       className={buttonClass}
     >
-      {loading ? loadingText : label}
+      {loading ? (
+        loadingText
+      ) : (
+        <>
+          {icon}
+          {label}
+        </>
+      )}
     </button>
   );
 };
 
 export const OutlineButton = ({
   label = "Primary Button",
+  icon,
   onClick,
   outlineColor = "border border-[2px] border-primary",
   bgColor = "bg-white",
@@ -74,7 +86,7 @@ export const OutlineButton = ({
     ${textColor} rounded-[30px] transition-all duration-500 shadow-[0_4px_4px_#DFD2FA]
     ${disabled ? disabledColor : loading ? loadingColor : bgColor} 
     ${!disabled && !loading ? hoverBgColor : ""}
-  `;
+    flex items-center justify-center gap-2`;
 
   return (
     <button
@@ -82,7 +94,14 @@ export const OutlineButton = ({
       disabled={disabled}
       className={buttonClass}
     >
-      {loading ? loadingText : label}
+      {loading ? (
+        loadingText
+      ) : (
+        <>
+          {icon}
+          {label}
+        </>
+      )}
     </button>
   );
 };

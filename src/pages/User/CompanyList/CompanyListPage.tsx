@@ -58,11 +58,11 @@ export const CompanyListPage = () => {
     keyword || undefined,
     province
       ? province
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .trim()
       : undefined,
     page,
     size
@@ -72,8 +72,8 @@ export const CompanyListPage = () => {
   const endIndex = startIndex + recruitersPerPage;
   const filteredRecruiters =
     recruiters &&
-    recruiters.length > 0 &&
-    recruiters?.filter((recruiter) => {
+    recruiters.content.length > 0 &&
+    recruiters.content?.filter((recruiter) => {
       const matchField =
         companyFilter.field.length === 0 ||
         companyFilter.field.includes(recruiter.field);

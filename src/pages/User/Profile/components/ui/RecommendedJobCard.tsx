@@ -29,7 +29,8 @@ export const RecommendedJobCard = ({ job }: { job: Job }) => {
         <div className="font-regular text-[#888888] text-[12px]">
           {job.recruiter.name}
         </div>
-        {user?.role?.name?.toLowerCase() === "recruiter" ? (
+        {user?.role?.name?.toLowerCase() === "recruiter" ||
+          user?.role?.name?.toLowerCase() === "admin" ? (
           <Link to={`/job-details/${job.id}`}>
             <Button variant="outline">
               <div className="flex flex-row items-center text-[#5E1EE6] justify-center gap-2 ">
