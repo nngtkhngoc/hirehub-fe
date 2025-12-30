@@ -8,7 +8,6 @@ import {
   useCreateRelationship,
   useFriends,
   useRelationship,
-  useUpdateRelationshipStatus,
   useDisconnect,
 } from "@/hooks/useRelationship";
 import { toast } from "sonner";
@@ -28,85 +27,85 @@ const ConnectionButton = ({
   const { data: friends } = useFriends(Number(user?.id));
   const { data: relationships } = useRelationship(Number(user?.id));
   const { mutate: createRelationship } = useCreateRelationship();
-  const { mutate: updateRelationshipStatus } = useUpdateRelationshipStatus();
   const { mutate: disconnectFriend } = useDisconnect();
 
   const isFriend = friends?.some(
     (friend: any) => friend.user?.id === targetUser?.id
   );
 
-  const isSender = relationships?.some((rel: any) => {
+  // Check if current user sent a pending request to target user
+  const hasPendingRequest = relationships?.some((rel: any) => {
     return (
       rel.sender.id === user?.id &&
       rel.receiver.id === targetUser?.id &&
       rel.status === "pending"
     );
   });
-  const isReceiver = relationships?.some((rel: any) => {
-    return (
-      rel.receiver.id === user?.id &&
-      rel.sender.id === targetUser?.id &&
-      rel.status === "pending"
-    );
-  });
-  // console.log(user);
-  // console.log({ targetUser, user, isSender, isReceiver, isFriend });
+
+  // Determine button text based on state
   const text = isFriend
     ? "Hủy kết nối"
-    : isSender
-      ? "Đã gửi lời mời"
-      : isReceiver
-        ? "Chấp nhận lời mời"
-        : "Kết nối";
+    : hasPendingRequest
+      ? "Hủy lời mời"
+      : "Kết nối";
 
   const handleConnect = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
 
-    // If already friends, disconnect
+    // State 1: Already connected → Disconnect
     if (isFriend) {
-      disconnectFriend({
-        senderId: Number(user?.id),
-        receiverId: Number(targetUser?.id),
-      }, {
-        onSuccess: () => {
-          toast.success("Đã hủy kết nối!", { duration: 2000 });
+      disconnectFriend(
+        {
+          senderId: Number(user?.id),
+          receiverId: Number(targetUser?.id),
         },
-        onError: () => {
-          toast.error("Không thể hủy kết nối!", { duration: 2000 });
+        {
+          onSuccess: () => {
+            toast.success("Đã hủy kết nối!", { duration: 2000 });
+          },
+          onError: () => {
+            toast.error("Không thể hủy kết nối!", { duration: 2000 });
+          },
         }
-      });
+      );
       return;
     }
 
-    if (!isFriend && !isSender && !isReceiver) {
-      createRelationship({
-        senderId: Number(user?.id),
-        receiverId: Number(targetUser?.id),
-      });
-      return;
-    }
-    if (isReceiver) {
-      const relationship = relationships.find(
-        (rel: any) =>
-          rel.receiver.id === Number(user?.id) &&
-          rel.sender.id === Number(targetUser?.id)
-      );
-      toast.success("Đã chấp nhận lời mời kết bạn!", { duration: 2000 });
-      updateRelationshipStatus({
-        id: {
-          receiverId: relationship.receiver.id,
-          senderId: relationship.sender.id,
+    // State 2: Pending request sent → Cancel request (delete connection)
+    if (hasPendingRequest) {
+      disconnectFriend(
+        {
+          senderId: Number(user?.id),
+          receiverId: Number(targetUser?.id),
         },
-        status: "connected",
-      });
+        {
+          onSuccess: () => {
+            toast.success("Đã hủy lời mời!", { duration: 2000 });
+          },
+          onError: () => {
+            toast.error("Không thể hủy lời mời!", { duration: 2000 });
+          },
+        }
+      );
       return;
     }
+
+    // State 3: Not connected → Create connection request
+    createRelationship({
+      senderId: Number(user?.id),
+      receiverId: Number(targetUser?.id),
+    });
   };
-  switch (variant) {
+
+  // Determine button variant: outlined for cancel/disconnect, primary for connect
+  const buttonVariant = isFriend || hasPendingRequest ? "outline" : variant;
+
+  switch (buttonVariant) {
     case "outline":
       return (
         <OutlineButton
+          onClick={handleConnect}
           paddingX="px-[80px]"
           paddingY="py-[8px]"
           label={

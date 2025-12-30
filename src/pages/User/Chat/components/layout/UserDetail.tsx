@@ -258,7 +258,7 @@ export const UserDetail = ({
   }
 
   return (
-    <div className="relative h-full flex flex-col items-center gap-5 border border-zinc-300 rounded-xl bg-white py-30 overflow-y-auto">
+    <div className="relative h-full flex flex-col items-center justify-center gap-5 border border-zinc-300 rounded-xl bg-white py-30 overflow-y-hidden">
       <div className="relative">
         <img
           src={displayInfo.avatar}
@@ -461,11 +461,10 @@ export const UserDetail = ({
                 return (
                   <div
                     key={friendUser?.id}
-                    className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
-                      isSelected
-                        ? "bg-primary/10 border border-primary"
-                        : "hover:bg-zinc-100"
-                    }`}
+                    className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${isSelected
+                      ? "bg-primary/10 border border-primary"
+                      : "hover:bg-zinc-100"
+                      }`}
                     onClick={() => toggleFriend(parseInt(friendUser?.id))}
                   >
                     <img
