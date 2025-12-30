@@ -19,8 +19,8 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
 const recruitmentSubItems = [
-    { path: "/recruiter/jobs", label: "Jobs" },
-    { path: "/recruiter/candidates", label: "Candidates" },
+    { path: "/recruiter/jobs", label: "Việc làm" },
+    { path: "/recruiter/candidates", label: "Ứng viên" },
 ];
 
 export const RecruiterLayout = () => {
@@ -85,7 +85,7 @@ export const RecruiterLayout = () => {
                             }
                         >
                             <LayoutDashboard size={20} />
-                            {!sidebarCollapsed && <span className="font-medium">Dashboard</span>}
+                            {!sidebarCollapsed && <span className="font-medium">Bảng điều khiển</span>}
                         </NavLink>
 
                         {/* Recruitment Section */}
@@ -98,7 +98,7 @@ export const RecruiterLayout = () => {
                                 <div className="flex items-center gap-3">
                                     <Briefcase size={20} className="text-primary" />
                                     {!sidebarCollapsed && (
-                                        <span className="font-medium">Recruitment</span>
+                                        <span className="font-medium">Tuyển dụng</span>
                                     )}
                                 </div>
                                 {!sidebarCollapsed && (

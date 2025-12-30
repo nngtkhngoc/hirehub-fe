@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Eye, FileText, ExternalLink } from "lucide-react";
+import { Search, Eye, FileText, MessageCircle, Check, Clock, X, UserCheck, UserX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,16 +20,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { axiosClient } from "@/lib/axios";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -63,35 +57,82 @@ interface JobPosting {
 }
 
 const statusOptions = [
-    { value: "ALL", label: "All Status" },
-    { value: "NOT VIEW", label: "Not Viewed" },
-    { value: "VIEWED", label: "Viewed" },
-    { value: "ACCEPTED", label: "Accepted" },
-    { value: "REJECTED", label: "Rejected" },
+    { value: "ALL", label: "Tất cả trạng thái", icon: null, color: "" },
+    { value: "NOT VIEW", label: "Chưa xem", icon: Clock, color: "text-gray-600" },
+    { value: "VIEWED", label: "Đã xem", icon: Eye, color: "text-blue-600" },
+    { value: "ACCEPTED", label: "Đã chấp nhận", icon: UserCheck, color: "text-green-600" },
+    { value: "REJECTED", label: "Đã từ chối", icon: UserX, color: "text-red-600" },
 ];
 
-const getStatusBadgeStyles = (status: string) => {
+const getStatusConfig = (status: string) => {
     switch (status) {
         case "NOT VIEW":
-            return "bg-gray-100 text-gray-700";
+            return {
+                bg: "bg-gray-100",
+                text: "text-gray-700",
+                label: "Chưa xem",
+                icon: Clock
+            };
         case "VIEWED":
-            return "bg-blue-100 text-blue-700";
+            return {
+                bg: "bg-blue-100",
+                text: "text-blue-700",
+                label: "Đã xem",
+                icon: Eye
+            };
         case "ACCEPTED":
-            return "bg-green-100 text-green-700";
+            return {
+                bg: "bg-green-100",
+                text: "text-green-700",
+                label: "Đã chấp nhận",
+                icon: UserCheck
+            };
         case "REJECTED":
-            return "bg-red-100 text-red-700";
+            return {
+                bg: "bg-red-100",
+                text: "text-red-700",
+                label: "Đã từ chối",
+                icon: UserX
+            };
         default:
-            return "bg-gray-100 text-gray-700";
+            return {
+                bg: "bg-gray-100",
+                text: "text-gray-700",
+                label: status,
+                icon: Clock
+            };
     }
 };
 
 export const CandidatesPage = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
     const [keyword, setKeyword] = useState("");
-    const [selectedJob, setSelectedJob] = useState<string>("ALL");
+
+    // Read jobId from URL params
+    const jobIdFromUrl = searchParams.get("jobId");
+    const [selectedJob, setSelectedJob] = useState<string>(jobIdFromUrl || "ALL");
     const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
+
+    // Sync URL params with state
+    useEffect(() => {
+        if (jobIdFromUrl) {
+            setSelectedJob(jobIdFromUrl);
+        }
+    }, [jobIdFromUrl]);
+
+    // Update URL when job filter changes
+    const handleJobFilterChange = (value: string) => {
+        setSelectedJob(value);
+        if (value === "ALL") {
+            searchParams.delete("jobId");
+        } else {
+            searchParams.set("jobId", value);
+        }
+        setSearchParams(searchParams);
+    };
 
     // Fetch jobs for filter dropdown
     const { data: jobsData } = useQuery({
@@ -134,14 +175,19 @@ export const CandidatesPage = () => {
             return res.data;
         },
         onSuccess: () => {
-            toast.success("Status updated successfully");
+            toast.success("Cập nhật trạng thái thành công");
             queryClient.invalidateQueries({ queryKey: ["recruiter-candidates"] });
         },
-        onError: () => toast.error("Failed to update status"),
+        onError: () => toast.error("Cập nhật trạng thái thất bại"),
     });
 
     const jobs: JobPosting[] = jobsData?.content || [];
     const resumes: Resume[] = resumesData || [];
+
+    // Get current job title for display
+    const currentJobTitle = selectedJob !== "ALL"
+        ? jobs.find(j => j.id === selectedJob)?.title
+        : null;
 
     // Filter by keyword (search by name or email)
     const filteredResumes = resumes.filter((resume) => {
@@ -176,9 +222,12 @@ export const CandidatesPage = () => {
             {/* Header */}
             <div className="flex items-start justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Ứng viên</h1>
                     <p className="text-gray-500">
-                        Manage all candidates who applied to your jobs
+                        {currentJobTitle
+                            ? `Danh sách ứng viên cho: "${currentJobTitle}"`
+                            : "Quản lý tất cả ứng viên đã ứng tuyển việc làm của bạn"
+                        }
                     </p>
                 </div>
             </div>
@@ -192,20 +241,19 @@ export const CandidatesPage = () => {
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                     />
                     <Input
-                        placeholder="Search by name or email..."
+                        placeholder="Tìm kiếm theo tên hoặc email..."
                         value={keyword}
                         onChange={(e) => setKeyword(e.target.value)}
                         className="pl-10 w-64 bg-white"
                     />
                 </div>
-
                 {/* Job Filter */}
-                <Select value={selectedJob} onValueChange={setSelectedJob}>
+                <Select value={selectedJob} onValueChange={handleJobFilterChange}>
                     <SelectTrigger className="w-48 bg-white">
-                        <SelectValue placeholder="Filter by Job" />
+                        <SelectValue placeholder="Lọc theo việc làm" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="ALL">All Jobs</SelectItem>
+                        <SelectItem value="ALL">Tất cả việc làm</SelectItem>
                         {jobs.map((job) => (
                             <SelectItem key={job.id} value={job.id.toString()}>
                                 {job.title}
@@ -213,11 +261,10 @@ export const CandidatesPage = () => {
                         ))}
                     </SelectContent>
                 </Select>
-
                 {/* Status Filter */}
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                    <SelectTrigger className="w-40 bg-white">
-                        <SelectValue placeholder="Filter by Status" />
+                    <SelectTrigger className="w-44 bg-white">
+                        <SelectValue placeholder="Lọc theo trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
                         {statusOptions.map((option) => (
@@ -230,134 +277,150 @@ export const CandidatesPage = () => {
 
                 {/* Results count */}
                 <span className="text-sm text-gray-500">
-                    {filteredResumes.length} candidates found
+                    Tìm thấy {filteredResumes.length} ứng viên
                 </span>
             </div>
 
-            {/* Candidates Table */}
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
                 {isLoading ? (
-                    <div className="p-12 text-center text-gray-400">Loading...</div>
+                    <div className="p-12 text-center text-gray-400">Đang tải...</div>
                 ) : filteredResumes.length === 0 ? (
                     <div className="p-12 text-center text-gray-400">
-                        No candidates found.
+                        Không tìm thấy ứng viên.
                     </div>
                 ) : (
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Candidate</TableHead>
-                                <TableHead>Job Applied</TableHead>
-                                <TableHead>Applied Date</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>Ứng viên</TableHead>
+                                <TableHead>Việc làm ứng tuyển</TableHead>
+                                <TableHead>Ngày ứng tuyển</TableHead>
+                                <TableHead>Trạng thái</TableHead>
+                                <TableHead className="text-right">Thao tác</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredResumes.map((resume) => (
-                                <TableRow key={resume.id}>
-                                    {/* Candidate Info */}
-                                    <TableCell>
-                                        <div className="flex items-center gap-3">
-                                            <Avatar className="h-10 w-10">
-                                                <AvatarImage src={resume.user.avatar} alt={resume.user.name} />
-                                                <AvatarFallback>
-                                                    {resume.user.name?.charAt(0) || "U"}
-                                                </AvatarFallback>
-                                            </Avatar>
+                            {filteredResumes.map((resume) => {
+                                const statusConfig = getStatusConfig(resume.status);
+                                const StatusIcon = statusConfig.icon;
+
+                                return (
+                                    <TableRow key={resume.id}>
+                                        {/* Candidate Info */}
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <Avatar className="h-10 w-10">
+                                                    <AvatarImage src={resume.user.avatar} alt={resume.user.name} />
+                                                    <AvatarFallback>
+                                                        {resume.user.name?.charAt(0) || "U"}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <p
+                                                        className="font-medium text-gray-900 hover:text-primary cursor-pointer"
+                                                        onClick={() => navigate(`/user/${resume.user.id}`)}
+                                                    >
+                                                        {resume.user.name}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        {resume.user.email}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+
+                                        {/* Job Applied */}
+                                        <TableCell>
                                             <div>
                                                 <p
                                                     className="font-medium text-gray-900 hover:text-primary cursor-pointer"
-                                                    onClick={() => navigate(`/user/${resume.user.id}`)}
+                                                    onClick={() => navigate(`/job-details/${resume.job.id}`)}
                                                 >
-                                                    {resume.user.name}
+                                                    {resume.job.title}
                                                 </p>
-                                                <p className="text-sm text-gray-500">
-                                                    {resume.user.email}
-                                                </p>
+                                                {resume.job.level && (
+                                                    <p className="text-sm text-gray-500">{resume.job.level}</p>
+                                                )}
                                             </div>
-                                        </div>
-                                    </TableCell>
+                                        </TableCell>
 
-                                    {/* Job Applied */}
-                                    <TableCell>
-                                        <div>
-                                            <p
-                                                className="font-medium text-gray-900 hover:text-primary cursor-pointer"
-                                                onClick={() => navigate(`/job-details/${resume.job.id}`)}
+                                        {/* Applied Date */}
+                                        <TableCell>
+                                            <span className="text-gray-600">
+                                                {formatDate(resume.createdAt)}
+                                            </span>
+                                        </TableCell>
+
+                                        {/* Status - Improved UI with Select */}
+                                        <TableCell>
+                                            <Select
+                                                value={resume.status}
+                                                onValueChange={(value) => handleStatusChange(resume.id, value)}
                                             >
-                                                {resume.job.title}
-                                            </p>
-                                            {resume.job.level && (
-                                                <p className="text-sm text-gray-500">{resume.job.level}</p>
-                                            )}
-                                        </div>
-                                    </TableCell>
+                                                <SelectTrigger className="w-40 h-9 border-0 bg-transparent hover:bg-gray-50">
+                                                    <div className="flex items-center gap-2">
+                                                        <StatusIcon size={16} className={statusConfig.text} />
+                                                        <Badge className={`${statusConfig.bg} ${statusConfig.text} font-medium`}>
+                                                            {statusConfig.label}
+                                                        </Badge>
+                                                    </div>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {statusOptions.filter(s => s.value !== "ALL").map((option) => {
+                                                        const Icon = option.icon;
+                                                        return (
+                                                            <SelectItem key={option.value} value={option.value}>
+                                                                <div className="flex items-center gap-2">
+                                                                    {Icon && <Icon size={16} className={option.color} />}
+                                                                    <span>{option.label}</span>
+                                                                    {resume.status === option.value && (
+                                                                        <Check size={14} className="ml-auto text-green-600" />
+                                                                    )}
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        </TableCell>
 
-                                    {/* Applied Date */}
-                                    <TableCell>
-                                        <span className="text-gray-600">
-                                            {formatDate(resume.createdAt)}
-                                        </span>
-                                    </TableCell>
-
-                                    {/* Status */}
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="p-0 h-auto">
-                                                    <Badge className={`${getStatusBadgeStyles(resume.status)} cursor-pointer`}>
-                                                        {resume.status}
-                                                    </Badge>
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="start">
-                                                {statusOptions.filter(s => s.value !== "ALL").map((option) => (
-                                                    <DropdownMenuItem
-                                                        key={option.value}
-                                                        onClick={() => handleStatusChange(resume.id, option.value)}
-                                                        className={resume.status === option.value ? "bg-gray-100" : ""}
-                                                    >
-                                                        {option.label}
-                                                    </DropdownMenuItem>
-                                                ))}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-
-                                    {/* Actions */}
-                                    <TableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <Button
-                                                size="icon"
-                                                onClick={() => navigate(`/user/${resume.user.id}`)}
-                                                title="View Profile"
-                                                className="bg-primary hover:bg-primary/90 text-white"
-                                            >
-                                                <Eye size={18} />
-                                            </Button>
-                                            {resume.link && (
+                                        {/* Actions */}
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-2">
                                                 <Button
                                                     size="icon"
-                                                    onClick={() => window.open(resume.link, "_blank")}
-                                                    title="View Resume"
-                                                    className="bg-primary hover:bg-primary/90 text-white"
+                                                    variant="outline"
+                                                    onClick={() => navigate(`/user/${resume.user.id}`)}
+                                                    title="Xem hồ sơ"
+                                                    className="hover:bg-primary hover:text-white transition-colors"
                                                 >
-                                                    <FileText size={18} />
+                                                    <Eye size={18} />
                                                 </Button>
-                                            )}
-                                            <Button
-                                                size="icon"
-                                                onClick={() => navigate(`/chat/${resume.user.id}`)}
-                                                title="Message Candidate"
-                                                className="bg-primary hover:bg-primary/90 text-white"
-                                            >
-                                                <ExternalLink size={18} />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                                                {resume.link && (
+                                                    <Button
+                                                        size="icon"
+                                                        variant="outline"
+                                                        onClick={() => window.open(resume.link, "_blank")}
+                                                        title="Xem CV ứng tuyển"
+                                                        className="hover:bg-primary hover:text-white transition-colors"
+                                                    >
+                                                        <FileText size={18} />
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    size="icon"
+                                                    variant="outline"
+                                                    onClick={() => navigate(`/chat/${resume.user.id}`)}
+                                                    title="Nhắn tin cho ứng viên"
+                                                    className="hover:bg-primary hover:text-white transition-colors"
+                                                >
+                                                    <MessageCircle size={18} />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 )}
