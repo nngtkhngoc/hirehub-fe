@@ -14,13 +14,15 @@ import {
     Bell,
     MessageSquare,
     Home,
+    FileText,
+    Users,
 } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
 const recruitmentSubItems = [
-    { path: "/recruiter/jobs", label: "Việc làm" },
-    { path: "/recruiter/candidates", label: "Ứng viên" },
+    { path: "/recruiter/jobs", label: "Việc làm", icon: FileText },
+    { path: "/recruiter/candidates", label: "Ứng viên", icon: Users },
 ];
 
 export const RecruiterLayout = () => {
@@ -113,20 +115,24 @@ export const RecruiterLayout = () => {
                             {/* Sub items */}
                             {recruitmentOpen && !sidebarCollapsed && (
                                 <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 pl-4">
-                                    {recruitmentSubItems.map((item) => (
-                                        <NavLink
-                                            key={item.path}
-                                            to={item.path}
-                                            className={({ isActive }) =>
-                                                `block px-3 py-2 rounded-lg text-sm transition-all ${isActive
-                                                    ? "text-primary bg-primary/10 font-medium"
-                                                    : "text-gray-600 hover:bg-gray-100"
-                                                }`
-                                            }
-                                        >
-                                            {item.label}
-                                        </NavLink>
-                                    ))}
+                                    {recruitmentSubItems.map((item) => {
+                                        const Icon = item.icon;
+                                        return (
+                                            <NavLink
+                                                key={item.path}
+                                                to={item.path}
+                                                className={({ isActive }) =>
+                                                    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${isActive
+                                                        ? "text-primary bg-primary/10 font-medium"
+                                                        : "text-gray-600 hover:bg-gray-100"
+                                                    }`
+                                                }
+                                            >
+                                                <Icon size={18} />
+                                                {item.label}
+                                            </NavLink>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
