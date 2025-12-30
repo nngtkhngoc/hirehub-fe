@@ -8,6 +8,8 @@ interface Step {
   description: string;
 }
 
+import { motion } from "framer-motion";
+
 export const HowItWorks = () => {
   const steps: Step[] = [
     {
@@ -34,7 +36,14 @@ export const HowItWorks = () => {
     return steps.map((step, index) => {
       const number = "0" + (index + 1);
       return (
-        <div className="flex flex-row items-start gap-3">
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          className="flex flex-row items-start gap-3"
+        >
           <NumberCircle number={number} />
           <div className="flex flex-col gap-1 justify-start max-w-[275px]">
             <div className="text-[#8DB82D] font-bold text-[17px]">
@@ -44,30 +53,56 @@ export const HowItWorks = () => {
               {step.description}
             </div>
           </div>
-        </div>
+        </motion.div>
       );
     });
   };
 
   return (
-    <section className="py-10 lg:flex lg:flex-row lg:justify-center lg:gap-10 flex-col items-center justify-center lg:px-10">
-      <img src={howitworks} alt="computer" className="lg:block hidden" />
-      <div className="flex flex-row justify-center items-center pb-5">
-        <NoteCircle text="Steps" />
+    <section className="py-10 lg:flex lg:flex-row lg:justify-center lg:gap-10 flex-col items-center justify-center lg:px-10 overflow-hidden">
+      <motion.img
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        src={howitworks}
+        alt="computer"
+        className="lg:block hidden"
+      />
+      <div className="flex flex-col w-full lg:w-fit">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-row justify-center items-center pb-5"
+        >
+          <NoteCircle text="Steps" />
+        </motion.div>
+        <section className="flex flex-col items-center lg:items-start lg:gap-3">
+          <motion.h3
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <HighlightText text="QUY TRÌNH ĐƠN GIẢN" />
+          </motion.h3>
+
+          <div className="flex flex-col gap-5 px-2 py-8 lg:px-0 lg:justify-start lg:items-start ">
+            {renderSteps()}
+          </div>
+        </section>
       </div>
-      <section className="flex flex-col items-center lg:items-start lg:gap-3">
-        <h3>
-          <HighlightText text="QUY TRÌNH ĐƠN GIẢN" />
-        </h3>
 
-        <div className="flex flex-col gap-5 px-2 py-8 lg:px-0 lg:justify-start lg:items-start ">
-          {renderSteps()}
-        </div>
-      </section>
-
-      <div className="w-full flex items-center justify-center block lg:hidden">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="w-full flex items-center justify-center block lg:hidden"
+      >
         <img src={howitworks} alt="computer" />
-      </div>
+      </motion.div>
     </section>
   );
 };

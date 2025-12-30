@@ -4,16 +4,46 @@ import { NoteCircle } from "@/pages/User/Home/components/ui/NoteCircle";
 import illustration from "@/assets/illustration/herosection.png";
 import { PrimaryButton } from "@/components/ui/User/Button";
 
+import { useState } from "react";
+import { useNavigate } from "react-router";
+
+import { motion } from "framer-motion";
+
 export const HeroSection = () => {
+  const [keyword, setKeyword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (keyword.trim()) {
+      navigate(`/job-list?keyword=${encodeURIComponent(keyword.trim())}`);
+    } else {
+      navigate("/job-list");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
-    <section className="bg-gradient-to-b from-[#F1EBFF] to-[#EDE5FF]">
-      <div className="px-6 pt-[100px] pb-[50px]  lg:flex lg:flex-row lg:px-20 lg:justify-around lg:items-center">
-        <img
+    <section className="bg-gradient-to-b from-[#F1EBFF] to-[#EDE5FF] overflow-hidden">
+      <div className="px-6 pt-[100px] pb-[50px] lg:flex lg:flex-row lg:px-20 lg:justify-around lg:items-center">
+        <motion.img
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
           src={illustration}
           alt="finding jobs"
           className="block lg:hidden"
         />
-        <section className="flex flex-col gap-3 lg:items-start lg:max-w-[670px] lg:gap-5">
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex flex-col gap-3 lg:items-start lg:max-w-[670px] lg:gap-5"
+        >
           <div className="hidden lg:block">
             <NoteCircle text="HireHub" />
           </div>
@@ -38,23 +68,37 @@ export const HeroSection = () => {
             riêng mình.
           </div>
           <div className="flex flex-row justify-around items-center gap-[12px]">
-            <div className="flex flex-row justify-around items-center bg-white rounded-[30px] w-[160px] h-[40px] shadow-[0_4px_4px_0_#DFD2FA] lg:w-[270px]">
-              <div className="text-[12px] lg:text-[14px] text-[#7A7D87] lg:flex lg:flex-row lg:items-center ">
-                Tìm kiếm việc làm<span className="hidden lg:block">...</span>
-              </div>
-              <Search size={18} className="hover:cursor-pointer" />
+            <div className="flex flex-row items-center bg-white rounded-[30px] w-full max-w-[300px] h-[45px] shadow-[0_4px_4px_0_#DFD2FA] px-4 lg:w-[400px]">
+              <input
+                type="text"
+                placeholder="Tìm kiếm việc làm..."
+                className="flex-1 bg-transparent border-none outline-none text-[14px] text-[#263238] placeholder:text-[#7A7D87]"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <Search
+                size={20}
+                className="text-primary hover:cursor-pointer hover:scale-110 transition-transform"
+                onClick={handleSearch}
+              />
             </div>
             <PrimaryButton
               label="Tìm kiếm"
-              paddingY="py-[11px]"
-              textSize="text-[12px] lg:text-[14px]"
+              paddingY="py-[12px]"
+              paddingX="px-6"
+              textSize="text-[14px]"
+              onClick={handleSearch}
             />
           </div>
-        </section>
-        <img
+        </motion.section>
+        <motion.img
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           src={illustration}
           alt="finding jobs"
-          className="lg:block hidden "
+          className="lg:block hidden"
         />
       </div>
     </section>

@@ -24,6 +24,7 @@ import {
 import { useJobs } from "@/hooks/useJob";
 import { JobCardSkeleton } from "@/components/ui/User/JobCardSkeleton";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 export interface SelectedFilters {
   jobType: string[];
   level: string[];
@@ -32,7 +33,9 @@ export interface SelectedFilters {
 }
 
 export const JobListPage = () => {
-  const [keyword, setKeyword] = useState<null | string>(null);
+  const [searchParams] = useSearchParams();
+  const initialKeyword = searchParams.get("keyword");
+  const [keyword, setKeyword] = useState<null | string>(initialKeyword);
   const [province, setProvince] = useState<null | string>(null);
   const size = 9; // Set appropriate page size for backend pagination
   const [page, setPage] = useState(0);
