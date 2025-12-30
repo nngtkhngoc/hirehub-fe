@@ -11,14 +11,6 @@ import { Plus, Pencil, Trash2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -37,7 +29,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
-import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 
 interface JobType {
   id: number;
@@ -134,7 +132,10 @@ export const JobTypeManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={() => setIsCreateDialogOpen(true)} size="lg" className="h-11 px-6">
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="h-10 px-6"
+        >
           <Plus className="w-5 h-5 mr-2" />
           Thêm loại công việc
         </Button>
@@ -153,46 +154,61 @@ export const JobTypeManagement = () => {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="border rounded-xl shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50 hover:bg-gray-50">
-                <TableHead className="w-24 py-4 px-6 text-base font-semibold">ID</TableHead>
-                <TableHead className="py-4 px-6 text-base font-semibold">Loại công việc</TableHead>
-                <TableHead className="w-40 text-right py-4 px-6 text-base font-semibold">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {types.map((type: JobType) => (
-                <TableRow key={type.id} className="hover:bg-gray-50/50 transition-colors">
-                  <TableCell className="py-5 px-6 text-base font-medium text-gray-700">{type.id}</TableCell>
-                  <TableCell className="py-5 px-6 text-base font-medium">{type.type}</TableCell>
-                  <TableCell className="text-right py-5 px-6">
-                    <div className="flex justify-end gap-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-9 px-4"
-                        onClick={() => openEditDialog(type)}
-                      >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Sửa
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-9 px-4 text-destructive hover:text-destructive"
-                        onClick={() => openDeleteDialog(type)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Xóa
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="w-24 px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    ID
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                    Loại công việc
+                  </th>
+                  <th className="w-40 px-6 py-4 text-right text-sm font-semibold text-gray-600">
+                    Thao tác
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {types.map((type: JobType) => (
+                  <tr
+                    key={type.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-gray-600">#{type.id}</td>
+                    <td className="px-6 py-4">
+                      <span className="font-medium text-gray-900">
+                        {type.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 px-4"
+                          onClick={() => openEditDialog(type)}
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Sửa
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 px-4 text-destructive hover:text-destructive"
+                          onClick={() => openDeleteDialog(type)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Xóa
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -200,14 +216,18 @@ export const JobTypeManagement = () => {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader className="space-y-3">
-            <DialogTitle className="text-2xl">Thêm loại công việc mới</DialogTitle>
+            <DialogTitle className="text-2xl">
+              Thêm loại công việc mới
+            </DialogTitle>
             <DialogDescription className="text-base">
               Nhập tên loại công việc mới
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-3">
-              <Label htmlFor="type" className="text-base font-medium">Loại công việc</Label>
+              <Label htmlFor="type" className="text-base font-medium">
+                Loại công việc
+              </Label>
               <Input
                 id="type"
                 value={inputValue}
@@ -228,7 +248,11 @@ export const JobTypeManagement = () => {
             >
               Hủy
             </Button>
-            <Button onClick={handleCreate} disabled={!inputValue.trim()} className="h-11 px-6">
+            <Button
+              onClick={handleCreate}
+              disabled={!inputValue.trim()}
+              className="h-11 px-6"
+            >
               Thêm
             </Button>
           </DialogFooter>
@@ -239,14 +263,18 @@ export const JobTypeManagement = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader className="space-y-3">
-            <DialogTitle className="text-2xl">Chỉnh sửa loại công việc</DialogTitle>
+            <DialogTitle className="text-2xl">
+              Chỉnh sửa loại công việc
+            </DialogTitle>
             <DialogDescription className="text-base">
               Cập nhật tên loại công việc
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-3">
-              <Label htmlFor="edit-type" className="text-base font-medium">Loại công việc</Label>
+              <Label htmlFor="edit-type" className="text-base font-medium">
+                Loại công việc
+              </Label>
               <Input
                 id="edit-type"
                 value={inputValue}
@@ -268,7 +296,11 @@ export const JobTypeManagement = () => {
             >
               Hủy
             </Button>
-            <Button onClick={handleEdit} disabled={!inputValue.trim()} className="h-11 px-6">
+            <Button
+              onClick={handleEdit}
+              disabled={!inputValue.trim()}
+              className="h-11 px-6"
+            >
               Cập nhật
             </Button>
           </DialogFooter>
@@ -276,7 +308,10 @@ export const JobTypeManagement = () => {
       </Dialog>
 
       {/* Delete Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
@@ -301,4 +336,3 @@ export const JobTypeManagement = () => {
     </div>
   );
 };
-

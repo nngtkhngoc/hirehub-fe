@@ -141,64 +141,71 @@ export const JobPostingsPage = () => {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Tuyển dụng</h1>
-                    <p className="text-gray-500">Đây là danh sách tất cả việc làm ({totalElements} việc làm)</p>
-                </div>
+            <div>
+                <h1 className="text-3xl font-bold font-title text-gray-900">
+                    Quản lý Việc làm
+                </h1>
+                <p className="text-gray-500 mt-1">
+                    Quản lý tất cả tin tuyển dụng của bạn ({totalElements} việc làm)
+                </p>
+            </div>
 
-                <div className="flex items-center gap-3">
-                    {/* Search */}
-                    <div className="relative">
-                        <Search
-                            size={18}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        />
-                        <Input
-                            placeholder="Tìm kiếm theo tiêu đề..."
-                            value={keyword}
-                            onChange={(e) => {
-                                setKeyword(e.target.value);
+            {/* Filters and Actions */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        {/* Search */}
+                        <div className="relative flex-1 sm:flex-none w-full sm:w-64">
+                            <Search
+                                size={18}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            />
+                            <Input
+                                placeholder="Tìm kiếm theo tiêu đề..."
+                                value={keyword}
+                                onChange={(e) => {
+                                    setKeyword(e.target.value);
+                                    setPage(0);
+                                }}
+                                className="pl-10"
+                            />
+                        </div>
+
+                        {/* Status Filter */}
+                        <Select
+                            value={selectedStatus}
+                            onValueChange={(value) => {
+                                setSelectedStatus(value);
                                 setPage(0);
                             }}
-                            className="pl-10 w-64 bg-white"
-                        />
+                        >
+                            <SelectTrigger className="w-full sm:w-40">
+                                <SelectValue placeholder="Trạng thái" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ALL">Tất cả</SelectItem>
+                                <SelectItem value="PENDING">Chờ duyệt</SelectItem>
+                                <SelectItem value="APPROVED">Đã duyệt</SelectItem>
+                                <SelectItem value="BANNED">Bị từ chối</SelectItem>
+                                <SelectItem value="DRAFT">Bản nháp</SelectItem>
+                                <SelectItem value="CLOSED">Đã đóng</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
-
-                    {/* Status Filter */}
-                    <Select
-                        value={selectedStatus}
-                        onValueChange={(value) => {
-                            setSelectedStatus(value);
-                            setPage(0);
-                        }}
-                    >
-                        <SelectTrigger className="w-40 bg-white">
-                            <SelectValue placeholder="Trạng thái" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">Tất cả</SelectItem>
-                            <SelectItem value="PENDING">Chờ duyệt</SelectItem>
-                            <SelectItem value="APPROVED">Đã duyệt</SelectItem>
-                            <SelectItem value="BANNED">Bị từ chối</SelectItem>
-                            <SelectItem value="DRAFT">Bản nháp</SelectItem>
-                            <SelectItem value="CLOSED">Đã đóng</SelectItem>
-                        </SelectContent>
-                    </Select>
 
                     {/* Add New Button - Navigate to Create Page */}
                     <Button
                         onClick={() => navigate("/recruiter/jobs/create")}
-                        className="bg-primary hover:bg-primary/90 text-white"
+                        className="h-10 px-6 w-full sm:w-auto"
                     >
-                        <Plus size={18} className="mr-2" />
+                        <Plus className="w-5 h-5 mr-2" />
                         Thêm mới
                     </Button>
                 </div>
             </div>
 
             {/* Job List */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                 {isLoading ? (
                     <div className="p-12 text-center text-gray-400">Đang tải...</div>
                 ) : jobs.length === 0 ? (
@@ -222,44 +229,41 @@ export const JobPostingsPage = () => {
                             return (
                                 <div
                                     key={job.id}
-                                    className="p-6 hover:bg-gray-50 transition-colors"
+                                    className="p-6 hover:bg-gray-50/50 transition-colors"
                                 >
-                                    <div className="flex items-start justify-between">
+                                    <div className="flex items-start justify-between gap-4">
                                         {/* Left side - Job info */}
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-3">
+                                        <div className="space-y-2 flex-1 min-w-0">
+                                            <div className="flex items-center gap-3 flex-wrap">
                                                 <h3 className="text-lg font-semibold text-gray-900">
                                                     {job.title}
                                                 </h3>
                                                 <JobStatusBadge status={status} />
                                             </div>
                                             <p className="text-sm text-gray-500">
-                                                {job.level} · {job.recruiter?.name || "Company"}
+                                                {job.level} · {job.workspace} · {job.type}
                                             </p>
                                             <div className="flex items-center gap-2 text-sm text-gray-500">
-                                                <div className="flex -space-x-2">
-                                                    <div className="w-6 h-6 rounded-full bg-gray-300 border-2 border-white" />
-                                                    <div className="w-6 h-6 rounded-full bg-gray-400 border-2 border-white" />
-                                                    <div className="w-6 h-6 rounded-full bg-gray-500 border-2 border-white" />
-                                                </div>
-                                                <span>{job.candidatesCount || 0} Ứng viên đã ứng tuyển</span>
+                                                <Users size={16} />
+                                                <span className="font-medium">{job.candidatesCount || 0}</span>
+                                                <span>ứng viên đã ứng tuyển</span>
                                             </div>
                                         </div>
 
                                         {/* Right side - Actions */}
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-sm text-gray-400">
+                                        <div className="flex items-center gap-3 flex-shrink-0">
+                                            <span className="text-sm text-gray-400 hidden sm:block">
                                                 {formatTimeAgo(job.postingDate)}
                                             </span>
 
                                             {/* More Menu */}
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon">
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9">
                                                         <MoreVertical size={18} className="text-gray-400" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
+                                                <DropdownMenuContent align="end" className="w-48">
                                                     <DropdownMenuItem
                                                         onClick={() => navigate(`/job-details/${job.id}`)}
                                                     >
@@ -279,7 +283,7 @@ export const JobPostingsPage = () => {
                                                         onClick={() => navigate(`/recruiter/candidates?jobId=${job.id}`)}
                                                     >
                                                         <Users size={16} className="mr-2" />
-                                                        Xem ứng viên
+                                                        Xem ứng viên ({job.candidatesCount || 0})
                                                     </DropdownMenuItem>
                                                     {/* Close job option - only for APPROVED/ACTIVE jobs */}
                                                     {(status === "APPROVED" || status === "ACTIVE") && (
@@ -289,14 +293,14 @@ export const JobPostingsPage = () => {
                                                                     updateStatusMutation.mutate({ jobId: job.id, status: "CLOSED" });
                                                                 }
                                                             }}
-                                                            className="text-orange-600"
+                                                            className="text-orange-600 focus:text-orange-600"
                                                         >
                                                             <XCircle size={16} className="mr-2" />
                                                             Đóng việc làm
                                                         </DropdownMenuItem>
                                                     )}
                                                     <DropdownMenuItem
-                                                        className="text-red-600"
+                                                        className="text-red-600 focus:text-red-600"
                                                         onClick={() => {
                                                             if (confirm("Bạn có chắc chắn muốn xóa việc làm này không?")) {
                                                                 deleteJobMutation.mutate(job.id);
@@ -319,46 +323,41 @@ export const JobPostingsPage = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="border-t border-gray-100 p-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500">
-                                Trang {page + 1} / {totalPages} (Tổng {totalElements} việc làm)
-                            </span>
-                            <Pagination>
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={() => page > 0 && setPage(page - 1)}
-                                            className={page === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                        />
-                                    </PaginationItem>
-                                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                                        const pageNum = page < 3 ? i : page - 2 + i;
-                                        if (pageNum >= totalPages) return null;
-                                        return (
-                                            <PaginationItem key={pageNum}>
-                                                <PaginationLink
-                                                    onClick={() => setPage(pageNum)}
-                                                    isActive={page === pageNum}
-                                                    className="cursor-pointer"
-                                                >
-                                                    {pageNum + 1}
-                                                </PaginationLink>
-                                            </PaginationItem>
-                                        );
-                                    })}
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={() => page < totalPages - 1 && setPage(page + 1)}
-                                            className={
-                                                page >= totalPages - 1
-                                                    ? "pointer-events-none opacity-50"
-                                                    : "cursor-pointer"
-                                            }
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        </div>
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        onClick={() => page > 0 && setPage(page - 1)}
+                                        className={page === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                    />
+                                </PaginationItem>
+                                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                                    const pageNum = page < 3 ? i : page - 2 + i;
+                                    if (pageNum >= totalPages) return null;
+                                    return (
+                                        <PaginationItem key={pageNum}>
+                                            <PaginationLink
+                                                onClick={() => setPage(pageNum)}
+                                                isActive={page === pageNum}
+                                                className="cursor-pointer"
+                                            >
+                                                {pageNum + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    );
+                                })}
+                                <PaginationItem>
+                                    <PaginationNext
+                                        onClick={() => page < totalPages - 1 && setPage(page + 1)}
+                                        className={
+                                            page >= totalPages - 1
+                                                ? "pointer-events-none opacity-50"
+                                                : "cursor-pointer"
+                                        }
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
                     </div>
                 )}
             </div>

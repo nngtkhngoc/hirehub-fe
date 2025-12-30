@@ -11,14 +11,6 @@ import { Plus, Pencil, Trash2, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -134,7 +126,7 @@ export const JobLevelManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={() => setIsCreateDialogOpen(true)} size="lg" className="h-11 px-6">
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="h-10 px-6">
           <Plus className="w-5 h-5 mr-2" />
           Thêm cấp độ
         </Button>
@@ -153,46 +145,50 @@ export const JobLevelManagement = () => {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="border rounded-xl shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50 hover:bg-gray-50">
-                <TableHead className="w-24 py-4 px-6 text-base font-semibold">ID</TableHead>
-                <TableHead className="py-4 px-6 text-base font-semibold">Cấp độ</TableHead>
-                <TableHead className="w-40 text-right py-4 px-6 text-base font-semibold">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {levels.map((level: JobLevel) => (
-                <TableRow key={level.id} className="hover:bg-gray-50/50 transition-colors">
-                  <TableCell className="py-5 px-6 text-base font-medium text-gray-700">{level.id}</TableCell>
-                  <TableCell className="py-5 px-6 text-base font-medium">{level.level}</TableCell>
-                  <TableCell className="text-right py-5 px-6">
-                    <div className="flex justify-end gap-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-9 px-4"
-                        onClick={() => openEditDialog(level)}
-                      >
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Sửa
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-9 px-4 text-destructive hover:text-destructive"
-                        onClick={() => openDeleteDialog(level)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Xóa
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="w-24 px-6 py-4 text-left text-sm font-semibold text-gray-600">ID</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Cấp độ</th>
+                  <th className="w-40 px-6 py-4 text-right text-sm font-semibold text-gray-600">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {levels.map((level: JobLevel) => (
+                  <tr key={level.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-gray-600">#{level.id}</td>
+                    <td className="px-6 py-4">
+                      <span className="font-medium text-gray-900">{level.level}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 px-4"
+                          onClick={() => openEditDialog(level)}
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Sửa
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 px-4 text-destructive hover:text-destructive"
+                          onClick={() => openDeleteDialog(level)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Xóa
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
