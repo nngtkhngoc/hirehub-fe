@@ -93,6 +93,7 @@ createRoot(document.getElementById("root")!).render(
           <Route index element={<RecruiterDashboard />} />
           <Route path="jobs" element={<JobPostingsPage />} />
           <Route path="jobs/create" element={<CreateJobPage />} />
+          <Route path="jobs/edit/:id" element={<CreateJobPage />} />
           <Route path="candidates" element={<CandidatesPage />} />
           <Route path="profile" element={<RecruiterProfilePage />} />
         </Route>

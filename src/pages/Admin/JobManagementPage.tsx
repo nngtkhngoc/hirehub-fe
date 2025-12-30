@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import companyDefault from "@/assets/illustration/company.png";
 import {
     Empty,
     EmptyHeader,
@@ -140,7 +141,7 @@ export const JobManagementPage = () => {
     const jobs = data?.content || [];
     const totalPages = data?.totalPages || 0;
     console.log(jobs, "JOBS");
-    
+
     // Apply client-side sorting
     const sortedJobs = useMemo(() => sortData(jobs), [jobs, sortState]);
     const formatDate = (dateStr: string) => {
@@ -377,19 +378,15 @@ export const JobManagementPage = () => {
                                         {/* Company */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-medium overflow-hidden ${job.status == "BANNED"
-                                                    ? "bg-gray-300 text-gray-500"
-                                                    : "bg-gray-100"
+                                                <div className={`w-8 h-8 rounded-full flex-shrink-0 overflow-hidden ${job.status == "BANNED"
+                                                    ? "opacity-60"
+                                                    : ""
                                                     }`}>
-                                                    {job.recruiter?.avatar ? (
-                                                        <img
-                                                            src={job.recruiter.avatar}
-                                                            alt=""
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        job.recruiter?.name?.charAt(0) || "C"
-                                                    )}
+                                                    <img
+                                                        src={job.recruiter?.avatar || companyDefault}
+                                                        alt={job.recruiter?.name || "Company"}
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 </div>
                                                 <span className="text-gray-600 text-sm line-clamp-1">
                                                     {job.recruiter?.name || "N/A"}

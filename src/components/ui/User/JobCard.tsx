@@ -1,6 +1,7 @@
 import type { Job } from "@/types/Job";
-import { Bookmark, Building, Clock } from "lucide-react";
+import { Bookmark, Clock } from "lucide-react";
 import { Link } from "react-router";
+import companyDefault from "@/assets/illustration/company.png";
 
 export const JobCard = ({ job }: { job: Job }) => {
   const daysAgo = Math.floor(
@@ -21,16 +22,12 @@ export const JobCard = ({ job }: { job: Job }) => {
       <div className="w-full space-y-2 pb-4 border-b-2 border-[#C7C7C7]">
         <div className="flex flex-row justify-between items-center gap-5">
           <div className="flex flex-row items-center gap-5">
-            <div className="w-[53px] h-[53px] flex items-center justify-center rounded-[10px] shadow-[0_4px_4px_rgba(0,0,0,0.25)] bg-white">
-              {job?.recruiter?.avatar ? (
-                <img
-                  src={job?.recruiter.avatar}
-                  alt={job?.recruiter.name}
-                  className="w-[26px] h-[26px]"
-                />
-              ) : (
-                <Building className="w-[26px] h-[26px]" />
-              )}
+            <div className="w-[53px] h-[53px] flex items-center justify-center rounded-[10px] shadow-[0_4px_4px_rgba(0,0,0,0.25)] bg-white overflow-hidden">
+              <img
+                src={job?.recruiter?.avatar || companyDefault}
+                alt={job?.recruiter.name}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex flex-col items-start justify-around ">
               <div className="text-[18px] font-bold group-hover:text-white text-ellipsis line-clamp-1">

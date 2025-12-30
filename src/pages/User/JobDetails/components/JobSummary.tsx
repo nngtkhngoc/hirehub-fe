@@ -7,6 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 interface jobSummary {
   icon: LucideIcon;
@@ -15,6 +16,9 @@ interface jobSummary {
 }
 
 export const JobSummary = ({ job }: { job: Job }) => {
+  // Handle typo in Job type: "skills" instead of "skills"
+  const skills = job?.skills || [];
+
   const details: jobSummary[] = [
     {
       icon: Calendar,
@@ -35,7 +39,7 @@ export const JobSummary = ({ job }: { job: Job }) => {
   const renderDetails = () => {
     return details.map((detail) => {
       return (
-        <div className="flex flex-col items-start gap-2">
+        <div className="flex flex-col items-start gap-2" key={detail.title}>
           <detail.icon className="text-primary" />
           <span className="text-xs text-zinc-500 font-light sm:text-sm md:text-xs">
             {detail.title}
@@ -59,6 +63,27 @@ export const JobSummary = ({ job }: { job: Job }) => {
             {renderDetails()}
           </div>
         </div>
+
+        {/* Skills Section */}
+        {skills && skills.length > 0 && (
+          <div className="border-t-2 border-[#f2f2f2] pt-4 flex flex-col justify-start gap-3">
+            <div className="font-bold text-black text-lg sm:text-2xl md:text-lg">
+              Kỹ năng yêu cầu
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill) => (
+                <Badge
+                  key={skill.id}
+                  variant="secondary"
+                  className="bg-[#EFE9FD] text-primary hover:bg-[#DFD2FA] px-3 py-1 text-xs font-medium rounded-full"
+                >
+                  {skill.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="border-t-2 border-[#f2f2f2] pt-4 flex flex-col justify-start gap-4">
           <div className="font-bold text-black text-lg sm:text-2xl md:text-lg">
             Chia sẻ

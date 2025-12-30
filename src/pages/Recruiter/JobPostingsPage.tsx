@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Plus, MoreVertical, Eye, Users, XCircle, Trash2, Briefcase } from "lucide-react";
+import { Search, Plus, MoreVertical, Eye, Users, XCircle, Trash2, Briefcase, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -266,6 +266,15 @@ export const JobPostingsPage = () => {
                                                         <Eye size={16} className="mr-2" />
                                                         Xem chi tiết
                                                     </DropdownMenuItem>
+                                                    {/* Edit option - only for DRAFT jobs */}
+                                                    {(status === "DRAFT" || job.status === "DRAFT") && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => navigate(`/recruiter/jobs/edit/${job.id}`)}
+                                                        >
+                                                            <Edit size={16} className="mr-2" />
+                                                            Chỉnh sửa
+                                                        </DropdownMenuItem>
+                                                    )}
                                                     <DropdownMenuItem
                                                         onClick={() => navigate(`/recruiter/candidates?jobId=${job.id}`)}
                                                     >

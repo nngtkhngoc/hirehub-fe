@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Check, ChevronsUpDown, X, Save, Send } from "lucide-react";
@@ -14,6 +14,8 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
+    SelectGroup,
+    SelectLabel,
 } from "@/components/ui/select";
 import {
     Popover,
@@ -32,6 +34,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { axiosClient } from "@/lib/axios";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { cn } from "@/lib/utils";
+import { getAllProvinces } from "@/apis/map.api";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -46,7 +49,10 @@ interface Skill {
 
 export const CreateJobPage = () => {
     const navigate = useNavigate();
+    const { id: jobId } = useParams();
     const { user } = useAuthStore();
+    const isEditMode = !!jobId;
+    
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -69,24 +75,70 @@ export const CreateJobPage = () => {
 
     const skills = skillsData || [];
 
-    const createJobMutation = useMutation({
-        mutationFn: async (data: typeof formData & { isDraft?: boolean }) => {
-            const endpoint = data.isDraft ? `${BASE_URL}/api/jobs/draft` : `${BASE_URL}/api/jobs`;
-            const res = await axiosClient.post(endpoint, {
-                ...data,
-                recruiterId: user?.id,
-            });
+    // Fetch provinces
+    const { data: provinces } = useQuery({
+        queryKey: ["provinces"],
+        queryFn: getAllProvinces,
+    });
+
+    // Fetch job data if editing
+    const { data: jobData, isLoading: isLoadingJob } = useQuery({
+        queryKey: ["job", jobId],
+        queryFn: async () => {
+            if (!jobId) return null;
+            const res = await axiosClient.get(`${BASE_URL}/api/jobs/${jobId}`);
             return res.data;
         },
+        enabled: isEditMode,
+    });
+
+    // Populate form when editing
+    useEffect(() => {
+        if (jobData && isEditMode) {
+            setFormData({
+                title: jobData.title || "",
+                description: jobData.description || "",
+                level: jobData.level || "",
+                workspace: jobData.workspace || "",
+                type: jobData.type || "",
+                address: jobData.address || "",
+                applyLink: jobData.applyLink || "",
+                skillIds: jobData.skills?.map((s: any) => s.id) || [],
+            });
+        }
+    }, [jobData, isEditMode]);
+
+    const createJobMutation = useMutation({
+        mutationFn: async (data: typeof formData & { isDraft?: boolean }) => {
+            if (isEditMode && jobId && data.isDraft) {
+                // Update existing draft
+                const endpoint = `${BASE_URL}/api/jobs/${jobId}`;
+                const res = await axiosClient.put(endpoint, {
+                    ...data,
+                    recruiterId: user?.id,
+                });
+                return res.data;
+            } else {
+                // Create new job (publish) - works for both new jobs and publishing drafts
+                const endpoint = data.isDraft ? `${BASE_URL}/api/jobs/draft` : `${BASE_URL}/api/jobs`;
+                const res = await axiosClient.post(endpoint, {
+                    ...data,
+                    recruiterId: user?.id,
+                });
+                return res.data;
+            }
+        },
         onSuccess: (_, variables) => {
-            if (variables.isDraft) {
+            if (isEditMode && variables.isDraft) {
+                toast.success("Cập nhật bản nháp thành công!");
+            } else if (variables.isDraft) {
                 toast.success("Lưu bản nháp thành công!");
             } else {
                 toast.success("Tạo việc làm thành công!");
             }
             navigate("/recruiter/jobs");
         },
-        onError: () => toast.error("Tạo việc làm thất bại"),
+        onError: () => toast.error("Có lỗi xảy ra"),
     });
 
     const handleSubmit = (e: React.FormEvent, isDraft: boolean = false) => {
@@ -120,6 +172,16 @@ export const CreateJobPage = () => {
         }));
     };
 
+    if (isEditMode && isLoadingJob) {
+        return (
+            <div className="max-w-4xl mx-auto space-y-6">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-gray-500">Đang tải...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             {/* Header */}
@@ -132,8 +194,12 @@ export const CreateJobPage = () => {
                     <ArrowLeft size={20} />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Tạo việc làm mới</h1>
-                    <p className="text-gray-500">Nhập thông tin chi tiết việc làm dưới đây</p>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        {isEditMode ? "Chỉnh sửa việc làm" : "Tạo việc làm mới"}
+                    </h1>
+                    <p className="text-gray-500">
+                        {isEditMode ? "Cập nhật thông tin việc làm" : "Nhập thông tin chi tiết việc làm dưới đây"}
+                    </p>
                 </div>
             </div>
 
@@ -226,12 +292,24 @@ export const CreateJobPage = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="address">Địa chỉ</Label>
-                        <Input
-                            id="address"
-                            placeholder="Ví dụ: Thành phố Hồ Chí Minh"
+                        <Select
                             value={formData.address}
-                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        />
+                            onValueChange={(value) => setFormData({ ...formData, address: value })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Chọn tỉnh/thành phố" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Tỉnh/Thành phố</SelectLabel>
+                                    {provinces?.map((province) => (
+                                        <SelectItem key={province.code} value={province.name}>
+                                            {province.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
@@ -343,16 +421,30 @@ export const CreateJobPage = () => {
                     >
                         Hủy
                     </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={(e) => handleSubmit(e, true)}
-                        disabled={createJobMutation.isPending || !user?.isVerified}
-                        className="border-gray-300"
-                    >
-                        <Save size={18} className="mr-2" />
-                        {createJobMutation.isPending ? "Đang lưu..." : "Lưu bản nháp"}
-                    </Button>
+                    {isEditMode && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => handleSubmit(e, true)}
+                            disabled={createJobMutation.isPending || !user?.isVerified}
+                            className="border-gray-300"
+                        >
+                            <Save size={18} className="mr-2" />
+                            {createJobMutation.isPending ? "Đang cập nhật..." : "Cập nhật bản nháp"}
+                        </Button>
+                    )}
+                    {!isEditMode && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => handleSubmit(e, true)}
+                            disabled={createJobMutation.isPending || !user?.isVerified}
+                            className="border-gray-300"
+                        >
+                            <Save size={18} className="mr-2" />
+                            {createJobMutation.isPending ? "Đang lưu..." : "Lưu bản nháp"}
+                        </Button>
+                    )}
                     <Button
                         type="submit"
                         className="bg-primary hover:bg-primary/90"

@@ -9,7 +9,7 @@ export type Job = {
   isBanned: boolean | null;
   workspace: string;
   postingDate: string;
-  skilss: Skill[];
+  skills: Skill[];
   recruiter: Recruiter;
   type: string;
   address: string;

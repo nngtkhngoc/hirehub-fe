@@ -11,6 +11,7 @@ import { JobSummarySkeleton } from "./components/JobSummarySkeleton";
 export const JobDetails = () => {
   const { id } = useParams();
   const { data: job, isLoading } = useJobDetails(id);
+  console.log("hihi", job);
 
   return (
     <div className="flex flex-col justify-center px-4 pt-[100px]  bg-[#F8F9FB]  pb-[50px] sm:px-15 md:px-5 gap-5 lg:px-30">
