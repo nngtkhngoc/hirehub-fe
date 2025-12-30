@@ -91,6 +91,12 @@ export const CreateJobPage = () => {
 
     const handleSubmit = (e: React.FormEvent, isDraft: boolean = false) => {
         e.preventDefault();
+
+        if (!user?.isVerified) {
+            toast.error("Tài khoản tuyển dụng của bạn cần được xác thực trước khi thực hiện hành động này!");
+            return;
+        }
+
         if (!isDraft && (!formData.title || !formData.level || !formData.workspace)) {
             toast.error("Vui lòng điền đầy đủ các trường bắt buộc");
             return;
@@ -130,6 +136,18 @@ export const CreateJobPage = () => {
                     <p className="text-gray-500">Nhập thông tin chi tiết việc làm dưới đây</p>
                 </div>
             </div>
+
+            {!user?.isVerified && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3 text-amber-800 animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="bg-amber-100 p-2 rounded-full">
+                        <X size={20} className="text-amber-600 rotate-45" />
+                    </div>
+                    <div>
+                        <p className="font-semibold">Tài khoản chưa được xác thực</p>
+                        <p className="text-sm opacity-90">Vui lòng chờ Admin xác thực thông tin công ty trước khi đăng tin tuyển dụng.</p>
+                    </div>
+                </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-6">
@@ -329,7 +347,7 @@ export const CreateJobPage = () => {
                         type="button"
                         variant="outline"
                         onClick={(e) => handleSubmit(e, true)}
-                        disabled={createJobMutation.isPending}
+                        disabled={createJobMutation.isPending || !user?.isVerified}
                         className="border-gray-300"
                     >
                         <Save size={18} className="mr-2" />
@@ -338,7 +356,7 @@ export const CreateJobPage = () => {
                     <Button
                         type="submit"
                         className="bg-primary hover:bg-primary/90"
-                        disabled={createJobMutation.isPending}
+                        disabled={createJobMutation.isPending || !user?.isVerified}
                     >
                         <Send size={18} className="mr-2" />
                         {createJobMutation.isPending ? "Đang tạo..." : "Tạo việc làm"}

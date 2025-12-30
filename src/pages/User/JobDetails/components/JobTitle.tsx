@@ -203,9 +203,17 @@ export const JobTitle = ({ job }: { job: Job }) => {
               </div>
             </a>
           ) : (
-            <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-              <DialogTrigger asChild onClick={() => setOpenDialog(true)}>
-                <button className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer">
+            <Dialog open={openDialog} onOpenChange={(open) => {
+              if (open && !user?.isVerified) {
+                toast.error("Hồ sơ của bạn cần được xác thực trước khi ứng tuyển!");
+                return;
+              }
+              setOpenDialog(open);
+            }}>
+              <DialogTrigger asChild>
+                <button
+                  className="rounded-[10px] bg-primary w-[40px] h-[40px] flex items-center justify-center shadow-sm hover:shadow-lg hover:scale-[1.01] sm:w-fit sm:px-5 hover:bg-[#38128A] transition-all duration-500 cursor-pointer"
+                >
                   <div className="flex flex-row items-center justify-center gap-2">
                     <span className="hidden sm:block text-white text-sm">
                       Ứng tuyển
