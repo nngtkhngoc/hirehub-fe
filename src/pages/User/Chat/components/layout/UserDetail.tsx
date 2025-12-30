@@ -49,6 +49,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import ConnectionButton from "@/components/ui/User/ConnectionButton";
+import type { UserProfile } from "@/types/Auth";
 
 export const UserDetail = ({
   conversation,
@@ -69,6 +76,9 @@ export const UserDetail = ({
     id: number;
     name: string;
   } | null>(null);
+  const [memberPopoverOpen, setMemberPopoverOpen] = useState<number | null>(
+    null
+  );
 
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -322,38 +332,96 @@ export const UserDetail = ({
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent className="w-full flex flex-col px-3">
-              {conversation.participants.map((participant) => (
-                <div
-                  key={participant.id}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-100 group"
-                >
-                  <img
-                    src={participant.avatar || profile}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{participant.name}</p>
-                    {participant.id === conversation.leaderId && (
-                      <p className="text-xs text-zinc-500">Trưởng nhóm</p>
+              {conversation.participants.map((participant) => {
+                const participantIdNum =
+                  typeof participant.id === "string"
+                    ? parseInt(participant.id)
+                    : participant.id;
+                const isCurrentUser = participantIdNum === userId;
+                const isBothApplicants =
+                  user?.role?.name === "APPLICANT" &&
+                  participant.role?.name === "APPLICANT";
+
+                return (
+                  <div
+                    key={participant.id}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-100 group"
+                  >
+                    <img
+                      src={participant.avatar || profile}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <Popover
+                        open={memberPopoverOpen === participantIdNum}
+                        onOpenChange={(open) =>
+                          setMemberPopoverOpen(open ? participantIdNum : null)
+                        }
+                      >
+                        <PopoverTrigger asChild>
+                          <div className="cursor-pointer">
+                            <p className="text-sm font-medium hover:underline">
+                              {participant.name}
+                            </p>
+                            {participantIdNum === conversation.leaderId && (
+                              <p className="text-xs text-zinc-500">
+                                Trưởng nhóm
+                              </p>
+                            )}
+                          </div>
+                        </PopoverTrigger>
+                        {!isCurrentUser && (
+                          <PopoverContent className="w-56 p-2" align="start">
+                            <div className="flex flex-col gap-1">
+                              {/* View Profile Option - Always shown */}
+                              <Link
+                                to={
+                                  participant.role?.name === "RECRUITER"
+                                    ? `/company-details/${participant.id}`
+                                    : `/user/${participant.id}`
+                                }
+                                onClick={() => setMemberPopoverOpen(null)}
+                                className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-100 transition-colors"
+                              >
+                                <UserCircleIcon className="w-4 h-4" />
+                                Xem profile
+                              </Link>
+
+                              {/* Send Connection Request - Only for applicant-to-applicant */}
+                              {isBothApplicants && (
+                                <div
+                                  onClick={() => setMemberPopoverOpen(null)}
+                                  className="px-3 py-2"
+                                >
+                                  <ConnectionButton
+                                    targetUser={participant as UserProfile}
+                                    variant="outline"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </PopoverContent>
+                        )}
+                      </Popover>
+                    </div>
+                    {/* Nút kick (chỉ hiện cho leader, không hiện cho chính mình) */}
+                    {isLeader && participantIdNum !== userId && (
+                      <button
+                        onClick={() =>
+                          handleKick(
+                            participantIdNum,
+                            participant.name || "Người dùng"
+                          )
+                        }
+                        className="opacity-0 group-hover:opacity-100 p-1.5 text-red-500 hover:bg-red-100 rounded-full transition-all cursor-pointer"
+                        title="Xóa khỏi nhóm"
+                      >
+                        <UserMinus className="w-4 h-4" />
+                      </button>
                     )}
                   </div>
-                  {/* Nút kick (chỉ hiện cho leader, không hiện cho chính mình) */}
-                  {isLeader && participant.id !== userId && (
-                    <button
-                      onClick={() =>
-                        handleKick(
-                          participant.id as number,
-                          participant.name || "Người dùng"
-                        )
-                      }
-                      className="opacity-0 group-hover:opacity-100 p-1.5 text-red-500 hover:bg-red-100 rounded-full transition-all cursor-pointer"
-                      title="Xóa khỏi nhóm"
-                    >
-                      <UserMinus className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
 
               {/* Nút rời nhóm (không hiện cho leader nếu còn thành viên khác) */}
               {!isLeader && (

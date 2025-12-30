@@ -7,9 +7,18 @@ export const ExperienceCard = ({
   experience: Experience;
   lastCard: boolean;
 }) => {
+  const formatDate = (date: any) => {
+    if (!date) return null;
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return null;
+    return dateObj;
+  };
+
   const calculateTime = () => {
-    const startDate = new Date(experience.startDate);
-    const endDate = new Date(experience.endDate);
+    const startDate = formatDate(experience.startDate);
+    const endDate = formatDate(experience.endDate);
+
+    if (!startDate || !endDate) return "";
 
     let years = endDate.getFullYear() - startDate.getFullYear();
     let months = endDate.getMonth() - startDate.getMonth();
@@ -24,11 +33,13 @@ export const ExperienceCard = ({
     return `${years} năm ${months} tháng`;
   };
 
+  const startDate = formatDate(experience.startDate);
+  const endDate = formatDate(experience.endDate);
+
   return (
     <div
-      className={`w-full py-6 flex flex-row items-center gap-4 justify-left ${
-        lastCard ? "" : "border-b border-[#BCBCBC]"
-      }`}
+      className={`w-full py-6 flex flex-row items-center gap-4 justify-left ${lastCard ? "" : "border-b border-[#BCBCBC]"
+        }`}
     >
       <div className="rounded-full border-2 border-[#F2F2F2] w-[60px] h-[60px] overflow-hidden flex items-center justify-center shrink-0">
         <img
@@ -51,14 +62,23 @@ export const ExperienceCard = ({
           </div>
           <div className="flex flex-row items-center justify-left gap-1 sm:gap-3">
             <div className="text-[12px] font-regular text-[#a6a6a6]">
-              T{experience.startDate.getMonth()}/
-              {experience.startDate.getFullYear()} - T
-              {experience.endDate.getMonth()}/{experience.endDate.getFullYear()}{" "}
+              {startDate && endDate ? (
+                <>
+                  T{startDate.getMonth() + 1}/{startDate.getFullYear()} - T
+                  {endDate.getMonth() + 1}/{endDate.getFullYear()}
+                </>
+              ) : (
+                "N/A"
+              )}
             </div>
-            <div className="text-[12px] font-regular text-[#a6a6a6]">•</div>
-            <div className="text-[12px] font-regular text-[#a6a6a6]">
-              {calculateTime()}
-            </div>
+            {startDate && endDate && (
+              <>
+                <div className="text-[12px] font-regular text-[#a6a6a6]">•</div>
+                <div className="text-[12px] font-regular text-[#a6a6a6]">
+                  {calculateTime()}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
