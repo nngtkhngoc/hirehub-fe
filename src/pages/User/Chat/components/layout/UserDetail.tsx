@@ -311,18 +311,16 @@ export const UserDetail = ({
                   Thành viên ({conversation.participants.length})
                 </div>
                 <div className="flex items-center gap-2">
-                  {isLeader && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setInviteDialogOpen(true);
-                      }}
-                      className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 cursor-pointer"
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      Mời thêm
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInviteDialogOpen(true);
+                    }}
+                    className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 cursor-pointer"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Mời thêm
+                  </button>
                   {isMembersOpen ? (
                     <ChevronUp className="w-5" />
                   ) : (
@@ -347,20 +345,20 @@ export const UserDetail = ({
                     key={participant.id}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-100 group"
                   >
-                    <img
-                      src={participant.avatar || profile}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div className="flex-1">
-                      <Popover
-                        open={memberPopoverOpen === participantIdNum}
-                        onOpenChange={(open) =>
-                          setMemberPopoverOpen(open ? participantIdNum : null)
-                        }
-                      >
-                        <PopoverTrigger asChild>
-                          <div className="cursor-pointer">
-                            <p className="text-sm font-medium hover:underline">
+                    <Popover
+                      open={memberPopoverOpen === participantIdNum}
+                      onOpenChange={(open) =>
+                        setMemberPopoverOpen(open ? participantIdNum : null)
+                      }
+                    >
+                      <PopoverTrigger asChild>
+                        <div className="flex items-center gap-2 flex-1 cursor-pointer">
+                          <img
+                            src={participant.avatar || profile}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
                               {participant.name}
                             </p>
                             {participantIdNum === conversation.leaderId && (
@@ -369,41 +367,41 @@ export const UserDetail = ({
                               </p>
                             )}
                           </div>
-                        </PopoverTrigger>
-                        {!isCurrentUser && (
-                          <PopoverContent className="w-56 p-2" align="start">
-                            <div className="flex flex-col gap-1">
-                              {/* View Profile Option - Always shown */}
-                              <Link
-                                to={
-                                  participant.role?.name === "RECRUITER"
-                                    ? `/company-details/${participant.id}`
-                                    : `/user/${participant.id}`
-                                }
-                                onClick={() => setMemberPopoverOpen(null)}
-                                className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-100 transition-colors"
-                              >
-                                <UserCircleIcon className="w-4 h-4" />
-                                Xem profile
-                              </Link>
+                        </div>
+                      </PopoverTrigger>
+                      {!isCurrentUser && (
+                        <PopoverContent className="w-56 p-2" align="start">
+                          <div className="flex flex-col gap-1">
+                            {/* View Profile Option - Always shown */}
+                            <Link
+                              to={
+                                participant.role?.name === "RECRUITER"
+                                  ? `/company-details/${participant.id}`
+                                  : `/user/${participant.id}`
+                              }
+                              onClick={() => setMemberPopoverOpen(null)}
+                              className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-100 transition-colors"
+                            >
+                              <UserCircleIcon className="w-4 h-4" />
+                              Xem profile
+                            </Link>
 
-                              {/* Send Connection Request - Only for applicant-to-applicant */}
-                              {isBothApplicants && (
-                                <div
-                                  onClick={() => setMemberPopoverOpen(null)}
-                                  className="px-3 py-2"
-                                >
-                                  <ConnectionButton
-                                    targetUser={participant as UserProfile}
-                                    variant="outline"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </PopoverContent>
-                        )}
-                      </Popover>
-                    </div>
+                            {/* Send Connection Request - Only for applicant-to-applicant */}
+                            {isBothApplicants && (
+                              <div
+                                onClick={() => setMemberPopoverOpen(null)}
+                                className="px-3 py-2"
+                              >
+                                <ConnectionButton
+                                  targetUser={participant as UserProfile}
+                                  variant="outline"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      )}
+                    </Popover>
                     {/* Nút kick (chỉ hiện cho leader, không hiện cho chính mình) */}
                     {isLeader && participantIdNum !== userId && (
                       <button
