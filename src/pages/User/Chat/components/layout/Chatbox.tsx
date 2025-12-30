@@ -22,6 +22,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Chatbox = ({
   conversation,
@@ -477,23 +483,61 @@ export const Chatbox = ({
                   )}
                 </div>
                 {/* Seen emojis */}
-                {m?.seenUsers?.length > 0 && (
-                  <div
-                    className={`flex flex-wrap gap-1 -mt-3  justify-end
-                    }`}
-                  >
-                    {m.seenUsers.map((e, i) =>
-                      e?.emoji ? (
-                        <span
-                          key={i}
-                          className="w-6 h-6 text-lg bg-white border rounded-full shadow-sm flex items-center justify-center"
-                        >
-                          {e.emoji}
-                        </span>
-                      ) : null
-                    )}
-                  </div>
-                )}
+                {m?.seenUsers?.length > 0 && (() => {
+                  // Group reactions by emoji
+                  const reactionGroups = m.seenUsers.reduce((acc: any, e) => {
+                    if (e?.emoji) {
+                      if (!acc[e.emoji]) {
+                        acc[e.emoji] = [];
+                      }
+                      acc[e.emoji].push(e);
+                    }
+                    return acc;
+                  }, {});
+
+                  return (
+                    <div className="flex flex-wrap gap-1.5 -mt-3 justify-end">
+                      <TooltipProvider>
+                        {Object.entries(reactionGroups).map(([emoji, users]: [string, any]) => {
+                          const count = users.length;
+                          
+                          // Build tooltip content
+                          const tooltipText = users
+                            .map((e: any) => {
+                              const reactUser = conversation?.participants?.find(
+                                (p) => p.id == e?.id || p.email === e?.email
+                              );
+                              return reactUser?.name || e?.email || "Ai đó";
+                            })
+                            .join(", ");
+
+                          return (
+                            <Tooltip key={emoji}>
+                              <TooltipTrigger asChild>
+                                <span
+                                  className="relative min-w-[28px] h-7 px-1.5 text-base bg-white border border-gray-300 rounded-full shadow-sm flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-50 hover:border-primary transition-all"
+                                >
+                                  <span>{emoji}</span>
+                                  {count > 1 && (
+                                    <span className="text-xs font-semibold text-gray-600">
+                                      {count}
+                                    </span>
+                                  )}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent 
+                                side="top" 
+                                className="bg-gray-900 text-white px-3 py-2 text-sm max-w-xs"
+                              >
+                                <p>{tooltipText}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
+                      </TooltipProvider>
+                    </div>
+                  );
+                })()}
                 {/* Emoji picker */}
                 {openPickerFor === m.id && (
                   <div

@@ -18,7 +18,6 @@ import {
   UserCircle,
   Shield,
   Users,
-  UserCog,
 } from "lucide-react";
 import { useSignOut } from "@/hooks/useAuth";
 import {
@@ -247,20 +246,6 @@ export const Header = () => {
                     Hồ sơ
                   </Link>
                 </DropdownMenuItem>
-
-                {/* Relationships Link - Only for regular users */}
-                {user.role?.name?.toLowerCase() === "user" && (
-                  <DropdownMenuItem>
-                    <Link
-                      to="/relationships"
-                      className="flex flex-row items-center justify-start gap-2"
-                    >
-                      <UserCog className="text-[16px]" />
-                      Quản lý kết nối
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-
                 {/* Admin Dashboard Link */}
                 {user.role?.name?.toLowerCase() === "admin" && (
                   <DropdownMenuItem>
