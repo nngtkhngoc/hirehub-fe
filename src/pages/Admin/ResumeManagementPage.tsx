@@ -17,6 +17,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
+import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -327,12 +334,18 @@ export const ResumeManagementPage = () => {
                                 </tr>
                             ) : paginatedResumes.length === 0 ? (
                                 <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="px-6 py-12 text-center text-gray-400"
-                                    >
-                                        <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                        <p>Không tìm thấy hồ sơ nào</p>
+                                    <td colSpan={6}>
+                                        <Empty className="py-12">
+                                            <EmptyContent>
+                                                <EmptyMedia variant="icon">
+                                                    <FileText className="text-primary" />
+                                                </EmptyMedia>
+                                                <EmptyTitle>Không tìm thấy hồ sơ nào</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                                                </EmptyDescription>
+                                            </EmptyContent>
+                                        </Empty>
                                     </td>
                                 </tr>
                             ) : (

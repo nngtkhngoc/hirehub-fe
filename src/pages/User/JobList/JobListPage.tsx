@@ -2,7 +2,7 @@ import { Banner } from "@/components/layout/User/Banner";
 import { HighlightText } from "@/components/ui/User/HighlightText";
 import joblist from "@/assets/illustration/joblist.png";
 import { JobCard } from "@/components/ui/User/JobCard";
-import { Filter } from "lucide-react";
+import { Filter, Briefcase, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,13 @@ import { useJobs } from "@/hooks/useJob";
 import { JobCardSkeleton } from "@/components/ui/User/JobCardSkeleton";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 export interface SelectedFilters {
   jobType: string[];
   level: string[];
@@ -200,12 +207,32 @@ export const JobListPage = () => {
               ))}
             </div>
           ) : error ? (
-            <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
-              Lỗi khi tải danh sách công việc.
+            <div className="h-full w-full flex items-center justify-center pt-10 pb-20">
+              <Empty className="border-none">
+                <EmptyContent>
+                  <EmptyMedia variant="icon">
+                    <AlertCircle className="text-red-500" />
+                  </EmptyMedia>
+                  <EmptyTitle>Lỗi khi tải dữ liệu</EmptyTitle>
+                  <EmptyDescription>
+                    Không thể tải danh sách công việc. Vui lòng thử lại sau.
+                  </EmptyDescription>
+                </EmptyContent>
+              </Empty>
             </div>
           ) : !jobs || jobs.length === 0 ? (
-            <div className="italic h-full w-full flex items-center justify-center pt-20">
-              Không có dữ liệu để hiển thị.
+            <div className="h-full w-full flex items-center justify-center pt-10 pb-20">
+              <Empty className="border-none">
+                <EmptyContent>
+                  <EmptyMedia variant="icon">
+                    <Briefcase className="text-primary" />
+                  </EmptyMedia>
+                  <EmptyTitle>Không có công việc nào</EmptyTitle>
+                  <EmptyDescription>
+                    Không tìm thấy công việc phù hợp. Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm.
+                  </EmptyDescription>
+                </EmptyContent>
+              </Empty>
             </div>
           ) : (
             <div className="flex flex-col lg:grid lg:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-x-5 lg:gap-y-10 xl:grid-cols-3 lg:pt-15">

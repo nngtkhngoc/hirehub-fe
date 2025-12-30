@@ -4,6 +4,7 @@ import {
   getUnreadNotificationCount,
   markNotificationAsRead,
   markNotificationAsUnread,
+  markAllNotificationsAsRead,
 } from "@/apis/notification.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -52,6 +53,11 @@ export const useNotificationActions = () => {
 
     deleteNotification: useMutation({
       mutationFn: (id: number) => deleteNotification(id, Number(user?.id)),
+      onSuccess: invalidate,
+    }),
+
+    markAllAsRead: useMutation({
+      mutationFn: () => markAllNotificationsAsRead(Number(user?.id)),
       onSuccess: invalidate,
     }),
   };

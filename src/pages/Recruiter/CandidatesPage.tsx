@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Eye, FileText, MessageCircle, Clock, UserCheck, UserX, Ban, Filter } from "lucide-react";
+import { Search, Eye, FileText, MessageCircle, Clock, UserCheck, UserX, Ban, Filter, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import {
     Table,
     TableBody,
@@ -284,8 +291,18 @@ export const CandidatesPage = () => {
                 {isLoading ? (
                     <div className="p-12 text-center text-gray-400">Đang tải...</div>
                 ) : filteredResumes.length === 0 ? (
-                    <div className="p-12 text-center text-gray-400">
-                        Không tìm thấy ứng viên.
+                    <div className="p-12">
+                        <Empty className="border-none">
+                            <EmptyContent>
+                                <EmptyMedia variant="icon">
+                                    <Users className="text-primary" />
+                                </EmptyMedia>
+                                <EmptyTitle>Chưa có ứng viên nào</EmptyTitle>
+                                <EmptyDescription>
+                                    Chưa có ứng viên nào ứng tuyển vào vị trí này hoặc không có ứng viên phù hợp với bộ lọc.
+                                </EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
                     </div>
                 ) : (
                     <Table>

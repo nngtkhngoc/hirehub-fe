@@ -87,7 +87,7 @@ export const Header = () => {
   // Notification hooks
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
   const { data: notificationsData, isFetching } = useNotifications(page, 10);
-  const { markAsRead } = useNotificationActions();
+  const { markAsRead, markAllAsRead } = useNotificationActions();
 
   // Append notifications when page changes
   useEffect(() => {
@@ -199,6 +199,18 @@ export const Header = () => {
                       </button>
                     )}
                 </div>
+
+                {/* Mark all as read */}
+                {items.some((item) => !item.isRead) && items.length > 0 && (
+                  <div className="border-t">
+                    <button
+                      onClick={() => markAllAsRead.mutate()}
+                      className="w-full p-3 text-primary hover:bg-gray-50 text-sm font-medium transition-colors"
+                    >
+                      Đánh dấu tất cả đã đọc
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

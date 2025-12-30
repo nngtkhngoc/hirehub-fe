@@ -18,12 +18,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Filter } from "lucide-react";
+import { Filter, Building2, AlertCircle } from "lucide-react";
 import { FilterBar } from "./components/layout/FilterBar";
 import { CompanyCard } from "@/components/ui/User/CompanyCard";
 import { useRecruiter } from "@/hooks/useUser";
 import { useEffect, useState } from "react";
 import { CompanyCardSkeleton } from "@/components/ui/User/CompanyCardSkeleton";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export interface CompanyFilter {
   field: string[];
@@ -186,12 +193,32 @@ export const CompanyListPage = () => {
               ))}
             </div>
           ) : error ? (
-            <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
-              Lỗi khi tải danh sách công ty.
+            <div className="h-full w-full flex items-center justify-center pt-10 pb-20">
+              <Empty className="border-none">
+                <EmptyContent>
+                  <EmptyMedia variant="icon">
+                    <AlertCircle className="text-red-500" />
+                  </EmptyMedia>
+                  <EmptyTitle>Lỗi khi tải dữ liệu</EmptyTitle>
+                  <EmptyDescription>
+                    Không thể tải danh sách công ty. Vui lòng thử lại sau.
+                  </EmptyDescription>
+                </EmptyContent>
+              </Empty>
             </div>
           ) : !currentRecruiters || currentRecruiters.length === 0 ? (
-            <div className="italic h-full w-full flex items-center justify-center pt-20">
-              Không có dữ liệu để hiển thị.
+            <div className="h-full w-full flex items-center justify-center pt-10 pb-20">
+              <Empty className="border-none">
+                <EmptyContent>
+                  <EmptyMedia variant="icon">
+                    <Building2 className="text-primary" />
+                  </EmptyMedia>
+                  <EmptyTitle>Không có công ty nào</EmptyTitle>
+                  <EmptyDescription>
+                    Không tìm thấy công ty phù hợp. Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm.
+                  </EmptyDescription>
+                </EmptyContent>
+              </Empty>
             </div>
           ) : (
             <div className=" flex flex-col lg:grid xl:grid-cols-2 gap-5 items-center md:px-10 md:gap-8 lg:gap-[30px] lg:space-x-[30px]">

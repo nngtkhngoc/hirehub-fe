@@ -2,8 +2,15 @@ import { useChatList } from "@/hooks/useChat";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ChatContainer } from "../ui/ChatContainer";
 import type { Conversation } from "@/types/Chat";
-import { Search } from "lucide-react";
+import { Search, MessageSquare } from "lucide-react";
 import { CreateGroupDialog } from "./CreateGroupDialog";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export const ChatList = () => {
   const { user } = useAuthStore();
@@ -23,9 +30,17 @@ export const ChatList = () => {
 
     if (!conversations || conversations.length === 0) {
       return (
-        <div className="text-center text-sm text-zinc-500 py-4">
-          Chưa có cuộc trò chuyện nào
-        </div>
+        <Empty className="border-none">
+          <EmptyContent>
+            <EmptyMedia variant="icon">
+              <MessageSquare className="text-primary" />
+            </EmptyMedia>
+            <EmptyTitle className="text-base">Chưa có cuộc trò chuyện</EmptyTitle>
+            <EmptyDescription className="text-xs">
+              Bạn chưa có cuộc trò chuyện nào. Hãy tạo nhóm hoặc bắt đầu trò chuyện mới!
+            </EmptyDescription>
+          </EmptyContent>
+        </Empty>
       );
     }
 
@@ -39,9 +54,17 @@ export const ChatList = () => {
 
     if (visibleConversations.length === 0) {
       return (
-        <div className="text-center text-sm text-zinc-500 py-4">
-          Chưa có cuộc trò chuyện nào
-        </div>
+        <Empty className="border-none">
+          <EmptyContent>
+            <EmptyMedia variant="icon">
+              <MessageSquare className="text-primary" />
+            </EmptyMedia>
+            <EmptyTitle className="text-base">Chưa có cuộc trò chuyện</EmptyTitle>
+            <EmptyDescription className="text-xs">
+              Bạn chưa có cuộc trò chuyện nào. Hãy tạo nhóm hoặc bắt đầu trò chuyện mới!
+            </EmptyDescription>
+          </EmptyContent>
+        </Empty>
       );
     }
 

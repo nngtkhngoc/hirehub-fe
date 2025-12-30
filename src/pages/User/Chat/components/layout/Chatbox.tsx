@@ -8,13 +8,20 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useChat, useChatList } from "@/hooks/useChat";
 import type { Message, Conversation, GroupEventData } from "@/types/Chat";
 import profile from "@/assets/illustration/profile.png";
-import { Files, Images, Send, SmilePlus, Users } from "lucide-react";
+import { Files, Images, Send, SmilePlus, Users, MessageSquare } from "lucide-react";
 import Picker from "emoji-picker-react";
 import { uploadFile } from "@/apis/chat.api";
 import { markConversationAsRead } from "@/apis/conversation.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { ImagePreviewDialog } from "../ui/ImagePreviewDialog";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export const Chatbox = ({
   conversation,
@@ -300,8 +307,18 @@ export const Chatbox = ({
 
   if (!conversation) {
     return (
-      <div className="w-full max-h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden items-center justify-center">
-        <p className="text-zinc-500">Chọn một cuộc trò chuyện để bắt đầu</p>
+      <div className="w-full h-full flex flex-col border border-zinc-300 rounded-xl bg-white overflow-hidden">
+        <Empty>
+          <EmptyContent>
+            <EmptyMedia variant="icon">
+              <MessageSquare className="text-primary" />
+            </EmptyMedia>
+            <EmptyTitle>Chưa có cuộc trò chuyện</EmptyTitle>
+            <EmptyDescription>
+              Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu nhắn tin
+            </EmptyDescription>
+          </EmptyContent>
+        </Empty>
       </div>
     );
   }

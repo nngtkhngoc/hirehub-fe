@@ -42,6 +42,12 @@ export const deleteNotification = async (id: number, userId: number) => {
   });
 };
 
+export const markAllNotificationsAsRead = async (userId: number) => {
+  await axiosClient.put(`${NOTIFICATION_URL}/mark-all-read`, null, {
+    params: { userId },
+  });
+};
+
 export const createNotification = async (data: CreateNotificationDTO) => {
   await axiosClient.post(NOTIFICATION_URL, data);
 };

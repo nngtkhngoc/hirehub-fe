@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Plus, MoreVertical, Eye, Users, XCircle, Trash2 } from "lucide-react";
+import { Search, Plus, MoreVertical, Eye, Users, XCircle, Trash2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,6 +17,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import {
     Pagination,
     PaginationContent,
@@ -195,8 +202,18 @@ export const JobPostingsPage = () => {
                 {isLoading ? (
                     <div className="p-12 text-center text-gray-400">Đang tải...</div>
                 ) : jobs.length === 0 ? (
-                    <div className="p-12 text-center text-gray-400">
-                        Không tìm thấy việc làm. Tạo tin việc làm đầu tiên của bạn!
+                    <div className="p-12">
+                        <Empty className="border-none">
+                            <EmptyContent>
+                                <EmptyMedia variant="icon">
+                                    <Briefcase className="text-primary" />
+                                </EmptyMedia>
+                                <EmptyTitle>Chưa có việc làm nào</EmptyTitle>
+                                <EmptyDescription>
+                                    Bạn chưa đăng việc làm nào. Hãy tạo tin tuyển dụng đầu tiên của bạn!
+                                </EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-100">

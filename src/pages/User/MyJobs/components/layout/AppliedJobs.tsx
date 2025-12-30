@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Ellipsis, Link } from "lucide-react";
+import { Ellipsis, Link, Briefcase } from "lucide-react";
 import { Link as LinkRoute } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -18,6 +18,13 @@ import {
 import defaultCompany from "@/assets/illustration/company.png";
 import { useGetAppliedJobs } from "@/hooks/useJob";
 import type { ApplyJob } from "@/types/Job";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export const AppliedJobs = () => {
   const { data: appliedJobs, isLoading } = useGetAppliedJobs();
@@ -89,8 +96,18 @@ export const AppliedJobs = () => {
   const renderJobs = () => {
     if (!filteredJobs || filteredJobs.length === 0) {
       return (
-        <div className="py-8 text-center text-gray-500">
-          Không có công việc nào phù hợp với bộ lọc.
+        <div className="py-8 flex items-center justify-center">
+          <Empty className="border-none">
+            <EmptyContent>
+              <EmptyMedia variant="icon">
+                <Briefcase className="text-primary" />
+              </EmptyMedia>
+              <EmptyTitle className="text-base">Không có công việc nào</EmptyTitle>
+              <EmptyDescription className="text-xs">
+                Không có công việc nào phù hợp với bộ lọc của bạn.
+              </EmptyDescription>
+            </EmptyContent>
+          </Empty>
         </div>
       );
     }

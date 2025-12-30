@@ -1,7 +1,7 @@
 import type { SavedJob } from "@/types/Job";
 import defaultCompany from "@/assets/illustration/company.png";
 import { useGetSavedJobs } from "@/hooks/useJob";
-import { Ellipsis, Link } from "lucide-react";
+import { Ellipsis, Link, Bookmark } from "lucide-react";
 import { Link as LinkRoute } from "react-router-dom";
 
 import {
@@ -11,11 +11,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export const SavedJobs = () => {
   const { data: savedJobs } = useGetSavedJobs();
 
   const renderJobs = () => {
+    if (!savedJobs || savedJobs.length === 0) {
+      return (
+        <div className="py-8 flex items-center justify-center">
+          <Empty className="border-none">
+            <EmptyContent>
+              <EmptyMedia variant="icon">
+                <Bookmark className="text-primary" />
+              </EmptyMedia>
+              <EmptyTitle className="text-base">Chưa có công việc đã lưu</EmptyTitle>
+              <EmptyDescription className="text-xs">
+                Bạn chưa lưu công việc nào. Hãy lưu những công việc bạn quan tâm để xem sau!
+              </EmptyDescription>
+            </EmptyContent>
+          </Empty>
+        </div>
+      );
+    }
+
     return savedJobs.map((job: SavedJob) => (
       <div className="w-full relative">
         <LinkRoute

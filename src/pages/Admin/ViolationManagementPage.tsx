@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllReports, updateReportStatus, deleteReport } from "@/apis/admin.api";
 import { toast } from "sonner";
-import { Trash2, Filter, Eye, User, Briefcase } from "lucide-react";
+import { Trash2, Filter, Eye, User, Briefcase, AlertTriangle } from "lucide-react";
 import { SortableTableHeader } from "@/components/ui/SortableTableHeader";
 import { useTableSort } from "@/hooks/useTableSort";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 import {
     Pagination,
     PaginationContent,
@@ -257,11 +264,18 @@ export const ViolationManagementPage = () => {
                                 </tr>
                             ) : sortedReports.length === 0 ? (
                                 <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="px-6 py-12 text-center text-gray-400"
-                                    >
-                                        Không có báo cáo nào
+                                    <td colSpan={6}>
+                                        <Empty className="py-12">
+                                            <EmptyContent>
+                                                <EmptyMedia variant="icon">
+                                                    <AlertTriangle className="text-primary" />
+                                                </EmptyMedia>
+                                                <EmptyTitle>Không có báo cáo nào</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Thử thay đổi bộ lọc hoặc chưa có báo cáo vi phạm nào
+                                                </EmptyDescription>
+                                            </EmptyContent>
+                                        </Empty>
                                     </td>
                                 </tr>
                             ) : (

@@ -15,6 +15,14 @@ import { useEffect, useRef, useState } from "react";
 import { UserCardSkeleton } from "@/components/ui/User/UserCardSkeleton";
 import type { UserProfile } from "@/types/Auth";
 import { useAuthStore } from "@/stores/useAuthStore";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Users, AlertCircle } from "lucide-react";
 
 export const UserListPage = () => {
   const currentUser = useAuthStore((state) => state.user);
@@ -95,12 +103,32 @@ export const UserListPage = () => {
             ))}
           </div>
         ) : error ? (
-          <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
-            Lỗi khi tải danh sách người dùng.
+          <div className="h-full w-full flex items-center justify-center pt-10 pb-20">
+            <Empty className="border-none">
+              <EmptyContent>
+                <EmptyMedia variant="icon">
+                  <AlertCircle className="text-red-500" />
+                </EmptyMedia>
+                <EmptyTitle>Lỗi khi tải dữ liệu</EmptyTitle>
+                <EmptyDescription>
+                  Không thể tải danh sách người dùng. Vui lòng thử lại sau.
+                </EmptyDescription>
+              </EmptyContent>
+            </Empty>
           </div>
         ) : !users || users.length === 0 ? (
-          <div className="italic h-full w-full flex items-center justify-center pt-20">
-            Không có dữ liệu để hiển thị.
+          <div className="h-full w-full flex items-center justify-center pt-10 pb-20">
+            <Empty className="border-none">
+              <EmptyContent>
+                <EmptyMedia variant="icon">
+                  <Users className="text-primary" />
+                </EmptyMedia>
+                <EmptyTitle>Không có người dùng nào</EmptyTitle>
+                <EmptyDescription>
+                  Không tìm thấy người dùng phù hợp với tiêu chí tìm kiếm của bạn.
+                </EmptyDescription>
+              </EmptyContent>
+            </Empty>
           </div>
         ) : (
           <div className="flex flex-col justify-center items-center gap-5  md:grid md:grid-cols-2 md:gap-20 lg:grid-cols-3 lg:gap-10 xl:grid-cols-4">
