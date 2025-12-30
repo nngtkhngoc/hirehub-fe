@@ -14,12 +14,25 @@ export const getAllJobs = async (getAllJobQueries: {
   province?: string;
   page?: number;
   size?: number;
-}): Promise<Job[]> => {
+  levels?: string[];
+  workspaces?: string[];
+  types?: string[];
+  fields?: string[];
+}): Promise<{
+  content: Job[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number; // current page
+}> => {
   const res = await axiosClient.get(`${BASE_URL}/api/jobs`, {
     params: getAllJobQueries,
+    paramsSerializer: {
+      indexes: null, // to produce levels=A&levels=B instead of levels[0]=A
+    },
   });
 
-  return res.data.content;
+  return res.data;
 };
 
 export const getJobById = async (id?: string) => {

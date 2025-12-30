@@ -1,7 +1,7 @@
-import { OutlineButton, PrimaryButton } from "@/components/ui/User/Button";
+import { OutlineButton } from "@/components/ui/User/Button";
 import type { UserProfile } from "@/types/Auth";
 import { useMediaQuery } from "@mui/material";
-import { MapPin, Send, UserPlus } from "lucide-react";
+import { MapPin, Send } from "lucide-react";
 import profile from "@/assets/illustration/default_profile.webp";
 import ConnectionButton from "@/components/ui/User/ConnectionButton";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -74,7 +74,9 @@ export const BasicInfor = ({ user }: { user: UserProfile }) => {
         </div>
 
         <div className="flex flex-row gap-2 items-center">
-          <ConnectionButton targetUser={user} variant="primary" />
+          {currentUser?.role?.name?.toLowerCase() !== "recruiter" && (
+            <ConnectionButton targetUser={user} variant="primary" />
+          )}
           <OutlineButton
             onClick={handleMessage}
             label={

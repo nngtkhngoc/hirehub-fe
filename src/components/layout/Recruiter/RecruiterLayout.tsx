@@ -136,6 +136,20 @@ export const RecruiterLayout = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Profile */}
+                        <NavLink
+                            to="/recruiter/profile"
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive
+                                    ? "bg-primary text-white shadow-md"
+                                    : "text-gray-600 hover:bg-gray-100"
+                                }`
+                            }
+                        >
+                            <Settings size={20} />
+                            {!sidebarCollapsed && <span className="font-medium">Hồ sơ</span>}
+                        </NavLink>
                     </nav>
                 </div>
             </aside>

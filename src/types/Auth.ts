@@ -37,6 +37,9 @@ export type UserProfile = {
   position: string;
   avatarFile?: File | undefined;
   openAiResumeId?: string;
+  field?: string | null;
+  numberOfEmployees?: string | null;
+  foundedYear?: number | null;
 };
 
 export type UserFormData = {

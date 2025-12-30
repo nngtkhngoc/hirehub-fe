@@ -15,11 +15,35 @@ export const useJobs = (
   keyword?: string,
   province?: string,
   page?: number,
-  size?: number
+  size?: number,
+  levels?: string[],
+  workspaces?: string[],
+  types?: string[],
+  fields?: string[]
 ) => {
   return useQuery({
-    queryKey: ["jobs", keyword, province, page, size],
-    queryFn: () => getAllJobs({ keyword, province, page, size }),
+    queryKey: [
+      "jobs",
+      keyword,
+      province,
+      page,
+      size,
+      levels,
+      workspaces,
+      types,
+      fields,
+    ],
+    queryFn: () =>
+      getAllJobs({
+        keyword,
+        province,
+        page,
+        size,
+        levels,
+        workspaces,
+        types,
+        fields,
+      }),
   });
 };
 

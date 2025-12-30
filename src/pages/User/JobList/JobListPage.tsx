@@ -34,27 +34,9 @@ export interface SelectedFilters {
 export const JobListPage = () => {
   const [keyword, setKeyword] = useState<null | string>(null);
   const [province, setProvince] = useState<null | string>(null);
-  const size = 100;
+  const size = 9; // Set appropriate page size for backend pagination
   const [page, setPage] = useState(0);
 
-  const {
-    data: jobs,
-    isLoading,
-    error,
-  } = useJobs(
-    keyword || undefined,
-    province
-      ? province
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .trim()
-      : undefined,
-    page,
-    size
-  );
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
     jobType: [],
     level: [],
@@ -62,63 +44,50 @@ export const JobListPage = () => {
     workMode: [],
   });
 
-  const jobsPerPage = 9;
-  const startIndex = (currentPage - 1) * jobsPerPage;
-  const endIndex = startIndex + jobsPerPage;
-  const filteredJobs =
-    jobs &&
-    jobs.length > 0 &&
-    jobs?.filter((job) => {
-      const matchJobType =
-        selectedFilters.jobType.length === 0 ||
-        selectedFilters.jobType.includes(job?.type?.toLowerCase());
-
-      const matchLevel =
-        selectedFilters.level.length === 0 ||
-        selectedFilters.level.includes(job?.level?.toLowerCase());
-
-      const matchField =
-        selectedFilters.field.length === 0 ||
-        selectedFilters.field.includes(job?.recruiter?.field);
-
-      const matchWorkMode =
-        selectedFilters.workMode.length === 0 ||
-        selectedFilters.workMode.includes(job?.workspace?.toLowerCase());
-
-      return matchJobType && matchLevel && matchWorkMode && matchField;
-    });
-
-  const currentJobs =
-    filteredJobs &&
-    filteredJobs.length &&
-    filteredJobs?.slice(startIndex, endIndex);
-
+  // Reset page to 0 when filters change
   useEffect(() => {
-    const totalLoadedJobs = (page + 1) * size;
-    const totalDisplayedJobs = currentPage * jobsPerPage;
-    if (totalDisplayedJobs >= totalLoadedJobs - jobsPerPage) {
-      setPage((prev) => prev + 1);
-    }
-  }, [currentPage, page, jobsPerPage, size]);
+    setPage(0);
+  }, [keyword, province, selectedFilters]);
+
+  const {
+    data: jobsData,
+    isLoading,
+    error,
+  } = useJobs(
+    keyword || undefined,
+    province
+      ? province
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .trim()
+      : undefined,
+    page,
+    size,
+    selectedFilters.level.length > 0 ? selectedFilters.level : undefined,
+    selectedFilters.workMode.length > 0 ? selectedFilters.workMode : undefined,
+    selectedFilters.jobType.length > 0 ? selectedFilters.jobType : undefined,
+    selectedFilters.field.length > 0 ? selectedFilters.field : undefined
+  );
+
+  const jobs = jobsData?.content;
+  const totalPages = jobsData?.totalPages || 0;
 
   useEffect(() => {
     jobListRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [selectedFilters]);
+  }, [selectedFilters, page]); // Scroll on filter or page change
 
   const renderJobs = () => {
     return (
-      currentJobs &&
-      currentJobs.length > 0 &&
-      currentJobs?.map((job) => <JobCard key={job?.id} job={job} />)
+      jobs &&
+      jobs.length > 0 &&
+      jobs?.map((job) => <JobCard key={job?.id} job={job} />)
     );
   };
 
-  const totalPages = Math.ceil(
-    ((filteredJobs && filteredJobs.length) || 0) / jobsPerPage
-  );
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage - 1); // Frontend is 1-based, Backend is 0-based
     jobListRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -231,7 +200,7 @@ export const JobListPage = () => {
             <div className=" h-full w-full flex items-center justify-center text-red-500 pt-20">
               Lỗi khi tải danh sách công việc.
             </div>
-          ) : !currentJobs || currentJobs.length === 0 ? (
+          ) : !jobs || jobs.length === 0 ? (
             <div className="italic h-full w-full flex items-center justify-center pt-20">
               Không có dữ liệu để hiển thị.
             </div>
@@ -247,16 +216,26 @@ export const JobListPage = () => {
                 <PaginationPrevious
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage > 1) handlePageChange(currentPage - 1);
+                    if (page > 0) handlePageChange(page); // pass currentPage (1-based) doing page (0-based) means prev page 1-based.
+                    // Wait, handlePageChange takes newPage (1-based).
+                    // If current page index is 'page' (0), then current page number is page+1.
+                    // To go to prev, we want page.
+                    // Example: page=1 (2nd page). Previs page=0 (1st page). handlePageChange(1).
+                    if (page > 0) handlePageChange(page);
                   }}
                   hidden={totalPages <= 1}
                 />
               </PaginationItem>
 
+              {/* Show simple pagination: 1 ... 4 5 6 ... 10? Or just all pages?
+                  Code originally showed all pages. Let's keep simpler logic for now unless requested.
+                  Actually let's limit if too many pages? Original code: Array.from({ length: totalPages }).
+                  If totalPages is huge, this is bad. But let's stick to original behavior for consistency.
+               */}
               {Array.from({ length: totalPages }, (_, i) => (
                 <PaginationItem key={i}>
                   <PaginationLink
-                    isActive={currentPage === i + 1}
+                    isActive={page === i}
                     onClick={(e) => {
                       e.preventDefault();
                       handlePageChange(i + 1);
@@ -271,8 +250,10 @@ export const JobListPage = () => {
                 <PaginationNext
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage < totalPages)
-                      handlePageChange(currentPage + 1);
+                    // current page index 'page'. Next index page+1.
+                    // handlePageChange takes 1-based. So page+2.
+                    if (page < totalPages - 1)
+                      handlePageChange(page + 2);
                   }}
                   hidden={totalPages <= 1}
                 />

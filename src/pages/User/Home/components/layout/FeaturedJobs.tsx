@@ -43,7 +43,7 @@ export const FeaturedJobs = () => {
 
       <Carousel className="w-4/5 flex items-center justify-center pt-5">
         <CarouselContent>
-          {jobs?.map((job) => (
+          {jobs?.content?.map((job) => (
             <CarouselItem className="md:basis-1/2 h-[360px]  lg:basis-1/3">
               <JobLandingPageCard job={job} />
             </CarouselItem>

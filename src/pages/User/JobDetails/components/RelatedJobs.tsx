@@ -26,21 +26,21 @@ export const RelatedJobs = () => {
           <CarouselContent>
             {isLoading
               ? skeletons.map((_, idx) => (
-                  <CarouselItem
-                    key={idx}
-                    className="md:basis-1/2 h-[360px] lg:basis-1/3"
-                  >
-                    <JobLandingPageCardSkeleton />
-                  </CarouselItem>
-                ))
-              : jobs?.map((job) => (
-                  <CarouselItem
-                    key={job.id}
-                    className="md:basis-1/2 h-[360px] lg:basis-1/3"
-                  >
-                    <JobLandingPageCard job={job} />
-                  </CarouselItem>
-                ))}
+                <CarouselItem
+                  key={idx}
+                  className="md:basis-1/2 h-[360px] lg:basis-1/3"
+                >
+                  <JobLandingPageCardSkeleton />
+                </CarouselItem>
+              ))
+              : jobs?.content?.map((job) => (
+                <CarouselItem
+                  key={job.id}
+                  className="md:basis-1/2 h-[360px] lg:basis-1/3"
+                >
+                  <JobLandingPageCard job={job} />
+                </CarouselItem>
+              ))}
           </CarouselContent>
 
           <CarouselPrevious />

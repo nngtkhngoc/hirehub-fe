@@ -22,6 +22,7 @@ import { ResetPasswordPage } from "./pages/User/ResetPassword/ResetPasswordPage.
 import { User } from "./pages/User/User/User.tsx";
 import { JobDetails } from "./pages/User/JobDetails/JobDetails.tsx";
 import { MyJobsPage } from "./pages/User/MyJobs/MyJobsPage.tsx";
+import { CompanyDetails } from "./pages/User/CompanyDetails/CompanyDetails.tsx";
 import { ChatboxPage } from "./pages/User/Chat/ChatboxPage.tsx";
 import { ChatRedirectPage } from "./pages/User/Chat/ChatRedirectPage.tsx";
 
@@ -39,6 +40,7 @@ import { RecruiterDashboard } from "./pages/Recruiter/RecruiterDashboard.tsx";
 import { JobPostingsPage } from "./pages/Recruiter/JobPostingsPage.tsx";
 import { CreateJobPage } from "./pages/Recruiter/CreateJobPage.tsx";
 import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
+import { RecruiterProfilePage } from "./pages/Recruiter/Profile/RecruiterProfilePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/user/:userId" element={<User />} />
           <Route path="/job-details/:id" element={<JobDetails />} />{" "}
           <Route path="/my-jobs" element={<MyJobsPage />} />
+          <Route path="/company-details/:id" element={<CompanyDetails />} />
         </Route>
         <Route path="/chat" element={<ChatRedirectPage />} />
         <Route
@@ -91,6 +94,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="jobs" element={<JobPostingsPage />} />
           <Route path="jobs/create" element={<CreateJobPage />} />
           <Route path="candidates" element={<CandidatesPage />} />
+          <Route path="profile" element={<RecruiterProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

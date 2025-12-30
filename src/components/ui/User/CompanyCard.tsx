@@ -1,6 +1,7 @@
 import type { Recruiter } from "@/types/Recruiter";
 import { useMediaQuery } from "@mui/material";
 import { ArrowRight, BellPlus, Building } from "lucide-react";
+import { Link } from "react-router";
 
 interface CompanyCardProps {
   company: Recruiter;
@@ -44,10 +45,13 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
             {company.description}
           </div>
 
-          <div className="text-primary flex flex-row justify-start gap-3 items-center justify-left w-full  group-hover:text-white cursor-pointer">
+          <Link
+            to={`/company-details/${company.id}`}
+            className="text-primary flex flex-row justify-start gap-3 items-center justify-left w-full  group-hover:text-white cursor-pointer"
+          >
             <span className="text-[11px] lg:text-[14px] ">Xem thêm</span>
             <ArrowRight size={isLarge ? 18 : 12} />
-          </div>
+          </Link>
         </div>
       </div>
     </div>
