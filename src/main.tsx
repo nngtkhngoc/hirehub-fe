@@ -25,6 +25,7 @@ import { MyJobsPage } from "./pages/User/MyJobs/MyJobsPage.tsx";
 import { CompanyDetails } from "./pages/User/CompanyDetails/CompanyDetails.tsx";
 import { ChatboxPage } from "./pages/User/Chat/ChatboxPage.tsx";
 import { ChatRedirectPage } from "./pages/User/Chat/ChatRedirectPage.tsx";
+import { MyConnectionsPage } from "./pages/User/Connections/MyConnectionsPage.tsx";
 
 // Admin imports
 import { AdminLayout } from "./components/layout/Admin/AdminLayout.tsx";
@@ -59,6 +60,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/user/:userId" element={<User />} />
           <Route path="/job-details/:id" element={<JobDetails />} />{" "}
           <Route path="/my-jobs" element={<MyJobsPage />} />
+          <Route path="/my-connections" element={<MyConnectionsPage />} />
           <Route path="/company-details/:id" element={<CompanyDetails />} />
         </Route>
         <Route path="/chat" element={<ChatRedirectPage />} />

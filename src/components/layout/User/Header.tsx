@@ -230,6 +230,15 @@ export const Header = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
                   <Link
+                    to="/profile"
+                    className="flex flex-row items-center justify-start gap-2"
+                  >
+                    <UserCircle className="text-[16px]" />
+                    Hồ sơ
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link
                     to="/my-jobs"
                     className="flex flex-row items-center justify-start gap-2"
                   >
@@ -239,11 +248,11 @@ export const Header = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link
-                    to="/profile"
+                    to="/my-connections"
                     className="flex flex-row items-center justify-start gap-2"
                   >
-                    <UserCircle className="text-[16px]" />
-                    Hồ sơ
+                    <Users className="text-[16px]" />
+                    Kết nối
                   </Link>
                 </DropdownMenuItem>
                 {/* Admin Dashboard Link */}
