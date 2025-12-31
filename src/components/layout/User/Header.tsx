@@ -237,24 +237,32 @@ export const Header = () => {
                     Hồ sơ
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link
-                    to="/my-jobs"
-                    className="flex flex-row items-center justify-start gap-2"
-                  >
-                    <BriefcaseBusiness className="text-[16px]" />
-                    Công việc
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link
-                    to="/my-connections"
-                    className="flex flex-row items-center justify-start gap-2"
-                  >
-                    <Users className="text-[16px]" />
-                    Kết nối
-                  </Link>
-                </DropdownMenuItem>
+                
+                {/* User (Candidate) Only Links */}
+                {user.role?.name?.toLowerCase() !== "admin" && 
+                 user.role?.name?.toLowerCase() !== "recruiter" && (
+                  <>
+                    <DropdownMenuItem>
+                      <Link
+                        to="/my-jobs"
+                        className="flex flex-row items-center justify-start gap-2"
+                      >
+                        <BriefcaseBusiness className="text-[16px]" />
+                        Công việc
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link
+                        to="/my-connections"
+                        className="flex flex-row items-center justify-start gap-2"
+                      >
+                        <Users className="text-[16px]" />
+                        Kết nối
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                
                 {/* Admin Dashboard Link */}
                 {user.role?.name?.toLowerCase() === "admin" && (
                   <DropdownMenuItem>
