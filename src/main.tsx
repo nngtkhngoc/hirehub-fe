@@ -41,6 +41,7 @@ import { JobPostingsPage } from "./pages/Recruiter/JobPostingsPage.tsx";
 import { CreateJobPage } from "./pages/Recruiter/CreateJobPage.tsx";
 import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
 import { RecruiterProfilePage } from "./pages/Recruiter/Profile/RecruiterProfilePage.tsx";
+import { SystemOptionsPage } from "./pages/Admin/SystemOptionsPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="jobs" element={<JobManagementPage />} />
           <Route path="resumes" element={<ResumeManagementPage />} />
           <Route path="violations" element={<ViolationManagementPage />} />
+          <Route path="system-options" element={<SystemOptionsPage />} />
         </Route>
 
         {/* Recruiter Routes */}
