@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { axiosClient } from "@/lib/axios";
 import { useNavigate, useSearchParams } from "react-router";
+import { createConversation, type CreateConversationRequest } from "@/apis/conversation.api";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -190,6 +191,19 @@ export const CandidatesPage = () => {
         onError: () => toast.error("Cập nhật trạng thái thất bại"),
     });
 
+    // Create direct conversation mutation
+    const createDirectConversation = useMutation({
+        mutationFn: (payload: CreateConversationRequest) => createConversation(payload),
+        onSuccess: (data) => {
+            navigate(`/chat/conversation/${data.id}`);
+        },
+        onError: () => {
+            toast.error("Không thể mở cuộc trò chuyện. Vui lòng thử lại!", {
+                duration: 2000,
+            });
+        },
+    });
+
     const jobs: JobPosting[] = jobsData?.content || [];
     const resumes: Resume[] = resumesData || [];
 
@@ -224,6 +238,19 @@ export const CandidatesPage = () => {
 
     const handleStatusChange = (resumeId: number, newStatus: string) => {
         updateStatusMutation.mutate({ id: resumeId, status: newStatus });
+    };
+
+    const handleOpenChat = (targetUserId: number) => {
+        if (!user?.id) {
+            navigate("/auth");
+            return;
+        }
+
+        createDirectConversation.mutate({
+            type: "DIRECT",
+            creatorId: parseInt(user.id),
+            participantIds: [parseInt(user.id), targetUserId],
+        });
     };
 
     return (
@@ -448,7 +475,7 @@ export const CandidatesPage = () => {
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    onClick={() => navigate(`/chat/${resume.user.id}`)}
+                                                    onClick={() => handleOpenChat(resume.user.id)}
                                                     title="Nhắn tin"
                                                     className="h-8 w-8 hover:bg-gray-100"
                                                 >

@@ -5,7 +5,9 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
 ## 🚀 Features
 
 ### User Features
+
 - **Authentication & Authorization**
+
   - Email/Password registration and login
   - Google OAuth integration
   - Email verification and account activation
@@ -13,6 +15,7 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
   - JWT-based authentication
 
 - **Job Search & Management**
+
   - Browse and search job listings
   - Filter jobs by skills, location, type, and level
   - Save favorite jobs
@@ -21,6 +24,7 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
   - AI-powered job recommendations
 
 - **Profile Management**
+
   - Complete professional profile with avatar
   - Skills, experience, and education management
   - Language proficiency tracking
@@ -28,16 +32,19 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
   - GitHub integration
 
 - **Company Discovery**
+
   - Browse company profiles
   - View company job listings
   - Follow companies
 
 - **Networking**
+
   - User directory and search
   - Connect with other professionals
   - View user profiles and credentials
 
 - **Real-time Chat**
+
   - Direct messaging with recruiters and other users
   - WebSocket-based real-time communication
   - Message history and conversation management
@@ -51,18 +58,22 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
   - Message notifications
 
 ### Recruiter Features
+
 - **Dashboard**
+
   - Analytics and insights
   - Application tracking
   - Hiring pipeline visualization
 
 - **Job Management**
+
   - Create and publish job postings
   - Edit and update job listings
   - Manage job status (draft, active, closed)
   - Rich text editor for job descriptions
 
 - **Candidate Management**
+
   - View and filter applications
   - Review candidate profiles and resumes
   - Manage application status
@@ -74,22 +85,27 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
   - Showcase company culture
 
 ### Admin Features
+
 - **User Management**
+
   - View and manage all users
   - User verification and moderation
   - Account status management
 
 - **Job Management**
+
   - Review and approve job postings
   - Remove inappropriate content
   - Monitor job posting quality
 
 - **Content Moderation**
+
   - Review reported content
   - Manage violations
   - Handle user reports
 
 - **System Configuration**
+
   - Manage job types and levels
   - Configure company domains
   - System-wide settings
@@ -102,17 +118,20 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
 ## 🛠 Tech Stack
 
 ### Core Framework
+
 - **React 19.1.1** - UI library
 - **TypeScript 5.9.3** - Type-safe development
 - **Vite 7.1.7** - Fast build tool and dev server
 
 ### Routing & State Management
+
 - **React Router v7** - Client-side routing
 - **Zustand** - Lightweight state management
 - **TanStack Query (React Query)** - Server state management
 - **Redux Toolkit** - Complex state management
 
 ### Styling & UI
+
 - **TailwindCSS 4.1.14** - Utility-first CSS framework
 - **Radix UI** - Accessible component primitives
 - **Framer Motion** - Animation library
@@ -120,25 +139,30 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
 - **Material UI** - Component library
 
 ### Form Management
+
 - **React Hook Form** - Performant form handling
 - **Yup** - Schema validation
 - **@hookform/resolvers** - Validation resolver
 
 ### Rich Text & Content
+
 - **TipTap** - Headless rich text editor
 - **React Markdown** - Markdown renderer
 - **Emoji Picker React** - Emoji selection
 
 ### Real-time Communication
+
 - **@stomp/stompjs** - WebSocket STOMP client
 - **SockJS Client** - WebSocket fallback
 - **Firebase** - Push notifications and cloud messaging
 
 ### Data Fetching & API
+
 - **Axios** - HTTP client
 - **TanStack Query** - Data synchronization
 
 ### UI Components & Utilities
+
 - **date-fns** - Date manipulation
 - **Recharts** - Chart and data visualization
 - **Embla Carousel** - Carousel component
@@ -146,6 +170,7 @@ A modern job recruitment platform built with React, TypeScript, and Vite. HireHu
 - **cmdk** - Command menu
 
 ### Development Tools
+
 - **ESLint** - Code linting
 - **TypeScript ESLint** - TypeScript-specific linting
 - **Vite Plugin React** - React Fast Refresh
@@ -280,6 +305,7 @@ hirehub-fe/
 ### Code Style
 
 The project follows these conventions:
+
 - **TypeScript** for type safety
 - **Functional components** with hooks
 - **Custom hooks** for business logic
@@ -308,12 +334,14 @@ npm run lint     # Run ESLint
 ## 🔌 WebSocket Integration
 
 Real-time features use STOMP over WebSocket:
+
 - Chat messages
 - Notifications
 - Online status
 - Typing indicators
 
 Connection established via `useStomp` hook:
+
 ```typescript
 const { client, connected } = useStomp();
 ```
@@ -328,6 +356,7 @@ const { client, connected } = useStomp();
 ## 🎨 UI Components
 
 Built on **shadcn/ui** with Radix UI primitives:
+
 - Fully accessible (ARIA compliant)
 - Keyboard navigation
 - Theme support (light/dark mode ready)
@@ -358,24 +387,26 @@ Built on **shadcn/ui** with Radix UI primitives:
 
 ## 📄 Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `VITE_API_BASE_URL` | Backend API base URL | Yes |
-| `VITE_WS_URL` | WebSocket server URL | Yes |
-| `VITE_FIREBASE_*` | Firebase configuration | Yes (for notifications) |
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID | No |
+| Variable                | Description            | Required                |
+| ----------------------- | ---------------------- | ----------------------- |
+| `VITE_API_BASE_URL`     | Backend API base URL   | Yes                     |
+| `VITE_WS_URL`           | WebSocket server URL   | Yes                     |
+| `VITE_FIREBASE_*`       | Firebase configuration | Yes (for notifications) |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID | No                      |
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
 **Port already in use**
+
 ```bash
 # Kill process on port 5173
 npx kill-port 5173
 ```
 
 **Build errors**
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -383,6 +414,7 @@ npm install
 ```
 
 **TypeScript errors**
+
 ```bash
 # Rebuild TypeScript
 npm run build
@@ -411,6 +443,7 @@ npm run build
 ## 🤝 Support
 
 For issues and questions:
+
 - Create an issue in the repository
 - Contact the development team
 - Check the documentation
