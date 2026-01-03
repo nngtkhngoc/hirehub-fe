@@ -51,7 +51,8 @@ export const Header = () => {
   const location = window.location.pathname;
   const isActive = (link: string) => {
     if (link === "/") return location === "/";
-    if (link === "/job-list" && location.startsWith("/job-details")) return true;
+    if (link === "/job-list" && location.startsWith("/job-details"))
+      return true;
     if (link === "/company-list" && location.startsWith("/company-details"))
       return true;
     if (link === "/user-list" && location.startsWith("/user/")) return true;
@@ -237,32 +238,32 @@ export const Header = () => {
                     Hồ sơ
                   </Link>
                 </DropdownMenuItem>
-                
+
                 {/* User (Candidate) Only Links */}
-                {user.role?.name?.toLowerCase() !== "admin" && 
-                 user.role?.name?.toLowerCase() !== "recruiter" && (
-                  <>
-                    <DropdownMenuItem>
-                      <Link
-                        to="/my-jobs"
-                        className="flex flex-row items-center justify-start gap-2"
-                      >
-                        <BriefcaseBusiness className="text-[16px]" />
-                        Công việc
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link
-                        to="/my-connections"
-                        className="flex flex-row items-center justify-start gap-2"
-                      >
-                        <Users className="text-[16px]" />
-                        Kết nối
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-                
+                {user.role?.name?.toLowerCase() !== "admin" &&
+                  user.role?.name?.toLowerCase() !== "recruiter" && (
+                    <>
+                      <DropdownMenuItem>
+                        <Link
+                          to="/my-jobs"
+                          className="flex flex-row items-center justify-start gap-2"
+                        >
+                          <BriefcaseBusiness className="text-[16px]" />
+                          Công việc
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link
+                          to="/my-connections"
+                          className="flex flex-row items-center justify-start gap-2"
+                        >
+                          <Users className="text-[16px]" />
+                          Kết nối
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
                 {/* Admin Dashboard Link */}
                 {user.role?.name?.toLowerCase() === "admin" && (
                   <DropdownMenuItem>

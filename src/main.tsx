@@ -42,7 +42,11 @@ import { JobPostingsPage } from "./pages/Recruiter/JobPostingsPage.tsx";
 import { CreateJobPage } from "./pages/Recruiter/CreateJobPage.tsx";
 import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
 import { RecruiterProfilePage } from "./pages/Recruiter/Profile/RecruiterProfilePage.tsx";
+import { QuestionBankListPage } from "./pages/Recruiter/QuestionBank/QuestionBankListPage.tsx";
+import { CreateQuestionBankPage } from "./pages/Recruiter/QuestionBank/CreateQuestionBankPage.tsx";
 import { SystemOptionsPage } from "./pages/Admin/SystemOptionsPage.tsx";
+import { InterviewRoomPage } from "./pages/User/InterviewRoom/InterviewRoomPage.tsx";
+import { InterviewListPage } from "./pages/User/InterviewRoom/InterviewListPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -62,7 +66,9 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/my-jobs" element={<MyJobsPage />} />
           <Route path="/my-connections" element={<MyConnectionsPage />} />
           <Route path="/company-details/:id" element={<CompanyDetails />} />
+          <Route path="/interviews" element={<InterviewListPage />} />
         </Route>
+        <Route path="/interview-room/:roomCode" element={<InterviewRoomPage />} />
         <Route path="/chat" element={<ChatRedirectPage />} />
         <Route
           path="/chat/conversation/:conversationId"
@@ -100,6 +106,9 @@ createRoot(document.getElementById("root")!).render(
           <Route path="jobs/edit/:id" element={<CreateJobPage />} />
           <Route path="candidates" element={<CandidatesPage />} />
           <Route path="profile" element={<RecruiterProfilePage />} />
+          <Route path="interviews" element={<InterviewListPage />} />
+          <Route path="question-banks" element={<QuestionBankListPage />} />
+          <Route path="question-banks/create" element={<CreateQuestionBankPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

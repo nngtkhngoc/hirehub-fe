@@ -1,7 +1,11 @@
 import { Users, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import profile from "@/assets/illustration/default_profile.webp";
-import { useRelationship, useUpdateRelationshipStatus, useDisconnect } from "@/hooks/useRelationship";
+import {
+  useRelationship,
+  useUpdateRelationshipStatus,
+  useDisconnect,
+} from "@/hooks/useRelationship";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
   Empty,
@@ -42,7 +46,9 @@ export const RequestsList = () => {
   const { data: relationships, isLoading } = useRelationship(Number(user?.id));
   const { mutate: updateStatus } = useUpdateRelationshipStatus();
   const { mutate: deleteRequest } = useDisconnect();
-  const [handledRequests, setHandledRequests] = useState<Set<string>>(new Set());
+  const [handledRequests, setHandledRequests] = useState<Set<string>>(
+    new Set()
+  );
 
   // Filter pending requests where current user is the receiver
   const pendingRequests = relationships?.filter(
@@ -66,7 +72,7 @@ export const RequestsList = () => {
       {
         onSuccess: () => {
           toast.success("Đã chấp nhận lời mời kết bạn!", { duration: 2000 });
-          setHandledRequests(prev => new Set(prev).add(requestKey));
+          setHandledRequests((prev) => new Set(prev).add(requestKey));
         },
         onError: () => {
           toast.error("Không thể chấp nhận lời mời!", { duration: 2000 });
@@ -82,7 +88,7 @@ export const RequestsList = () => {
       {
         onSuccess: () => {
           toast.success("Đã từ chối lời mời kết bạn!", { duration: 2000 });
-          setHandledRequests(prev => new Set(prev).add(requestKey));
+          setHandledRequests((prev) => new Set(prev).add(requestKey));
         },
         onError: () => {
           toast.error("Không thể từ chối lời mời!", { duration: 2000 });
@@ -98,7 +104,7 @@ export const RequestsList = () => {
       {
         onSuccess: () => {
           toast.success("Đã hủy lời mời!", { duration: 2000 });
-          setHandledRequests(prev => new Set(prev).add(requestKey));
+          setHandledRequests((prev) => new Set(prev).add(requestKey));
         },
         onError: () => {
           toast.error("Không thể hủy lời mời!", { duration: 2000 });
@@ -136,7 +142,9 @@ export const RequestsList = () => {
               <EmptyMedia variant="icon">
                 <Users className="text-primary" />
               </EmptyMedia>
-              <EmptyTitle className="text-base">Không có lời mời nào</EmptyTitle>
+              <EmptyTitle className="text-base">
+                Không có lời mời nào
+              </EmptyTitle>
               <EmptyDescription className="text-xs">
                 Bạn chưa có lời mời kết bạn nào.
               </EmptyDescription>
@@ -157,7 +165,7 @@ export const RequestsList = () => {
             {pendingRequests.map((request: Relationship) => {
               const requestKey = `${request.sender.id}-${request.receiver.id}`;
               const isHandled = handledRequests.has(requestKey);
-              
+
               return (
                 <div
                   className="w-full border-t border-[#f2f2f2] py-4 hover:bg-gray-50 transition-colors"
@@ -229,7 +237,7 @@ export const RequestsList = () => {
             {sentRequests.map((request: Relationship) => {
               const requestKey = `${request.sender.id}-${request.receiver.id}`;
               const isHandled = handledRequests.has(requestKey);
-              
+
               return (
                 <div
                   className="w-full border-t border-[#f2f2f2] py-4 hover:bg-gray-50 transition-colors"
@@ -272,7 +280,7 @@ export const RequestsList = () => {
                             request.receiver.id
                           )
                         }
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-primary hover:text-primary py-4 hover:bg-zinc-50"
                       >
                         <X size={16} className="mr-1" />
                         Hủy lời mời
@@ -294,4 +302,3 @@ export const RequestsList = () => {
     </div>
   );
 };
-

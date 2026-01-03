@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Eye, FileText, MessageCircle, Clock, UserCheck, UserX, Ban, Filter, Users } from "lucide-react";
+import { Search, Eye, FileText, MessageCircle, Clock, UserCheck, UserX, Ban, Filter, Users, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { axiosClient } from "@/lib/axios";
 import { useNavigate, useSearchParams } from "react-router";
 import { createConversation, type CreateConversationRequest } from "@/apis/conversation.api";
+import { CreateInterviewRoomModal } from "@/components/ui/User/CreateInterviewRoomModal";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -120,6 +121,15 @@ export const CandidatesPage = () => {
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
     const [keyword, setKeyword] = useState("");
+    
+    // Interview modal state
+    const [showInterviewModal, setShowInterviewModal] = useState(false);
+    const [selectedCandidate, setSelectedCandidate] = useState<{
+        userId: number;
+        userName: string;
+        jobId: number;
+        jobTitle: string;
+    } | null>(null);
 
     // Read jobId from URL params
     const jobIdFromUrl = searchParams.get("jobId");
@@ -251,6 +261,21 @@ export const CandidatesPage = () => {
             creatorId: parseInt(user.id),
             participantIds: [parseInt(user.id), targetUserId],
         });
+    };
+    
+    const handleCreateInterview = (resume: Resume) => {
+        if (resume.status !== "ACCEPTED") {
+            toast.error("Chỉ có thể tạo phỏng vấn cho ứng viên đã được chấp nhận");
+            return;
+        }
+        
+        setSelectedCandidate({
+            userId: resume.user.id,
+            userName: resume.user.name,
+            jobId: resume.job.id,
+            jobTitle: resume.job.title,
+        });
+        setShowInterviewModal(true);
     };
 
     return (
@@ -447,6 +472,18 @@ export const CandidatesPage = () => {
                                         {/* Actions */}
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
+                                                {/* Create Interview Button - Only for ACCEPTED candidates */}
+                                                {resume.status === "ACCEPTED" && !(resume.job.status === "BANNED" || resume.job.isBanned) && (
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        onClick={() => handleCreateInterview(resume)}
+                                                        title="Tạo phỏng vấn"
+                                                        className="h-8 w-8 hover:bg-green-100 hover:text-green-600"
+                                                    >
+                                                        <Video size={16} />
+                                                    </Button>
+                                                )}
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
@@ -490,6 +527,26 @@ export const CandidatesPage = () => {
                     </Table>
                 )}
             </div>
+            
+            {/* Interview Modal */}
+            {showInterviewModal && selectedCandidate && user && (
+                <CreateInterviewRoomModal
+                    jobId={selectedCandidate.jobId}
+                    jobTitle={selectedCandidate.jobTitle}
+                    applicantId={selectedCandidate.userId}
+                    applicantName={selectedCandidate.userName}
+                    recruiterId={user.id}
+                    isOpen={showInterviewModal}
+                    onClose={() => {
+                        setShowInterviewModal(false);
+                        setSelectedCandidate(null);
+                    }}
+                    onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ["recruiter-candidates"] });
+                        toast.success("Phỏng vấn đã được tạo và gửi lời mời!");
+                    }}
+                />
+            )}
         </div>
     );
 };

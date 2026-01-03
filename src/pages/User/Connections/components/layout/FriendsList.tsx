@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, MessageCircle, UserX } from "lucide-react";
+import { Users, UserX } from "lucide-react";
 import { Link } from "react-router-dom";
 import profile from "@/assets/illustration/default_profile.webp";
 import { useFriends, useDisconnect } from "@/hooks/useRelationship";
@@ -145,7 +145,7 @@ export const FriendsList = () => {
               <AlertDialogTrigger asChild>
                 <Button
                   size="icon"
-                  variant="ghost"
+                  variant="outlined"
                   title="Hủy kết nối"
                   className="h-9 w-9 text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
@@ -204,4 +204,3 @@ export const FriendsList = () => {
     </div>
   );
 };
-

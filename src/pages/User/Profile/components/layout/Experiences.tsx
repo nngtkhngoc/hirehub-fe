@@ -308,13 +308,18 @@ export const Experiences = ({ user }: { user: UserProfile }) => {
                             <div className="flex flex-row items-center gap-1 text-[13px] text-black">
                               <img
                                 src={
-                                  companies?.find((c) => c.id === company)
-                                    ?.avatar || companyDefault
+                                  companies?.content?.find(
+                                    (c) => c.id === company
+                                  )?.avatar || companyDefault
                                 }
                                 className="w-6 h-6 rounded-full object-cover mr-2"
                                 alt=""
                               />{" "}
-                              {companies?.find((c) => c.id === company)?.name}
+                              {
+                                companies?.content?.find(
+                                  (c) => c.id === company
+                                )?.name
+                              }
                             </div>
                           ) : (
                             "Chọn công ty"

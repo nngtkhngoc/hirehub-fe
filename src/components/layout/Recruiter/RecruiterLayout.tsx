@@ -16,6 +16,8 @@ import {
     Home,
     FileText,
     Users,
+    BookOpen,
+    Video,
 } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -23,6 +25,8 @@ import { Input } from "@/components/ui/input";
 const recruitmentSubItems = [
     { path: "/recruiter/jobs", label: "Việc làm", icon: FileText },
     { path: "/recruiter/candidates", label: "Ứng viên", icon: Users },
+    { path: "/recruiter/question-banks", label: "Bộ câu hỏi", icon: BookOpen },
+    { path: "/recruiter/interviews", label: "Phỏng vấn", icon: Video },
 ];
 
 export const RecruiterLayout = () => {

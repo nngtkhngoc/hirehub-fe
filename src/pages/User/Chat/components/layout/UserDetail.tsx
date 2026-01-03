@@ -311,16 +311,18 @@ export const UserDetail = ({
                   Thành viên ({conversation.participants.length})
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setInviteDialogOpen(true);
-                    }}
-                    className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 cursor-pointer"
-                  >
-                    <UserPlus className="w-3.5 h-3.5" />
-                    Mời thêm
-                  </button>
+                  {user?.id === conversation.leaderId && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInviteDialogOpen(true);
+                      }}
+                      className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 cursor-pointer"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      Mời thêm
+                    </button>
+                  )}
                   {isMembersOpen ? (
                     <ChevronUp className="w-5" />
                   ) : (

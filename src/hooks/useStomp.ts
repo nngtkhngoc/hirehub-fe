@@ -37,9 +37,13 @@ export const useStomp = () => {
 
     stompClient.activate();
     clientRef.current = stompClient;
+    
+    // Expose globally for interview socket
+    (window as any).stompClient = stompClient;
 
     return () => {
       stompClient.deactivate();
+      (window as any).stompClient = null;
     };
   }, []);
 
