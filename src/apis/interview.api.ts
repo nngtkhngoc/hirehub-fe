@@ -158,6 +158,13 @@ export const evaluateQuestion = async (
   return res.data.data as InterviewQuestion;
 };
 
+export const markQuestionAsSent = async (questionId: number) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/interview-rooms/questions/${questionId}/mark-sent`
+  );
+  return res.data.data as InterviewQuestion;
+};
+
 export const submitAsyncResult = async (data: CreateInterviewResultRequest) => {
   const res = await axiosClient.post(
     `${BASE_URL}/api/interview-rooms/results/async`,

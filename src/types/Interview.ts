@@ -1,194 +1,125 @@
-export type InterviewRoomStatus =
-  | "SCHEDULED"
-  | "ONGOING"
-  | "FINISHED"
-  | "CANCELLED"
-  | "EXPIRED";
-
-export type InterviewMessageType = "CHAT" | "QUESTION" | "SYSTEM";
-
-export type InterviewSenderRole = "RECRUITER" | "APPLICANT" | "SYSTEM";
-
-export type InterviewRecommendation = "PASS" | "FAIL";
-
-export type InterviewType = "CHAT" | "VIDEO";
-
-export type InterviewMode = "LIVE" | "ASYNC";
-
-export type InterviewQuestionStatus = "PENDING" | "ANSWERED";
-
 export interface InterviewRoom {
-  id: number;
-  jobId: number;
-  jobTitle: string;
-  applicantId: number;
-  applicantName: string;
-  applicantEmail: string;
-  applicantAvatar: string;
-  recruiterId: number;
-  recruiterName: string;
-  recruiterEmail: string;
-  recruiterAvatar: string;
-  roomCode: string;
-  scheduledTime: string;
-  durationMinutes: number;
-  status: InterviewRoomStatus;
-  interviewType: InterviewType;
-  interviewMode: InterviewMode;
-  roundNumber: number;
-  previousRoomId?: number;
-  emailSent: boolean;
-  notificationSent: boolean;
-  createdAt: string;
-  startedAt?: string;
-  endedAt?: string;
-  isExpired: boolean; // Room has expired (past scheduled time + duration)
-}
-
-export interface InterviewMessage {
-  id?: number;
-  roomId?: number;
-  senderId: number;
-  senderName?: string;
-  senderAvatar?: string;
-  senderRole: InterviewSenderRole;
-  type: InterviewMessageType;
-  content: string;
-  timestamp: string;
+    id: number;
+    roomCode: string;
+    recruiterId: number;
+    recruiterName: string;
+    applicantId: number;
+    applicantName: string;
+    jobId: number;
+    jobTitle: string;
+    scheduledTime: string;
+    duration: number;
+    status: "SCHEDULED" | "ONGOING" | "FINISHED" | "CANCELLED" | "EXPIRED";
+    isExpired: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface CreateInterviewRoomRequest {
-  jobId: number;
-  applicantId: number;
-  recruiterId: number;
-  scheduledTime: string;
-  durationMinutes?: number; // Duration in minutes (default 60)
-  interviewType: InterviewType;
-  interviewMode: InterviewMode;
-  roundNumber?: number;
-  previousRoomId?: number;
-  selectedQuestionIds?: number[];
+    recruiterId: number;
+    applicantId: number;
+    jobId: number;
+    scheduledTime: string;
+    duration: number;
+    questionBankIds?: number[];
+}
+
+export interface InterviewMessage {
+    id: number;
+    roomCode: string;
+    senderId: number;
+    senderName: string;
+    content: string;
+    type: "TEXT" | "QUESTION" | "ANSWER" | "SYSTEM";
+    timestamp: string;
 }
 
 export interface InterviewQuestion {
-  id: number;
-  roomId: number;
-  questionId?: number;
-  questionContent: string;
-  answer?: string;
-  orderIndex: number;
-  askedAt: string;
-  answeredAt?: string;
-  status: InterviewQuestionStatus;
-  evaluation?: "PASS" | "FAIL"; // Recruiter's evaluation
-}
-
-export interface QuestionBank {
-  id: number;
-  recruiterId: number;
-  recruiterName: string;
-  title: string;
-  description?: string;
-  category: string;
-  questions: Question[];
-  createdAt: string;
-  updatedAt?: string;
-}
-
-export interface Question {
-  id: number;
-  content: string;
-  orderIndex: number;
-}
-
-export interface CreateQuestionBankRequest {
-  recruiterId: number;
-  title: string;
-  description?: string;
-  category: string;
-  questions: string[];
-}
-
-export interface CreateInterviewMessageRequest {
-  roomCode: string;
-  senderId: number;
-  senderRole: InterviewSenderRole;
-  type: InterviewMessageType;
-  content: string;
+    id: number;
+    roomId: number;
+    questionContent: string;
+    answer?: string;
+    status: "PENDING" | "SENT";
+    evaluation?: "PASS" | "FAIL" | "PENDING";
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface InterviewResult {
-  id: number;
-  roomId: number;
-  score: number;
-  comment: string;
-  privateNotes?: string;
-  recommendation: InterviewRecommendation;
-  isDraft?: boolean;
-  createdAt: string;
-  updatedAt?: string;
+    id: number;
+    roomId: number;
+    overallRating: number;
+    technicalSkills: number;
+    communication: number;
+    problemSolving: number;
+    cultureFit: number;
+    notes: string;
+    recommendation: "HIRE" | "REJECT" | "CONSIDER";
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface CreateInterviewResultRequest {
-  roomId: number;
-  score: number;
-  comment: string;
-  privateNotes?: string;
-  recommendation: InterviewRecommendation;
-  isDraft?: boolean;
+    roomId: number;
+    overallRating: number;
+    technicalSkills: number;
+    communication: number;
+    problemSolving: number;
+    cultureFit: number;
+    notes: string;
+    recommendation: "HIRE" | "REJECT" | "CONSIDER";
 }
 
-// Flexible Interview Scheduling Types
-export type ScheduleRequestStatus =
-  | "PENDING"
-  | "SELECTED"
-  | "EXPIRED"
-  | "CANCELLED";
+export interface QuestionBank {
+    id: number;
+    recruiterId: number;
+    title: string;
+    description?: string;
+    questions: string[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateQuestionBankRequest {
+    recruiterId: number;
+    title: string;
+    description?: string;
+    questions: string[];
+}
 
 export interface InterviewScheduleRequest {
-  id: number;
-  jobId: number;
-  jobTitle: string;
-  applicantId: number;
-  applicantName: string;
-  applicantEmail: string;
-  recruiterId: number;
-  recruiterName: string;
-  recruiterEmail: string;
-  status: ScheduleRequestStatus;
-  interviewType: InterviewType;
-  interviewMode: InterviewMode;
-  roundNumber: number;
-  timeSlots: InterviewTimeSlotInfo[];
-  selectedTimeSlotId?: number;
-  requestCode: string;
-  createdAt: string;
-  expiresAt?: string;
-  respondedAt?: string;
+    id: number;
+    requestCode: string;
+    recruiterId: number;
+    recruiterName: string;
+    applicantId: number;
+    applicantName: string;
+    jobId: number;
+    jobTitle: string;
+    proposedTimeSlots: TimeSlot[];
+    selectedTimeSlot?: TimeSlot;
+    duration: number;
+    status: "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED";
+    questionBankIds?: number[];
+    createdAt: string;
+    updatedAt: string;
 }
 
-export interface InterviewTimeSlotInfo {
-  id: number;
-  proposedTime: string;
-  isAvailable: boolean;
-  conflictReason?: string;
+export interface TimeSlot {
+    startTime: string;
+    endTime: string;
 }
 
 export interface CreateScheduleRequestDTO {
-  jobId: number;
-  applicantId: number;
-  recruiterId: number;
-  proposedTimeSlots: string[]; // ISO datetime strings
-  interviewType: InterviewType;
-  interviewMode: InterviewMode;
-  roundNumber?: number;
-  previousRoomId?: number;
-  selectedQuestionIds?: number[];
-  expirationHours?: number;
+    recruiterId: number;
+    applicantId: number;
+    jobId: number;
+    proposedTimeSlots: TimeSlot[];
+    duration: number;
+    questionBankIds?: number[];
 }
 
 export interface SelectTimeSlotDTO {
-  scheduleRequestId: number;
-  timeSlotId: number;
-  applicantId: number;
+    requestCode: string;
+    selectedTimeSlot: TimeSlot;
 }

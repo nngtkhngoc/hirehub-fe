@@ -3,7 +3,7 @@ import type { InterviewMessage, InterviewQuestion } from "@/types/Interview";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Plus, Loader2, Check, X } from "lucide-react";
-import { getInterviewQuestions } from "@/apis/interview.api";
+import { getInterviewQuestions, evaluateQuestion, markQuestionAsSent } from "@/apis/interview.api";
 import { toast } from "sonner";
 
 interface QuestionPanelProps {
@@ -16,7 +16,8 @@ interface QuestionPanelProps {
 interface SentQuestionStatus {
   content: string;
   messageId?: number;
-  evaluation?: "ACCEPT" | "DECLINED";
+  questionId?: number; // InterviewQuestion ID for API calls
+  evaluation?: "PASS" | "FAIL" | "PENDING";
 }
 
 export const QuestionPanel = ({
@@ -39,6 +40,17 @@ export const QuestionPanel = ({
         setLoading(true);
         const questions = await getInterviewQuestions(roomId);
         setRoomQuestions(questions);
+
+        // Initialize sentQuestions with evaluation from backend
+        const initialSentQuestions = new Map<string, SentQuestionStatus>();
+        questions.forEach((q) => {
+          initialSentQuestions.set(q.questionContent, {
+            content: q.questionContent,
+            questionId: q.id,
+            evaluation: q.evaluation, // Load evaluation from backend
+          });
+        });
+        setSentQuestions(initialSentQuestions);
       } catch (error) {
         console.error("Error fetching room questions:", error);
         toast.error("Failed to load questions");
@@ -100,55 +112,63 @@ export const QuestionPanel = ({
     });
   }, [questions]);
 
-  const handleQuestionClick = (questionContent: string) => {
+  const handleQuestionClick = async (questionId: number, questionContent: string) => {
+    console.log("test")
     if (disabled) {
+      console.log("hoi")
       toast.error("Cannot send questions. This interview has ended.");
       return;
     }
 
-    // Check if question is already sent to prevent duplicate
-    const isAlreadySent =
-      questions.some(
-        (q) => q.type === "QUESTION" && q.content === questionContent
-      ) || sentQuestions.has(questionContent);
+    try {
+      // Mark question as SENT in backend
+      await markQuestionAsSent(questionId);
 
-    if (isAlreadySent) {
-      toast.warning("This question has already been sent");
-      return;
+      // Update local roomQuestions state
+      setRoomQuestions(prev =>
+        prev.map(q =>
+          q.id === questionId ? { ...q, status: "SENT" } : q
+        )
+      );
+
+      // Send question to candidate via socket
+      onSendQuestion(questionContent);
+      toast.success("Question sent to candidate");
+    } catch (error) {
+      console.error("Error sending question:", error);
+      toast.error("Failed to send question");
     }
-
-    // Send question to candidate
-    onSendQuestion(questionContent);
-    // Track sent question immediately to prevent duplicate clicks
-    setSentQuestions((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(questionContent, {
-        content: questionContent,
-        evaluation: undefined,
-      });
-      return newMap;
-    });
-    toast.success("Question sent to candidate");
   };
 
-  const handleEvaluateQuestion = (
+  const handleEvaluateQuestion = async (
+    questionId: number,
     questionContent: string,
-    evaluation: "ACCEPT" | "DECLINED"
+    evaluation: "PASS" | "FAIL"
   ) => {
-    setSentQuestions((prev) => {
-      const newMap = new Map(prev);
-      const existing = newMap.get(questionContent);
-      if (existing) {
-        newMap.set(questionContent, {
-          ...existing,
-          evaluation,
-        });
-      }
-      return newMap;
-    });
-    toast.success(
-      `Question marked as ${evaluation === "ACCEPT" ? "Accepted" : "Declined"}`
-    );
+    try {
+      // Call backend API to save evaluation
+      await evaluateQuestion(questionId, evaluation);
+
+      // Update local state
+      setSentQuestions((prev) => {
+        const newMap = new Map(prev);
+        const existing = newMap.get(questionContent);
+        if (existing) {
+          newMap.set(questionContent, {
+            ...existing,
+            evaluation,
+          });
+        }
+        return newMap;
+      });
+
+      toast.success(
+        `Question marked as ${evaluation === "PASS" ? "Accepted" : "Declined"}`
+      );
+    } catch (error) {
+      console.error("Error evaluating question:", error);
+      toast.error("Failed to save evaluation");
+    }
   };
 
   return (
@@ -171,89 +191,87 @@ export const QuestionPanel = ({
               Available Questions ({roomQuestions.length})
             </h3>
             {roomQuestions.map((q) => {
-              // Check if question is sent (either in questions array or in sentQuestions map)
-              const isSentInMessages = questions.some(
-                (sentQ) => sentQ.content === q.questionContent
-              );
-              const isSentInState = sentQuestions.has(q.questionContent);
-              const isSent = isSentInMessages || isSentInState;
-              const questionStatus = sentQuestions.get(q.questionContent);
-              const isEvaluated = questionStatus?.evaluation !== undefined;
+              // Determine status based on backend data
+              const isPending = q.status === "PENDING";
+              const isSent = q.status === "SENT";
+              const isEvaluated = q.evaluation !== undefined && q.evaluation !== null;
 
               return (
                 <div
                   key={q.id}
-                  className={`border rounded-lg p-3 ${
-                    isSent
+                  className={`border rounded-lg p-3 ${isEvaluated
+                    ? "bg-gray-50 border-gray-300"
+                    : isSent
                       ? "bg-blue-50 border-blue-200"
                       : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
-                  }`}
+                    }`}
                   onClick={() =>
-                    !isSent &&
+                    isPending &&
                     !disabled &&
-                    handleQuestionClick(q.questionContent)
+                    handleQuestionClick(q.id, q.questionContent)
                   }
                 >
                   <p className="text-sm text-gray-800">{q.questionContent}</p>
 
-                  {/* Show evaluation buttons only after question is sent */}
-                  {isSent && (
-                    <>
-                      <span className="text-xs text-gray-500 mt-1 block">
-                        Sent
-                      </span>
-                      {/* Accept/Declined Buttons - Only show after sent */}
-                      {!isEvaluated && (
-                        <div className="flex gap-2 mt-3">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEvaluateQuestion(
-                                q.questionContent,
-                                "ACCEPT"
-                              );
-                            }}
-                            disabled={disabled}
-                          >
-                            <Check className="h-3 w-3 mr-1" />
-                            Accept
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEvaluateQuestion(
-                                q.questionContent,
-                                "DECLINED"
-                              );
-                            }}
-                            disabled={disabled}
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Declined
-                          </Button>
-                        </div>
-                      )}
-                      {/* Evaluation Status */}
-                      {isEvaluated && (
-                        <div
-                          className={`mt-2 text-xs font-medium ${
-                            questionStatus.evaluation === "ACCEPT"
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          {questionStatus.evaluation === "ACCEPT"
-                            ? "✓ Accepted"
-                            : "✗ Declined"}
-                        </div>
-                      )}
-                    </>
+                  {/* Show status based on question state */}
+                  {isSent && !isEvaluated && (
+                    <span className="text-xs text-gray-500 mt-1 block">
+                      Sent
+                    </span>
+                  )}
+
+                  {/* Pass/Fail Buttons - Only show after sent but not evaluated */}
+                  {isSent && !isEvaluated && (
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEvaluateQuestion(
+                            q.id,
+                            q.questionContent,
+                            "PASS"
+                          );
+                        }}
+                        disabled={disabled}
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Pass
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEvaluateQuestion(
+                            q.id,
+                            q.questionContent,
+                            "FAIL"
+                          );
+                        }}
+                        disabled={disabled}
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Fail
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Evaluation Status */}
+                  {isEvaluated && (
+                    <div
+                      className={`mt-2 text-xs font-medium ${q.evaluation === "PASS"
+                        ? "text-green-600"
+                        : "text-red-600"
+                        }`}
+                    >
+                      {q.evaluation === "PASS"
+                        ? "✓ Passed"
+                        : "✗ Failed"}
+                    </div>
                   )}
                 </div>
               );

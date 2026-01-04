@@ -7,12 +7,38 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus, Edit, Trash2, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+const ITEMS_PER_PAGE = 10;
 
 export const QuestionBankListPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    id: number;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -26,96 +52,193 @@ export const QuestionBankListPage = () => {
       setQuestionBanks(data);
     } catch (error) {
       console.error("Error loading question banks:", error);
-      toast.error("Failed to load question banks");
+      toast.error("Không thể tải ngân hàng câu hỏi");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this question bank?")) return;
-    
+  const handleDelete = async () => {
+    if (!deleteDialog) return;
+
     try {
-      await deleteQuestionBank(id);
-      toast.success("Question bank deleted");
+      await deleteQuestionBank(deleteDialog.id);
+      toast.success("Đã xóa ngân hàng câu hỏi thành công");
       loadQuestionBanks();
+      setDeleteDialog(null);
     } catch (error) {
       console.error("Error deleting:", error);
-      toast.error("Failed to delete question bank");
+      toast.error("Không thể xóa ngân hàng câu hỏi");
     }
   };
 
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading...</div>;
-  }
+  // Pagination logic
+  const totalPages = Math.ceil(questionBanks.length / ITEMS_PER_PAGE);
+  const paginatedBanks = questionBanks.slice(
+    page * ITEMS_PER_PAGE,
+    (page + 1) * ITEMS_PER_PAGE
+  );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Question Banks</h1>
-          <p className="text-gray-600">Manage your interview questions</p>
+          <h1 className="text-3xl font-bold mb-2">Ngân hàng Câu hỏi</h1>
+          <p className="text-gray-600">Quản lý câu hỏi phỏng vấn của bạn ({questionBanks.length} ngân hàng)</p>
         </div>
         <Button onClick={() => navigate("/recruiter/question-banks/create")}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Question Bank
+          Tạo Ngân hàng Câu hỏi
         </Button>
       </div>
 
-      {questionBanks.length === 0 ? (
-        <Card className="p-12 text-center">
-          <BookOpen className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 mb-2">
-            No Question Banks
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Create your first question bank to start conducting interviews
-          </p>
-          <Button onClick={() => navigate("/recruiter/question-banks/create")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Question Bank
-          </Button>
-        </Card>
-      ) : (
+      {loading ? (
         <div className="grid gap-4">
-          {questionBanks.map((bank) => (
-            <Card key={bank.id} className="p-6">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Card key={index} className="p-6 animate-pulse">
               <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold">{bank.title}</h3>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                      {bank.category}
-                    </span>
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-5 bg-gray-200 rounded-full w-20"></div>
                   </div>
-                  {bank.description && (
-                    <p className="text-gray-600 mb-3">{bank.description}</p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    {bank.questions?.length || 0} questions
-                  </p>
+                  <div className="h-4 bg-gray-100 rounded w-2/3"></div>
+                  <div className="h-3 bg-gray-100 rounded w-24"></div>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate(`/recruiter/question-banks/${bank.id}/edit`)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(bank.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
                 </div>
               </div>
             </Card>
           ))}
         </div>
+      ) : questionBanks.length === 0 ? (
+        <Card className="p-12 text-center">
+          <BookOpen className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-xl font-medium text-gray-900 mb-2">
+            Chưa có Ngân hàng Câu hỏi
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Tạo ngân hàng câu hỏi đầu tiên để bắt đầu phỏng vấn
+          </p>
+          <Button onClick={() => navigate("/recruiter/question-banks/create")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Tạo Ngân hàng Câu hỏi
+          </Button>
+        </Card>
+      ) : (
+        <>
+          <div className="grid gap-4">
+            {paginatedBanks.map((bank) => (
+              <Card key={bank.id} className="p-6 hover:bg-gray-50/50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-semibold">{bank.title}</h3>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                        {bank.category}
+                      </span>
+                    </div>
+                    {bank.description && (
+                      <p className="text-gray-600 mb-3">{bank.description}</p>
+                    )}
+                    <p className="text-sm text-gray-500">
+                      {bank.questions?.length || 0} câu hỏi
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/recruiter/question-banks/${bank.id}/edit`)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeleteDialog({
+                        open: true,
+                        id: bank.id,
+                        title: bank.title
+                      })}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => page > 0 && setPage(page - 1)}
+                      className={page === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    const pageNum = page < 3 ? i : page - 2 + i;
+                    if (pageNum >= totalPages) return null;
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => setPage(pageNum)}
+                          isActive={page === pageNum}
+                          className="cursor-pointer"
+                        >
+                          {pageNum + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => page < totalPages - 1 && setPage(page + 1)}
+                      className={
+                        page >= totalPages - 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={deleteDialog?.open}
+        onOpenChange={(open) => !open && setDeleteDialog(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa ngân hàng câu hỏi "{deleteDialog?.title}" không?
+              Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
