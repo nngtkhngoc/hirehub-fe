@@ -8,6 +8,9 @@ import type {
   InterviewQuestion,
   QuestionBank,
   CreateQuestionBankRequest,
+  CreateScheduleRequestDTO,
+  InterviewScheduleRequest,
+  SelectTimeSlotDTO,
 } from "@/types/Interview";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -141,5 +144,41 @@ export const submitAsyncResult = async (data: CreateInterviewResultRequest) => {
     data
   );
   return res.data.data as InterviewResult;
+};
+
+// Interview Schedule Request APIs
+export const createScheduleRequest = async (data: CreateScheduleRequestDTO) => {
+  const res = await axiosClient.post(`${BASE_URL}/api/interview-schedule/request`, data);
+  return res.data.data as InterviewScheduleRequest;
+};
+
+export const getScheduleRequestByCode = async (requestCode: string) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/request/${requestCode}`);
+  return res.data.data as InterviewScheduleRequest;
+};
+
+export const selectTimeSlot = async (data: SelectTimeSlotDTO) => {
+  const res = await axiosClient.post(`${BASE_URL}/api/interview-schedule/select`, data);
+  return res.data.data as InterviewRoom;
+};
+
+export const getPendingScheduleRequestsByApplicant = async (applicantId: number) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/pending/applicant/${applicantId}`);
+  return res.data.data as InterviewScheduleRequest[];
+};
+
+export const getPendingScheduleRequestsByRecruiter = async (recruiterId: number) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/pending/recruiter/${recruiterId}`);
+  return res.data.data as InterviewScheduleRequest[];
+};
+
+export const getAllScheduleRequestsByApplicant = async (applicantId: number) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/all/applicant/${applicantId}`);
+  return res.data.data as InterviewScheduleRequest[];
+};
+
+export const getAllScheduleRequestsByRecruiter = async (recruiterId: number) => {
+  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/all/recruiter/${recruiterId}`);
+  return res.data.data as InterviewScheduleRequest[];
 };
 

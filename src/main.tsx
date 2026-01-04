@@ -47,6 +47,7 @@ import { CreateQuestionBankPage } from "./pages/Recruiter/QuestionBank/CreateQue
 import { SystemOptionsPage } from "./pages/Admin/SystemOptionsPage.tsx";
 import { InterviewRoomPage } from "./pages/User/InterviewRoom/InterviewRoomPage.tsx";
 import { InterviewListPage } from "./pages/User/InterviewRoom/InterviewListPage.tsx";
+import { SelectTimeSlotPage } from "./pages/User/InterviewRoom/SelectTimeSlotPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/interviews" element={<InterviewListPage />} />
         </Route>
         <Route path="/interview-room/:roomCode" element={<InterviewRoomPage />} />
+        <Route path="/interview-schedule/:requestCode" element={<SelectTimeSlotPage />} />
         <Route path="/chat" element={<ChatRedirectPage />} />
         <Route
           path="/chat/conversation/:conversationId"

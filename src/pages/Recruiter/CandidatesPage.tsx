@@ -33,6 +33,7 @@ import { axiosClient } from "@/lib/axios";
 import { useNavigate, useSearchParams } from "react-router";
 import { createConversation, type CreateConversationRequest } from "@/apis/conversation.api";
 import { CreateInterviewRoomModal } from "@/components/ui/User/CreateInterviewRoomModal";
+import { ProposeTimeSlotModal } from "@/components/ui/User/ProposeTimeSlotModal";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -121,9 +122,11 @@ export const CandidatesPage = () => {
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
     const [keyword, setKeyword] = useState("");
-    
+
     // Interview modal state
     const [showInterviewModal, setShowInterviewModal] = useState(false);
+    const [showProposeModal, setShowProposeModal] = useState(false);
+    const [showSchedulingChoice, setShowSchedulingChoice] = useState(false);
     const [selectedCandidate, setSelectedCandidate] = useState<{
         userId: number;
         userName: string;
@@ -262,20 +265,20 @@ export const CandidatesPage = () => {
             participantIds: [parseInt(user.id), targetUserId],
         });
     };
-    
+
     const handleCreateInterview = (resume: Resume) => {
         if (resume.status !== "ACCEPTED") {
             toast.error("Chỉ có thể tạo phỏng vấn cho ứng viên đã được chấp nhận");
             return;
         }
-        
+
         setSelectedCandidate({
             userId: resume.user.id,
             userName: resume.user.name,
             jobId: resume.job.id,
             jobTitle: resume.job.title,
         });
-        setShowInterviewModal(true);
+        setShowSchedulingChoice(true);
     };
 
     return (
@@ -527,15 +530,73 @@ export const CandidatesPage = () => {
                     </Table>
                 )}
             </div>
-            
-            {/* Interview Modal */}
+
+
+            {/* Scheduling Mode Choice Dialog */}
+            {showSchedulingChoice && selectedCandidate && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-bold mb-4">Chọn cách lên lịch phỏng vấn</h3>
+                        <p className="text-gray-600 mb-6">
+                            Bạn muốn tạo phỏng vấn trực tiếp hay đề xuất nhiều khung giờ cho ứng viên chọn?
+                        </p>
+
+                        <div className="space-y-3">
+                            <Button
+                                className="w-full justify-start h-auto py-4"
+                                variant="outline"
+                                onClick={() => {
+                                    setShowSchedulingChoice(false);
+                                    setShowInterviewModal(true);
+                                }}
+                            >
+                                <div className="text-left">
+                                    <div className="font-semibold mb-1">📅 Lên lịch trực tiếp</div>
+                                    <div className="text-sm text-gray-600">
+                                        Chọn thời gian cụ thể và tạo phỏng vấn ngay
+                                    </div>
+                                </div>
+                            </Button>
+
+                            <Button
+                                className="w-full justify-start h-auto py-4"
+                                variant="outline"
+                                onClick={() => {
+                                    setShowSchedulingChoice(false);
+                                    setShowProposeModal(true);
+                                }}
+                            >
+                                <div className="text-left">
+                                    <div className="font-semibold mb-1">⏰ Đề xuất khung giờ</div>
+                                    <div className="text-sm text-gray-600">
+                                        Gửi nhiều lựa chọn thời gian cho ứng viên chọn
+                                    </div>
+                                </div>
+                            </Button>
+                        </div>
+
+                        <Button
+                            className="w-full mt-4"
+                            variant="ghost"
+                            onClick={() => {
+                                setShowSchedulingChoice(false);
+                                setSelectedCandidate(null);
+                            }}
+                        >
+                            Hủy
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {/* Direct Interview Modal */}
             {showInterviewModal && selectedCandidate && user && (
                 <CreateInterviewRoomModal
                     jobId={selectedCandidate.jobId}
                     jobTitle={selectedCandidate.jobTitle}
                     applicantId={selectedCandidate.userId}
                     applicantName={selectedCandidate.userName}
-                    recruiterId={user.id}
+                    recruiterId={Number(user.id)}
                     isOpen={showInterviewModal}
                     onClose={() => {
                         setShowInterviewModal(false);
@@ -544,6 +605,25 @@ export const CandidatesPage = () => {
                     onSuccess={() => {
                         queryClient.invalidateQueries({ queryKey: ["recruiter-candidates"] });
                         toast.success("Phỏng vấn đã được tạo và gửi lời mời!");
+                    }}
+                />
+            )}
+
+            {/* Propose Time Slots Modal */}
+            {showProposeModal && selectedCandidate && user && (
+                <ProposeTimeSlotModal
+                    jobId={selectedCandidate.jobId}
+                    jobTitle={selectedCandidate.jobTitle}
+                    applicantId={selectedCandidate.userId}
+                    applicantName={selectedCandidate.userName}
+                    recruiterId={Number(user.id)}
+                    isOpen={showProposeModal}
+                    onClose={() => {
+                        setShowProposeModal(false);
+                        setSelectedCandidate(null);
+                    }}
+                    onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ["recruiter-candidates"] });
                     }}
                 />
             )}

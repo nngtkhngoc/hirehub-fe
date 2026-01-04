@@ -126,3 +126,54 @@ export interface CreateInterviewResultRequest {
   recommendation: InterviewRecommendation;
 }
 
+// Flexible Interview Scheduling Types
+export type ScheduleRequestStatus = "PENDING" | "SELECTED" | "EXPIRED" | "CANCELLED";
+
+export interface InterviewScheduleRequest {
+  id: number;
+  jobId: number;
+  jobTitle: string;
+  applicantId: number;
+  applicantName: string;
+  applicantEmail: string;
+  recruiterId: number;
+  recruiterName: string;
+  recruiterEmail: string;
+  status: ScheduleRequestStatus;
+  interviewType: InterviewType;
+  interviewMode: InterviewMode;
+  roundNumber: number;
+  timeSlots: InterviewTimeSlotInfo[];
+  selectedTimeSlotId?: number;
+  requestCode: string;
+  createdAt: string;
+  expiresAt?: string;
+  respondedAt?: string;
+}
+
+export interface InterviewTimeSlotInfo {
+  id: number;
+  proposedTime: string;
+  isAvailable: boolean;
+  conflictReason?: string;
+}
+
+export interface CreateScheduleRequestDTO {
+  jobId: number;
+  applicantId: number;
+  recruiterId: number;
+  proposedTimeSlots: string[]; // ISO datetime strings
+  interviewType: InterviewType;
+  interviewMode: InterviewMode;
+  roundNumber?: number;
+  previousRoomId?: number;
+  selectedQuestionIds?: number[];
+  expirationHours?: number;
+}
+
+export interface SelectTimeSlotDTO {
+  scheduleRequestId: number;
+  timeSlotId: number;
+  applicantId: number;
+}
+
