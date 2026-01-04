@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Lock } from "lucide-react";
+import { Lock, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const InterviewRoomPage = () => {
@@ -257,12 +257,23 @@ export const InterviewRoomPage = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b px-6 py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">{room.jobTitle}</h1>
-            <p className="text-sm text-gray-600">
-              Interview Room • Status: {room.status}
-              {room.isExpired && " • EXPIRED"}
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() =>
+                navigate(isRecruiter ? "/recruiter/interviews" : "/interviews")
+              }
+              variant="outline"
+              size="sm"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">{room.jobTitle}</h1>
+              <p className="text-sm text-gray-600">
+                Interview Room • Status: {room.status}
+                {room.isExpired && " • EXPIRED"}
+              </p>
+            </div>
           </div>
           {isRecruiter && !room.isExpired && (
             <div className="flex gap-2">
