@@ -124,7 +124,9 @@ export interface InterviewResult {
   comment: string;
   privateNotes?: string;
   recommendation: InterviewRecommendation;
+  isDraft?: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateInterviewResultRequest {
@@ -133,6 +135,7 @@ export interface CreateInterviewResultRequest {
   comment: string;
   privateNotes?: string;
   recommendation: InterviewRecommendation;
+  isDraft?: boolean;
 }
 
 // Flexible Interview Scheduling Types

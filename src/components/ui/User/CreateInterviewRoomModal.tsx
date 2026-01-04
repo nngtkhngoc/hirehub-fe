@@ -37,7 +37,6 @@ export const CreateInterviewRoomModal = ({
 }: CreateInterviewRoomModalProps) => {
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState(60); // Default 60 minutes
   const [interviewType, setInterviewType] = useState<"CHAT" | "VIDEO">("CHAT");
   const [interviewMode, setInterviewMode] = useState<"LIVE" | "ASYNC">("LIVE");
   const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
@@ -91,7 +90,6 @@ export const CreateInterviewRoomModal = ({
         applicantId,
         recruiterId,
         scheduledTime: scheduledDateTime,
-        durationMinutes,
         interviewType,
         interviewMode,
         roundNumber,
@@ -215,29 +213,6 @@ export const CreateInterviewRoomModal = ({
                   onChange={(e) => setScheduledTime(e.target.value)}
                 />
               </div>
-            </div>
-
-            <div>
-              <Label
-                htmlFor="duration"
-                className="text-sm font-medium mb-1 block"
-              >
-                Duration (minutes) *
-              </Label>
-              <Input
-                id="duration"
-                type="number"
-                min="15"
-                max="240"
-                step="15"
-                value={durationMinutes}
-                onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                placeholder="60"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Recommended: 30-90 minutes. Room will expire after scheduled
-                time + duration.
-              </p>
             </div>
 
             {interviewMode === "ASYNC" && (

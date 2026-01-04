@@ -15,9 +15,7 @@ import type {
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const createInterviewRoom = async (
-  data: CreateInterviewRoomRequest
-) => {
+export const createInterviewRoom = async (data: CreateInterviewRoomRequest) => {
   const res = await axiosClient.post(`${BASE_URL}/api/interview-rooms`, data);
   return res.data.data as InterviewRoom;
 };
@@ -48,10 +46,7 @@ export const getRoomsByApplicantId = async (applicantId: number) => {
   return res.data.data as InterviewRoom[];
 };
 
-export const updateRoomStatus = async (
-  roomCode: string,
-  status: string
-) => {
+export const updateRoomStatus = async (roomCode: string, status: string) => {
   const res = await axiosClient.put(
     `${BASE_URL}/api/interview-rooms/${roomCode}/status`,
     { status }
@@ -124,7 +119,10 @@ export const updateQuestionBank = async (
   id: number,
   data: CreateQuestionBankRequest
 ) => {
-  const res = await axiosClient.put(`${BASE_URL}/api/question-banks/${id}`, data);
+  const res = await axiosClient.put(
+    `${BASE_URL}/api/question-banks/${id}`,
+    data
+  );
   return res.data.data as QuestionBank;
 };
 
@@ -168,39 +166,70 @@ export const submitAsyncResult = async (data: CreateInterviewResultRequest) => {
   return res.data.data as InterviewResult;
 };
 
+export const saveDraftResult = async (data: CreateInterviewResultRequest) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/interview-rooms/results/draft`,
+    data
+  );
+  return res.data.data as InterviewResult;
+};
+
 // Interview Schedule Request APIs
 export const createScheduleRequest = async (data: CreateScheduleRequestDTO) => {
-  const res = await axiosClient.post(`${BASE_URL}/api/interview-schedule/request`, data);
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/interview-schedule/request`,
+    data
+  );
   return res.data.data as InterviewScheduleRequest;
 };
 
 export const getScheduleRequestByCode = async (requestCode: string) => {
-  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/request/${requestCode}`);
+  const res = await axiosClient.get(
+    `${BASE_URL}/api/interview-schedule/request/${requestCode}`
+  );
   return res.data.data as InterviewScheduleRequest;
 };
 
 export const selectTimeSlot = async (data: SelectTimeSlotDTO) => {
-  const res = await axiosClient.post(`${BASE_URL}/api/interview-schedule/select`, data);
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/interview-schedule/select`,
+    data
+  );
   return res.data.data as InterviewRoom;
 };
 
-export const getPendingScheduleRequestsByApplicant = async (applicantId: number) => {
-  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/pending/applicant/${applicantId}`);
+export const getPendingScheduleRequestsByApplicant = async (
+  applicantId: number
+) => {
+  const res = await axiosClient.get(
+    `${BASE_URL}/api/interview-schedule/pending/applicant/${applicantId}`
+  );
   return res.data.data as InterviewScheduleRequest[];
 };
 
-export const getPendingScheduleRequestsByRecruiter = async (recruiterId: number) => {
-  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/pending/recruiter/${recruiterId}`);
+export const getPendingScheduleRequestsByRecruiter = async (
+  recruiterId: number
+) => {
+  const res = await axiosClient.get(
+    `${BASE_URL}/api/interview-schedule/pending/recruiter/${recruiterId}`
+  );
   return res.data.data as InterviewScheduleRequest[];
 };
 
-export const getAllScheduleRequestsByApplicant = async (applicantId: number) => {
-  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/all/applicant/${applicantId}`);
+export const getAllScheduleRequestsByApplicant = async (
+  applicantId: number
+) => {
+  const res = await axiosClient.get(
+    `${BASE_URL}/api/interview-schedule/all/applicant/${applicantId}`
+  );
   return res.data.data as InterviewScheduleRequest[];
 };
 
-export const getAllScheduleRequestsByRecruiter = async (recruiterId: number) => {
-  const res = await axiosClient.get(`${BASE_URL}/api/interview-schedule/all/recruiter/${recruiterId}`);
+export const getAllScheduleRequestsByRecruiter = async (
+  recruiterId: number
+) => {
+  const res = await axiosClient.get(
+    `${BASE_URL}/api/interview-schedule/all/recruiter/${recruiterId}`
+  );
   return res.data.data as InterviewScheduleRequest[];
 };
-

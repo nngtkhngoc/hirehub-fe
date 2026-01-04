@@ -59,6 +59,10 @@ export const InterviewListPage = () => {
     navigate(`/interview-room/${roomCode}`);
   };
 
+  const handleViewEvaluation = (roomId: number) => {
+    navigate(`/recruiter/interviews/evaluate/${roomId}`);
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -150,24 +154,40 @@ export const InterviewListPage = () => {
                     )}
                   </div>
 
-                  {/* Show button for all rooms except CANCELLED */}
+                  {/* Show buttons for all rooms except CANCELLED */}
                   {room.status !== "CANCELLED" && (
-                    <Button
-                      onClick={() => handleJoinRoom(room.roomCode)}
-                      variant={
-                        room.status === "FINISHED" ||
+                    <div className="flex gap-2">
+                      {(room.status === "FINISHED" ||
                         room.isExpired ||
-                        room.status === "EXPIRED"
-                          ? "outline"
-                          : "default"
-                      }
-                    >
-                      {room.status === "FINISHED" ||
-                      room.isExpired ||
-                      room.status === "EXPIRED"
-                        ? "View History"
-                        : "Join Room"}
-                    </Button>
+                        room.status === "EXPIRED") && (
+                        <>
+                          <Button
+                            onClick={() => handleJoinRoom(room.roomCode)}
+                            variant="outline"
+                          >
+                            View History
+                          </Button>
+                          {/* {user?.role?.name?.toLowerCase() == "recruiter" && ( */}
+                          <Button
+                            onClick={() => handleViewEvaluation(room.id)}
+                            variant="outline"
+                          >
+                            View Evaluation
+                          </Button>
+                          {/* )} */}
+                        </>
+                      )}
+                      {room.status !== "FINISHED" &&
+                        !room.isExpired &&
+                        room.status !== "EXPIRED" && (
+                          <Button
+                            onClick={() => handleJoinRoom(room.roomCode)}
+                            variant="default"
+                          >
+                            Join Room
+                          </Button>
+                        )}
+                    </div>
                   )}
                 </div>
               </div>

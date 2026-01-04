@@ -5,7 +5,6 @@ import {
   getMessagesByRoomCode,
   validateAccess,
   updateRoomStatus,
-  extendInterviewDuration,
 } from "@/apis/interview.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useInterviewSocket } from "@/hooks/useInterviewSocket";
@@ -14,17 +13,9 @@ import { ChatPanel } from "./ChatPanel";
 import { QuestionPanel } from "./QuestionPanel";
 // import { QuestionRecommendedPanel } from "./QuestionRecommendedPanel";
 import { InterviewInfo } from "./InterviewInfo";
-import { EvaluationModal } from "./EvaluationModal";
+// import { EvaluationModal } from "./EvaluationModal";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,9 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Lock, Clock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { toast } from "sonner";
 
 export const InterviewRoomPage = () => {
@@ -49,10 +38,7 @@ export const InterviewRoomPage = () => {
   const [messages, setMessages] = useState<InterviewMessage[]>([]);
   const [questions, setQuestions] = useState<InterviewMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showEvaluation, setShowEvaluation] = useState(false);
-  const [showExtendDialog, setShowExtendDialog] = useState(false);
   const [showEndConfirmDialog, setShowEndConfirmDialog] = useState(false);
-  const [extendMinutes, setExtendMinutes] = useState(30);
 
   const {
     connected,
@@ -155,7 +141,8 @@ export const InterviewRoomPage = () => {
     const endSub = subscribeInterviewEnd(() => {
       toast.info("Interview has ended");
       if (room && user.id === room.recruiterId.toString()) {
-        setShowEvaluation(true);
+        // Navigate to evaluation page
+        navigate(`/recruiter/interviews/evaluate/${room.id}`);
       } else {
         setTimeout(() => navigate("/"), 3000);
       }
@@ -234,53 +221,18 @@ export const InterviewRoomPage = () => {
   };
 
   const confirmEndInterview = async () => {
-    if (!roomCode || !user) return;
+    if (!roomCode || !user || !room) return;
 
     try {
       await updateRoomStatus(roomCode, "FINISHED");
       endInterview(roomCode, Number(user.id));
       setShowEndConfirmDialog(false);
-      setShowEvaluation(true);
+      // Navigate to evaluation page instead of showing modal
+      navigate(`/recruiter/interviews/evaluate/${room.id}`);
       toast.success("Interview ended successfully");
     } catch (error) {
       console.error("Error ending interview:", error);
       toast.error("Failed to end interview");
-    }
-  };
-
-  const handleExtendInterview = async () => {
-    if (!roomCode || !user || !room) return;
-
-    // Prevent extending if already expired or finished
-    if (room.isExpired || room.status === "FINISHED") {
-      toast.error(
-        "Cannot extend interview: Room is already expired or finished"
-      );
-      return;
-    }
-
-    if (extendMinutes <= 0 || extendMinutes > 120) {
-      toast.error("Please enter a valid number of minutes (1-120)");
-      return;
-    }
-
-    try {
-      const updatedRoom = await extendInterviewDuration(
-        roomCode,
-        extendMinutes
-      );
-      setRoom(updatedRoom);
-      setShowExtendDialog(false);
-      setExtendMinutes(30);
-      toast.success(`Interview duration extended by ${extendMinutes} minutes`);
-    } catch (error) {
-      console.error("Error extending interview:", error);
-      const errorMessage =
-        error && typeof error === "object" && "response" in error
-          ? (error as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : undefined;
-      toast.error(errorMessage || "Failed to extend interview");
     }
   };
 
@@ -314,14 +266,6 @@ export const InterviewRoomPage = () => {
           </div>
           {isRecruiter && !room.isExpired && (
             <div className="flex gap-2">
-              <Button
-                onClick={() => setShowExtendDialog(true)}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Clock className="h-4 w-4" />
-                Extend Interview
-              </Button>
               <Button onClick={handleEndInterview} variant="destructive">
                 End Interview
               </Button>
@@ -421,17 +365,6 @@ export const InterviewRoomPage = () => {
         )}
       </div>
 
-      {/* Evaluation Modal */}
-      {showEvaluation && (
-        <EvaluationModal
-          room={room}
-          onClose={() => {
-            setShowEvaluation(false);
-            navigate("/recruiter/interviews");
-          }}
-        />
-      )}
-
       {/* End Interview Confirmation Dialog */}
       <AlertDialog
         open={showEndConfirmDialog}
@@ -456,48 +389,6 @@ export const InterviewRoomPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Extend Interview Dialog */}
-      <Dialog open={showExtendDialog} onOpenChange={setShowExtendDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Extend Interview Duration</DialogTitle>
-            <DialogDescription>
-              Extend the interview duration by adding additional minutes. This
-              will push back the expiration time.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="minutes">Additional Minutes</Label>
-              <Input
-                id="minutes"
-                type="number"
-                min="1"
-                max="120"
-                value={extendMinutes}
-                onChange={(e) => setExtendMinutes(Number(e.target.value))}
-                placeholder="Enter minutes (1-120)"
-              />
-              <p className="text-xs text-gray-500">
-                Current duration: {room.durationMinutes} minutes
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowExtendDialog(false);
-                setExtendMinutes(30);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleExtendInterview}>Extend Interview</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
