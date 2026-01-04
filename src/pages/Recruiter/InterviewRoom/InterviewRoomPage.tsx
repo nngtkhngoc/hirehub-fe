@@ -362,7 +362,7 @@ export const InterviewRoomPage = () => {
               </p>
             </div>
           </div>
-          {isRecruiter && !room.isExpired && room.status !== "FINISHED" && (
+          {isRecruiter && !room.isExpired && room.status !== "FINISHED" && room.status !== "EXPIRED" && (
             <div className="flex gap-2">
               <Button onClick={handleEndInterview} variant="destructive">
                 Kết thúc phỏng vấn

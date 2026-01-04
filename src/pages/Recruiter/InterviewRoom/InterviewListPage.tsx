@@ -19,7 +19,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 6;
 
 export const InterviewListPage = () => {
   const navigate = useNavigate();
@@ -95,8 +95,9 @@ export const InterviewListPage = () => {
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Phòng Phỏng vấn của Tôi</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold font-title text-gray-900">
+          Quản lý Phỏng vấn</h1>
+        <p className="text-gray-500 mt-1">
           {user?.role?.name?.toLowerCase() === "recruiter"
             ? `Quản lý các cuộc phỏng vấn đã lên lịch (${rooms.length} phòng)`
             : `Các cuộc phỏng vấn sắp tới và đã qua (${rooms.length} phòng)`}

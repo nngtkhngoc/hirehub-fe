@@ -83,8 +83,10 @@ export const QuestionBankListPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Ngân hàng Câu hỏi</h1>
-          <p className="text-gray-600">Quản lý câu hỏi phỏng vấn của bạn ({questionBanks.length} ngân hàng)</p>
+          <h1 className="text-3xl font-bold font-title text-gray-900">
+            Quản lý Ngân hàng Câu hỏi</h1>
+          <p className="text-gray-500 mt-1">
+            Quản lý câu hỏi phỏng vấn của bạn ({questionBanks.length} ngân hàng)</p>
         </div>
         <Button onClick={() => navigate("/recruiter/question-banks/create")}>
           <Plus className="h-4 w-4 mr-2" />

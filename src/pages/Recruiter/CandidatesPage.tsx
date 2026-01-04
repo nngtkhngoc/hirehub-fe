@@ -294,7 +294,8 @@ export const CandidatesPage = () => {
             {/* Header */}
             <div className="flex items-start justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Ứng viên</h1>
+                    <h1 className="text-3xl font-bold font-title text-gray-900">
+                        Quản lý Ứng viên</h1>
                     <p className="text-gray-500">
                         {currentJobTitle
                             ? `Danh sách ứng viên cho: "${currentJobTitle}"`
