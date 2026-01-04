@@ -26,6 +26,7 @@ export interface InterviewRoom {
   recruiterAvatar: string;
   roomCode: string;
   scheduledTime: string;
+  durationMinutes: number;
   status: InterviewRoomStatus;
   interviewType: InterviewType;
   interviewMode: InterviewMode;
@@ -36,6 +37,7 @@ export interface InterviewRoom {
   createdAt: string;
   startedAt?: string;
   endedAt?: string;
+  isExpired: boolean; // Room has expired (past scheduled time + duration)
 }
 
 export interface InterviewMessage {
@@ -55,6 +57,7 @@ export interface CreateInterviewRoomRequest {
   applicantId: number;
   recruiterId: number;
   scheduledTime: string;
+  durationMinutes?: number; // Duration in minutes (default 60)
   interviewType: InterviewType;
   interviewMode: InterviewMode;
   roundNumber?: number;

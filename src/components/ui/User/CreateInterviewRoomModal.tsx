@@ -37,18 +37,13 @@ export const CreateInterviewRoomModal = ({
 }: CreateInterviewRoomModalProps) => {
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState(60); // Default 60 minutes
   const [interviewType, setInterviewType] = useState<"CHAT" | "VIDEO">("CHAT");
   const [interviewMode, setInterviewMode] = useState<"LIVE" | "ASYNC">("LIVE");
   const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
   const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && interviewMode === "ASYNC") {
-      loadQuestionBanks();
-    }
-  }, [isOpen, interviewMode]);
 
   const loadQuestionBanks = async () => {
     try {
@@ -58,6 +53,13 @@ export const CreateInterviewRoomModal = ({
       console.error("Error loading question banks:", error);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && interviewMode === "ASYNC") {
+      loadQuestionBanks();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, interviewMode]);
 
   const selectedBank = questionBanks.find((b) => b.id === selectedBankId);
 
@@ -89,6 +91,7 @@ export const CreateInterviewRoomModal = ({
         applicantId,
         recruiterId,
         scheduledTime: scheduledDateTime,
+        durationMinutes,
         interviewType,
         interviewMode,
         roundNumber,
@@ -212,6 +215,29 @@ export const CreateInterviewRoomModal = ({
                   onChange={(e) => setScheduledTime(e.target.value)}
                 />
               </div>
+            </div>
+
+            <div>
+              <Label
+                htmlFor="duration"
+                className="text-sm font-medium mb-1 block"
+              >
+                Duration (minutes) *
+              </Label>
+              <Input
+                id="duration"
+                type="number"
+                min="15"
+                max="240"
+                step="15"
+                value={durationMinutes}
+                onChange={(e) => setDurationMinutes(Number(e.target.value))}
+                placeholder="60"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Recommended: 30-90 minutes. Room will expire after scheduled
+                time + duration.
+              </p>
             </div>
 
             {interviewMode === "ASYNC" && (

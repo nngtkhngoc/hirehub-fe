@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import type { InterviewRoom } from "@/types/Interview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Calendar, Clock, User, Video } from "lucide-react";
+import { Calendar, Clock, User, Video, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 export const InterviewListPage = () => {
@@ -20,10 +20,10 @@ export const InterviewListPage = () => {
     const loadRooms = async () => {
       try {
         let data: InterviewRoom[];
-        if (user.role === "RECRUITER") {
-          data = await getRoomsByRecruiterId(user.id);
+        if (user.role?.name?.toLowerCase() === "recruiter") {
+          data = await getRoomsByRecruiterId(Number(user.id));
         } else {
-          data = await getRoomsByApplicantId(user.id);
+          data = await getRoomsByApplicantId(Number(user.id));
         }
         setRooms(data);
       } catch (error) {
@@ -69,7 +69,7 @@ export const InterviewListPage = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">My Interview Rooms</h1>
         <p className="text-gray-600">
-          {user?.role === "RECRUITER"
+          {user?.role?.name?.toLowerCase() === "recruiter"
             ? "Manage your scheduled interviews"
             : "Your upcoming and past interviews"}
         </p>
@@ -82,7 +82,7 @@ export const InterviewListPage = () => {
             No Interview Rooms
           </h3>
           <p className="text-gray-600">
-            {user?.role === "RECRUITER"
+            {user?.role?.name?.toLowerCase() === "recruiter"
               ? "You haven't created any interview rooms yet."
               : "You don't have any scheduled interviews yet."}
           </p>
@@ -101,7 +101,7 @@ export const InterviewListPage = () => {
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-gray-400" />
                       <span className="text-sm text-gray-600">
-                        {user?.role === "RECRUITER"
+                        {user?.role?.name?.toLowerCase() === "recruiter"
                           ? room.applicantName
                           : room.recruiterName}
                       </span>
@@ -123,23 +123,33 @@ export const InterviewListPage = () => {
 
                 {/* Status & Action */}
                 <div className="flex flex-col items-end gap-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      room.status === "SCHEDULED"
+                  <div className="flex gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${room.status === "SCHEDULED"
                         ? "bg-yellow-100 text-yellow-800"
                         : room.status === "ONGOING"
-                        ? "bg-green-100 text-green-800"
-                        : room.status === "FINISHED"
-                        ? "bg-gray-100 text-gray-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {room.status}
-                  </span>
+                          ? "bg-green-100 text-green-800"
+                          : room.status === "FINISHED"
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                    >
+                      {room.status}
+                    </span>
+                    {room.isExpired && (
+                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 flex items-center gap-1">
+                        <Lock className="h-3 w-3" />
+                        EXPIRED
+                      </span>
+                    )}
+                  </div>
 
-                  {(room.status === "SCHEDULED" || room.status === "ONGOING") && (
-                    <Button onClick={() => handleJoinRoom(room.roomCode)}>
-                      Join Room
+                  {(room.status === "SCHEDULED" || room.status === "ONGOING" || room.isExpired) && (
+                    <Button 
+                      onClick={() => handleJoinRoom(room.roomCode)}
+                      variant={room.isExpired ? "outline" : "default"}
+                    >
+                      {room.isExpired ? "View History" : "Join Room"}
                     </Button>
                   )}
                 </div>

@@ -9,6 +9,8 @@ import { QuestionPanel } from "./QuestionPanel";
 import { InterviewInfo } from "./InterviewInfo";
 import { EvaluationModal } from "./EvaluationModal";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Lock } from "lucide-react";
 import { toast } from "sonner";
 
 export const InterviewRoomPage = () => {
@@ -42,7 +44,7 @@ export const InterviewRoomPage = () => {
     const loadRoom = async () => {
       try {
         // Validate access
-        const hasAccess = await validateAccess(roomCode, user.id);
+        const hasAccess = await validateAccess(roomCode, Number(user.id));
         if (!hasAccess) {
           toast.error("You don't have access to this interview room");
           navigate("/");
@@ -79,7 +81,7 @@ export const InterviewRoomPage = () => {
     if (!connected || !roomCode || !user || hasJoined.current) return;
 
     // Join room
-    joinInterviewRoom(roomCode, user.id);
+    joinInterviewRoom(roomCode, Number(user.id));
     hasJoined.current = true;
 
     // Subscribe to messages
@@ -96,7 +98,7 @@ export const InterviewRoomPage = () => {
 
     const endSub = subscribeInterviewEnd(() => {
       toast.info("Interview has ended");
-      if (room && user.id === room.recruiterId) {
+      if (room && user.id === room.recruiterId.toString()) {
         setShowEvaluation(true);
       } else {
         setTimeout(() => navigate("/"), 3000);
@@ -108,19 +110,25 @@ export const InterviewRoomPage = () => {
       if (questionSub) questionSub.unsubscribe();
       if (endSub) endSub.unsubscribe();
       if (roomCode && user) {
-        leaveInterviewRoom(roomCode, user.id);
+        leaveInterviewRoom(roomCode, Number(user.id));
       }
     };
   }, [connected, roomCode, user, joinInterviewRoom, leaveInterviewRoom, subscribeInterviewMessage, subscribeInterviewQuestion, subscribeInterviewEnd, navigate, room]);
 
   const handleSendMessage = (content: string) => {
     if (!roomCode || !user || !room) return;
+    
+    // Prevent sending messages if room is expired
+    if (room.isExpired) {
+      toast.error("Cannot send messages. This interview has expired.");
+      return;
+    }
 
-    const senderRole = user.id === room.recruiterId ? "RECRUITER" : "APPLICANT";
+    const senderRole = user.id === room.recruiterId.toString() ? "RECRUITER" : "APPLICANT";
 
     sendInterviewMessage({
       roomCode,
-      senderId: user.id,
+      senderId: Number(user.id),
       senderRole,
       type: "CHAT",
       content,
@@ -129,10 +137,16 @@ export const InterviewRoomPage = () => {
 
   const handleSendQuestion = (content: string) => {
     if (!roomCode || !user || !room) return;
+    
+    // Prevent sending questions if room is expired
+    if (room.isExpired) {
+      toast.error("Cannot send questions. This interview has expired.");
+      return;
+    }
 
     sendInterviewQuestion({
       roomCode,
-      senderId: user.id,
+      senderId: Number(user.id),
       senderRole: "RECRUITER",
       type: "QUESTION",
       content,
@@ -141,10 +155,16 @@ export const InterviewRoomPage = () => {
 
   const handleEndInterview = async () => {
     if (!roomCode || !user) return;
+    
+    // Prevent ending if already expired
+    if (room && room.isExpired) {
+      toast.error("This interview has already expired.");
+      return;
+    }
 
     try {
       await updateRoomStatus(roomCode, "FINISHED");
-      endInterview(roomCode, user.id);
+      endInterview(roomCode, Number(user.id));
       setShowEvaluation(true);
     } catch (error) {
       console.error("Error ending interview:", error);
@@ -164,7 +184,7 @@ export const InterviewRoomPage = () => {
     return null;
   }
 
-  const isRecruiter = user.id === room.recruiterId;
+  const isRecruiter = user.id === room.recruiterId.toString();
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -175,15 +195,26 @@ export const InterviewRoomPage = () => {
             <h1 className="text-2xl font-bold">{room.jobTitle}</h1>
             <p className="text-sm text-gray-600">
               Interview Room • Status: {room.status}
+              {room.isExpired && " • EXPIRED"}
             </p>
           </div>
-          {isRecruiter && room.status === "ONGOING" && (
+          {isRecruiter && room.status === "ONGOING" && !room.isExpired && (
             <Button onClick={handleEndInterview} variant="destructive">
               End Interview
             </Button>
           )}
         </div>
       </div>
+
+      {/* Expired Warning Banner */}
+      {room.isExpired && (
+        <Alert className="m-4 border-orange-500 bg-orange-50">
+          <Lock className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800">
+            This interview has expired. You can view the conversation history but cannot send new messages or questions.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
@@ -196,8 +227,9 @@ export const InterviewRoomPage = () => {
         <div className="flex-1 flex flex-col">
           <ChatPanel
             messages={messages}
-            currentUserId={user.id}
+            currentUserId={Number(user.id)}
             onSendMessage={handleSendMessage}
+            disabled={room.isExpired}
           />
         </div>
 
@@ -207,6 +239,8 @@ export const InterviewRoomPage = () => {
             <QuestionPanel
               questions={questions}
               onSendQuestion={handleSendQuestion}
+              recruiterId={room.recruiterId.toString()}
+              disabled={room.isExpired}
             />
           </div>
         )}

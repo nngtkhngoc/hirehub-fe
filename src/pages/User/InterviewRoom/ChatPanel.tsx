@@ -8,9 +8,10 @@ interface ChatPanelProps {
   messages: InterviewMessage[];
   currentUserId: number;
   onSendMessage: (content: string) => void;
+  disabled?: boolean;
 }
 
-export const ChatPanel = ({ messages, currentUserId, onSendMessage }: ChatPanelProps) => {
+export const ChatPanel = ({ messages, currentUserId, onSendMessage, disabled = false }: ChatPanelProps) => {
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -105,10 +106,11 @@ export const ChatPanel = ({ messages, currentUserId, onSendMessage }: ChatPanelP
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
+            placeholder={disabled ? "Interview has expired" : "Type a message..."}
             className="flex-1"
+            disabled={disabled}
           />
-          <Button onClick={handleSend} disabled={!messageText.trim()}>
+          <Button onClick={handleSend} disabled={!messageText.trim() || disabled}>
             <Send className="h-4 w-4" />
           </Button>
         </div>
