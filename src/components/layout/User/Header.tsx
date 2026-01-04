@@ -18,6 +18,7 @@ import {
   UserCircle,
   Shield,
   Users,
+  Video,
 } from "lucide-react";
 import { useSignOut } from "@/hooks/useAuth";
 import {
@@ -250,6 +251,15 @@ export const Header = () => {
                         >
                           <BriefcaseBusiness className="text-[16px]" />
                           Công việc
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link
+                          to="/interviews"
+                          className="flex flex-row items-center justify-start gap-2"
+                        >
+                          <Video className="text-[16px]" />
+                          Phỏng vấn
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem>

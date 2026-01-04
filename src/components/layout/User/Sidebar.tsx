@@ -29,13 +29,20 @@ export const Sidebar = () => {
     setIsOpenSidebar(!isOpenSidebar);
   };
 
+  const user = useAuthStore((state) => state.user);
+
   const navLinks: NavLink[] = [
     { label: "Trang chủ", link: "/" },
-    { label: "Việc làm", link: "/jobs" },
-    { label: "Công ty", link: "/companies" },
+    { label: "Việc làm", link: "/job-list" },
+    { label: "Công ty", link: "/company-list" },
     { label: "Công việc đã lưu", link: "/my-jobs" },
-    { label: "Kết nối", link: "/connect" },
   ];
+
+  if (user && user.role?.name?.toLowerCase() !== "admin" && user.role?.name?.toLowerCase() !== "recruiter") {
+    navLinks.push({ label: "Phỏng vấn", link: "/interviews" });
+  }
+
+  navLinks.push({ label: "Kết nối", link: "/user-list" });
 
   const location = window.location.pathname;
   const isActive = (link: string) => location === link;
@@ -46,11 +53,10 @@ export const Sidebar = () => {
         key={navLink.link}
         to={navLink.link}
         onClick={() => setIsOpenSidebar(false)}
-        className={`text-[18px] text-center py-5 border-b border-zinc-100 transition ${
-          isActive(navLink.link)
-            ? "text-primary font-bold bg-zinc-50"
-            : "text-gray-700 hover:bg-zinc-50"
-        }`}
+        className={`text-[18px] text-center py-5 border-b border-zinc-100 transition ${isActive(navLink.link)
+          ? "text-primary font-bold bg-zinc-50"
+          : "text-gray-700 hover:bg-zinc-50"
+          }`}
       >
         {navLink.label}
       </Link>
@@ -61,7 +67,6 @@ export const Sidebar = () => {
     nav("/auth");
   };
 
-  const user = useAuthStore((state) => state.user);
 
   const { mutate: handleSignOut, isPending } = useSignOut();
   const handleLogout = () => {
@@ -119,9 +124,8 @@ export const Sidebar = () => {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-30 flex flex-col bg-white w-full  h-full shadow-lg transform transition-transform duration-300 ease-in-out ${
-          isOpenSidebar ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 z-30 flex flex-col bg-white w-full  h-full shadow-lg transform transition-transform duration-300 ease-in-out ${isOpenSidebar ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="px-6 py-4 border-b border-zinc-100 flex flex-row items-center justify-between">
           <Logo />

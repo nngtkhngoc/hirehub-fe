@@ -67,6 +67,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/my-connections" element={<MyConnectionsPage />} />
           <Route path="/company-details/:id" element={<CompanyDetails />} />
           <Route path="/interviews" element={<InterviewListPage />} />
+          <Route
+            path="/interviews/evaluate/:roomId"
+            element={<EvaluationPage />}
+          />
         </Route>
         <Route
           path="/interview-room/:roomCode"

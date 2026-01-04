@@ -15,6 +15,14 @@ import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { ClipboardList } from "lucide-react";
 
 export const EvaluationPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -36,6 +44,8 @@ export const EvaluationPage = () => {
   const [savingDraft, setSavingDraft] = useState(false);
 
   const isSubmitted = !!(existingResult && !existingResult.isDraft);
+  const isRecruiter = user && room && user.id == room.recruiterId.toString();
+  const isUserRecruiter = user?.role?.name?.toLowerCase() === "recruiter";
 
   useEffect(() => {
     if (!roomId || !user) return;
@@ -64,9 +74,8 @@ export const EvaluationPage = () => {
         // Permission check
         const isRecruiter = user.id == roomData.recruiterId.toString();
         const isApplicant = user.id == roomData.applicantId.toString();
-        const isSubmittedLocal = !!(result && !result.isDraft);
 
-        if (!isRecruiter && !(isApplicant && isSubmittedLocal)) {
+        if (!isRecruiter && !isApplicant) {
           toast.error("Bạn không có quyền xem đánh giá này");
           navigate("/");
           return;
@@ -74,7 +83,7 @@ export const EvaluationPage = () => {
       } catch (error) {
         console.error("Error loading room:", error);
         toast.error("Không thể tải thông tin phòng phỏng vấn");
-        navigate("/recruiter/interviews");
+        navigate(isUserRecruiter ? "/recruiter/interviews" : "/interviews");
       } finally {
         setLoading(false);
       }
@@ -125,7 +134,7 @@ export const EvaluationPage = () => {
       });
 
       toast.success("Đã gửi đánh giá phỏng vấn thành công");
-      navigate("/recruiter/interviews");
+      navigate(isUserRecruiter ? "/recruiter/interviews" : "/interviews");
     } catch (error) {
       console.error("Error submitting evaluation:", error);
       toast.error("Gửi đánh giá thất bại");
@@ -182,13 +191,13 @@ export const EvaluationPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen bg-gray-50 ${!isRecruiter ? "pt-[100px]" : ""}`}>
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
           <Button
             variant="ghost"
-            onClick={() => navigate("/recruiter/interviews")}
+            onClick={() => navigate(isUserRecruiter ? "/recruiter/interviews" : "/interviews")}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -209,117 +218,133 @@ export const EvaluationPage = () => {
           )}
         </div>
 
-        {/* Content */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-          {/* Score */}
-          <div>
-            <Label className="text-base font-medium mb-3 block">
-              Điểm số (1-10)
-            </Label>
-            <div className="flex gap-2 flex-wrap">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                <button
-                  key={num}
-                  onClick={() => !isSubmitted && setScore(num)}
-                  disabled={isSubmitted}
-                  className={`w-12 h-12 rounded-lg border-2 font-medium transition-colors ${score === num
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
-                    } ${isSubmitted ? "cursor-not-allowed opacity-80" : ""}`}
-                >
-                  {num}
-                </button>
-              ))}
-            </div>
+        {/* Evaluation Content or Empty State */}
+        {!isRecruiter && !isSubmitted ? (
+          <div className="bg-white rounded-lg shadow-sm border p-12 flex flex-col items-center justify-center">
+            <Empty className="border-none">
+              <EmptyContent>
+                <EmptyMedia variant="icon">
+                  <ClipboardList className="text-primary h-12 w-12" />
+                </EmptyMedia>
+                <EmptyTitle className="text-xl">Chưa có đánh giá</EmptyTitle>
+                <EmptyDescription className="text-base max-w-sm">
+                  Nhà tuyển dụng chưa gửi đánh giá cho buổi phỏng vấn này.
+                </EmptyDescription>
+              </EmptyContent>
+            </Empty>
           </div>
-
-          {/* Recommendation */}
-          <div>
-            <Label className="text-base font-medium mb-3 block">
-              Đề xuất
-            </Label>
-            <RadioGroup
-              value={recommendation}
-              onValueChange={(value) =>
-                !isSubmitted && setRecommendation(value as any)
-              }
-              disabled={isSubmitted}
-            >
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="PASS"
-                    checked={recommendation === "PASS"}
-                    onChange={(e) =>
-                      !isSubmitted && setRecommendation(e.target.value as any)
-                    }
-                    className="w-4 h-4"
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+            {/* Score */}
+            <div>
+              <Label className="text-base font-medium mb-3 block">
+                Điểm số (1-10)
+              </Label>
+              <div className="flex gap-2 flex-wrap">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => !isSubmitted && setScore(num)}
                     disabled={isSubmitted}
-                  />
-                  <span className="text-sm font-medium">
-                    ✓ Đạt - Đề xuất tuyển dụng
-                  </span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="FAIL"
-                    checked={recommendation === "FAIL"}
-                    onChange={(e) =>
-                      !isSubmitted && setRecommendation(e.target.value as any)
-                    }
-                    className="w-4 h-4"
-                    disabled={isSubmitted}
-                  />
-                  <span className="text-sm font-medium">
-                    ✗ Không đạt - Không đề xuất tuyển dụng
-                  </span>
-                </label>
+                    className={`w-12 h-12 rounded-lg border-2 font-medium transition-colors ${score === num
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
+                      } ${isSubmitted ? "cursor-not-allowed opacity-80" : ""}`}
+                  >
+                    {num}
+                  </button>
+                ))}
               </div>
-            </RadioGroup>
-          </div>
+            </div>
 
-          {/* Comment */}
-          <div>
-            <Label
-              htmlFor="comment"
-              className="text-base font-medium mb-2 block"
-            >
-              Nhận xét (Bắt buộc) *
-            </Label>
-            <Textarea
-              id="comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Cung cấp nhận xét tổng quan về ứng viên..."
-              rows={4}
-              className="w-full"
-              disabled={isSubmitted}
-            />
-          </div>
+            {/* Recommendation */}
+            <div>
+              <Label className="text-base font-medium mb-3 block">
+                Đề xuất
+              </Label>
+              <RadioGroup
+                value={recommendation}
+                onValueChange={(value) =>
+                  !isSubmitted && setRecommendation(value as any)
+                }
+                disabled={isSubmitted}
+              >
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="PASS"
+                      checked={recommendation === "PASS"}
+                      onChange={(e) =>
+                        !isSubmitted && setRecommendation(e.target.value as any)
+                      }
+                      className="w-4 h-4"
+                      disabled={isSubmitted}
+                    />
+                    <span className="text-sm font-medium">
+                      ✓ Đạt - Đề xuất tuyển dụng
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="FAIL"
+                      checked={recommendation === "FAIL"}
+                      onChange={(e) =>
+                        !isSubmitted && setRecommendation(e.target.value as any)
+                      }
+                      className="w-4 h-4"
+                      disabled={isSubmitted}
+                    />
+                    <span className="text-sm font-medium">
+                      ✗ Không đạt - Không đề xuất tuyển dụng
+                    </span>
+                  </label>
+                </div>
+              </RadioGroup>
+            </div>
 
-          {/* Private Notes - Only for recruiter */}
-          {user?.id == room.recruiterId.toString() && (
+            {/* Comment */}
             <div>
               <Label
-                htmlFor="privateNotes"
+                htmlFor="comment"
                 className="text-base font-medium mb-2 block"
               >
-                Ghi chú riêng (Tùy chọn)
+                Nhận xét (Bắt buộc) *
               </Label>
               <Textarea
-                id="privateNotes"
-                value={privateNotes}
-                onChange={(e) => setPrivateNotes(e.target.value)}
-                placeholder="Ghi chú nội bộ không được chia sẻ với ứng viên..."
-                rows={3}
+                id="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Cung cấp nhận xét tổng quan về ứng viên..."
+                rows={4}
                 className="w-full"
                 disabled={isSubmitted}
               />
             </div>
-          )}
-        </div>
+
+            {/* Private Notes - Only for recruiter */}
+            {user?.id == room.recruiterId.toString() && (
+              <div>
+                <Label
+                  htmlFor="privateNotes"
+                  className="text-base font-medium mb-2 block"
+                >
+                  Ghi chú riêng (Tùy chọn)
+                </Label>
+                <Textarea
+                  id="privateNotes"
+                  value={privateNotes}
+                  onChange={(e) => setPrivateNotes(e.target.value)}
+                  placeholder="Ghi chú nội bộ không được chia sẻ với ứng viên..."
+                  rows={3}
+                  className="w-full"
+                  disabled={isSubmitted}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         {!isSubmitted && (

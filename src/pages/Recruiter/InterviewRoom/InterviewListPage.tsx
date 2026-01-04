@@ -71,7 +71,11 @@ export const InterviewListPage = () => {
   };
 
   const handleViewEvaluation = (roomId: number) => {
-    navigate(`/recruiter/interviews/evaluate/${roomId}`);
+    if (user?.role?.name?.toLowerCase() === "recruiter") {
+      navigate(`/recruiter/interviews/evaluate/${roomId}`);
+    } else {
+      navigate(`/interviews/evaluate/${roomId}`);
+    }
   };
 
   // Pagination logic
@@ -92,11 +96,13 @@ export const InterviewListPage = () => {
     return statusMap[status] || status;
   };
 
+  const isRecruiter = user?.role?.name?.toLowerCase() === "recruiter";
+
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${!isRecruiter ? "pt-[100px] pb-[50px] container mx-auto px-30 min-h-screen" : ""}`}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold font-title text-gray-900">
-          Quản lý Phỏng vấn</h1>
+          {isRecruiter ? "Quản lý Phỏng vấn" : "Lịch phỏng vấn của tôi"}</h1>
         <p className="text-gray-500 mt-1">
           {user?.role?.name?.toLowerCase() === "recruiter"
             ? `Quản lý các cuộc phỏng vấn đã lên lịch (${rooms.length} phòng)`

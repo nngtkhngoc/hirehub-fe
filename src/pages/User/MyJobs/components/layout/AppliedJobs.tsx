@@ -48,6 +48,8 @@ export const AppliedJobs = () => {
         return "bg-green-200 text-green-800";
       case "REJECTED":
         return "bg-gray-200 text-gray-800";
+      case "PASS_INTERVIEW":
+        return "bg-green-500 text-white shadow-sm";
       default:
         return "bg-gray-200 text-gray-800";
     }
@@ -63,6 +65,8 @@ export const AppliedJobs = () => {
         return "Đã chấp nhận";
       case "REJECTED":
         return "Đã từ chối";
+      case "PASS_INTERVIEW":
+        return "Đã vượt qua phỏng vấn";
       default:
         return status;
     }
