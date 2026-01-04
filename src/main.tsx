@@ -42,6 +42,7 @@ import { CandidatesPage } from "./pages/Recruiter/CandidatesPage.tsx";
 import { RecruiterProfilePage } from "./pages/Recruiter/Profile/RecruiterProfilePage.tsx";
 import { QuestionBankListPage } from "./pages/Recruiter/QuestionBank/QuestionBankListPage.tsx";
 import { CreateQuestionBankPage } from "./pages/Recruiter/QuestionBank/CreateQuestionBankPage.tsx";
+import { QuestionBankDetailPage } from "./pages/Recruiter/QuestionBank/QuestionBankDetailPage.tsx";
 import { SystemOptionsPage } from "./pages/Admin/SystemOptionsPage.tsx";
 import { InterviewRoomPage } from "./pages/Recruiter/InterviewRoom/InterviewRoomPage.tsx";
 import { InterviewListPage } from "./pages/Recruiter/InterviewRoom/InterviewListPage.tsx";
@@ -120,6 +121,14 @@ createRoot(document.getElementById("root")!).render(
           <Route path="question-banks" element={<QuestionBankListPage />} />
           <Route
             path="question-banks/create"
+            element={<CreateQuestionBankPage />}
+          />
+          <Route
+            path="question-banks/:id"
+            element={<QuestionBankDetailPage />}
+          />
+          <Route
+            path="question-banks/edit/:id"
             element={<CreateQuestionBankPage />}
           />
         </Route>

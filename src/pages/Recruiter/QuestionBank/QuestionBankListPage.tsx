@@ -152,7 +152,10 @@ export const QuestionBankListPage = () => {
                 </div>
 
                 <div className="mt-6 pt-4 border-t flex justify-between items-center">
-                  <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+                  <div
+                    className="flex items-center gap-2 text-primary font-semibold text-sm cursor-pointer hover:underline"
+                    onClick={() => navigate(`/recruiter/question-banks/${bank.id}`)}
+                  >
                     <BookOpen className="h-4 w-4" />
                     <span>Chi tiết</span>
                   </div>
@@ -161,7 +164,10 @@ export const QuestionBankListPage = () => {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 shadow-none"
-                      onClick={() => navigate(`/recruiter/question-banks/${bank.id}/edit`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/recruiter/question-banks/edit/${bank.id}`);
+                      }}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
