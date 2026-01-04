@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MapPin, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import VoiceInput from "@/components/ui/User/VoiceInput";
 import {
   Select,
   SelectContent,
@@ -76,6 +77,7 @@ export const Banner = ({
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
+          <VoiceInput setText={setKeyword} />
         </div>
 
         <div className="flex flex-row items-center gap-2 px-2 text-[#888888] my-2 md:justify-between md:1/2">
