@@ -1,6 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getRoomByCode, getMessagesByRoomCode, validateAccess, updateRoomStatus } from "@/apis/interview.api";
+import {
+  getRoomByCode,
+  getMessagesByRoomCode,
+  validateAccess,
+  updateRoomStatus,
+} from "@/apis/interview.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useInterviewSocket } from "@/hooks/useInterviewSocket";
 import type { InterviewRoom, InterviewMessage } from "@/types/Interview";
@@ -113,18 +118,30 @@ export const InterviewRoomPage = () => {
         leaveInterviewRoom(roomCode, Number(user.id));
       }
     };
-  }, [connected, roomCode, user, joinInterviewRoom, leaveInterviewRoom, subscribeInterviewMessage, subscribeInterviewQuestion, subscribeInterviewEnd, navigate, room]);
+  }, [
+    connected,
+    roomCode,
+    user,
+    joinInterviewRoom,
+    leaveInterviewRoom,
+    subscribeInterviewMessage,
+    subscribeInterviewQuestion,
+    subscribeInterviewEnd,
+    navigate,
+    room,
+  ]);
 
   const handleSendMessage = (content: string) => {
     if (!roomCode || !user || !room) return;
-    
-    // Prevent sending messages if room is expired
-    if (room.isExpired) {
-      toast.error("Cannot send messages. This interview has expired.");
+
+    // Prevent sending messages if room is expired or finished
+    if (isReadOnly) {
+      toast.error("Cannot send messages. This interview has ended.");
       return;
     }
 
-    const senderRole = user.id === room.recruiterId.toString() ? "RECRUITER" : "APPLICANT";
+    const senderRole =
+      user.id === room.recruiterId.toString() ? "RECRUITER" : "APPLICANT";
 
     sendInterviewMessage({
       roomCode,
@@ -137,10 +154,10 @@ export const InterviewRoomPage = () => {
 
   const handleSendQuestion = (content: string) => {
     if (!roomCode || !user || !room) return;
-    
-    // Prevent sending questions if room is expired
-    if (room.isExpired) {
-      toast.error("Cannot send questions. This interview has expired.");
+
+    // Prevent sending questions if room is expired or finished
+    if (isReadOnly) {
+      toast.error("Cannot send questions. This interview has ended.");
       return;
     }
 
@@ -155,7 +172,7 @@ export const InterviewRoomPage = () => {
 
   const handleEndInterview = async () => {
     if (!roomCode || !user) return;
-    
+
     // Prevent ending if already expired
     if (room && room.isExpired) {
       toast.error("This interview has already expired.");
@@ -185,6 +202,7 @@ export const InterviewRoomPage = () => {
   }
 
   const isRecruiter = user.id === room.recruiterId.toString();
+  const isReadOnly = room.isExpired || room.status === "FINISHED";
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -206,12 +224,23 @@ export const InterviewRoomPage = () => {
         </div>
       </div>
 
-      {/* Expired Warning Banner */}
+      {/* Expired/Finished Warning Banner */}
       {room.isExpired && (
         <Alert className="m-4 border-orange-500 bg-orange-50">
           <Lock className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
-            This interview has expired. You can view the conversation history but cannot send new messages or questions.
+            This interview has expired. You can view the conversation history
+            but cannot send new messages or questions.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {room.status === "FINISHED" && !room.isExpired && (
+        <Alert className="m-4 border-blue-500 bg-blue-50">
+          <Lock className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            This interview has been completed. You are viewing the conversation
+            history in read-only mode.
           </AlertDescription>
         </Alert>
       )}
@@ -229,7 +258,7 @@ export const InterviewRoomPage = () => {
             messages={messages}
             currentUserId={Number(user.id)}
             onSendMessage={handleSendMessage}
-            disabled={room.isExpired}
+            disabled={isReadOnly}
           />
         </div>
 
@@ -240,7 +269,7 @@ export const InterviewRoomPage = () => {
               questions={questions}
               onSendQuestion={handleSendQuestion}
               recruiterId={room.recruiterId.toString()}
-              disabled={room.isExpired}
+              disabled={isReadOnly}
             />
           </div>
         )}
@@ -259,4 +288,3 @@ export const InterviewRoomPage = () => {
     </div>
   );
 };
-

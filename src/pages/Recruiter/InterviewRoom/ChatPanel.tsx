@@ -106,7 +106,7 @@ export const ChatPanel = ({ messages, currentUserId, onSendMessage, disabled = f
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={disabled ? "Interview has expired" : "Type a message..."}
+            placeholder={disabled ? "Interview has ended - Read only mode" : "Type a message..."}
             className="flex-1"
             disabled={disabled}
           />

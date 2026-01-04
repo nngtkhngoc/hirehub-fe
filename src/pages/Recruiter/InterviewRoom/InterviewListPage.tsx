@@ -144,12 +144,19 @@ export const InterviewListPage = () => {
                     )}
                   </div>
 
-                  {(room.status === "SCHEDULED" || room.status === "ONGOING" || room.isExpired) && (
+                  {/* Show button for all rooms except CANCELLED */}
+                  {room.status !== "CANCELLED" && (
                     <Button 
                       onClick={() => handleJoinRoom(room.roomCode)}
-                      variant={room.isExpired ? "outline" : "default"}
+                      variant={
+                        room.status === "FINISHED" || room.isExpired
+                          ? "outline"
+                          : "default"
+                      }
                     >
-                      {room.isExpired ? "View History" : "Join Room"}
+                      {room.status === "FINISHED" || room.isExpired
+                        ? "View History"
+                        : "Join Room"}
                     </Button>
                   )}
                 </div>

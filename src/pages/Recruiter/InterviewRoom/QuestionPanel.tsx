@@ -63,7 +63,7 @@ export const QuestionPanel = ({ questions, onSendQuestion, recruiterId, disabled
 
   const handleQuestionClick = (questionContent: string) => {
     if (disabled) {
-      toast.error("Cannot send questions. This interview has expired.");
+      toast.error("Cannot send questions. This interview has ended.");
       return;
     }
     onSendQuestion(questionContent);
@@ -169,14 +169,14 @@ export const QuestionPanel = ({ questions, onSendQuestion, recruiterId, disabled
             disabled={disabled}
           >
             <Plus className="h-4 w-4 mr-2" />
-            {disabled ? "Interview Expired" : "Add Custom Question"}
+            {disabled ? "Interview Ended" : "Add Custom Question"}
           </Button>
         ) : (
           <div className="space-y-2">
             <Textarea
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
-              placeholder={disabled ? "Interview has expired" : "Type your question..."}
+              placeholder={disabled ? "Interview has ended - Read only mode" : "Type your question..."}
               rows={3}
               className="w-full"
               disabled={disabled}

@@ -1,7 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import { createRoot } from "react-dom/client";
-import { StrictMode } from "react";
-
 import "./index.css";
 
 import { UserLayout } from "./components/layout/User/UserLayout.tsx";
@@ -45,14 +43,13 @@ import { RecruiterProfilePage } from "./pages/Recruiter/Profile/RecruiterProfile
 import { QuestionBankListPage } from "./pages/Recruiter/QuestionBank/QuestionBankListPage.tsx";
 import { CreateQuestionBankPage } from "./pages/Recruiter/QuestionBank/CreateQuestionBankPage.tsx";
 import { SystemOptionsPage } from "./pages/Admin/SystemOptionsPage.tsx";
-import { InterviewRoomPage } from "./pages/User/InterviewRoom/InterviewRoomPage.tsx";
-import { InterviewListPage } from "./pages/User/InterviewRoom/InterviewListPage.tsx";
-import { SelectTimeSlotPage } from "./pages/User/InterviewRoom/SelectTimeSlotPage.tsx";
+import { InterviewRoomPage } from "./pages/Recruiter/InterviewRoom/InterviewRoomPage.tsx";
+import { InterviewListPage } from "./pages/Recruiter/InterviewRoom/InterviewListPage.tsx";
+import { SelectTimeSlotPage } from "./pages/Recruiter/InterviewRoom/SelectTimeSlotPage.tsx";
 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
-  // <StrictMode>
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <Routes>
@@ -63,14 +60,20 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/user-list" element={<UserListPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/user/:userId" element={<User />} />
-          <Route path="/job-details/:id" element={<JobDetails />} />{" "}
+          <Route path="/job-details/:id" element={<JobDetails />} />
           <Route path="/my-jobs" element={<MyJobsPage />} />
           <Route path="/my-connections" element={<MyConnectionsPage />} />
           <Route path="/company-details/:id" element={<CompanyDetails />} />
           <Route path="/interviews" element={<InterviewListPage />} />
         </Route>
-        <Route path="/interview-room/:roomCode" element={<InterviewRoomPage />} />
-        <Route path="/interview-schedule/:requestCode" element={<SelectTimeSlotPage />} />
+        <Route
+          path="/interview-room/:roomCode"
+          element={<InterviewRoomPage />}
+        />
+        <Route
+          path="/interview-schedule/:requestCode"
+          element={<SelectTimeSlotPage />}
+        />
         <Route path="/chat" element={<ChatRedirectPage />} />
         <Route
           path="/chat/conversation/:conversationId"
@@ -110,10 +113,12 @@ createRoot(document.getElementById("root")!).render(
           <Route path="profile" element={<RecruiterProfilePage />} />
           <Route path="interviews" element={<InterviewListPage />} />
           <Route path="question-banks" element={<QuestionBankListPage />} />
-          <Route path="question-banks/create" element={<CreateQuestionBankPage />} />
+          <Route
+            path="question-banks/create"
+            element={<CreateQuestionBankPage />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
   </QueryClientProvider>
-  // </StrictMode>
 );
