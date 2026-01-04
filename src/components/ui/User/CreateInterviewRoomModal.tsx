@@ -3,8 +3,14 @@ import {
   createInterviewRoom,
   getQuestionBanksByRecruiterId,
 } from "@/apis/interview.api";
-import type { QuestionBank } from "@/types/Interview";
-import { Dialog } from "@/components/ui/dialog";
+import type { QuestionBank, Question } from "@/types/Interview";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -40,7 +46,7 @@ export const CreateInterviewRoomModal = ({
   const [interviewType, setInterviewType] = useState<"CHAT" | "VIDEO">("CHAT");
   const [interviewMode, setInterviewMode] = useState<"LIVE" | "ASYNC">("LIVE");
   const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
-  const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
+  const [selectedBankIds, setSelectedBankIds] = useState<number[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -60,13 +66,30 @@ export const CreateInterviewRoomModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, interviewMode]);
 
-  const selectedBank = questionBanks.find((b) => b.id === selectedBankId);
-
-  const toggleQuestion = (qId: number) => {
-    if (selectedQuestions.includes(qId)) {
-      setSelectedQuestions(selectedQuestions.filter((id) => id !== qId));
+  // Auto-select all questions when question banks are selected
+  useEffect(() => {
+    if (selectedBankIds.length > 0) {
+      // Get all question IDs from all selected banks
+      const allQuestionIds: number[] = [];
+      selectedBankIds.forEach((bankId) => {
+        const bank = questionBanks.find((b) => b.id === bankId);
+        if (bank && bank.questions) {
+          const questionIds = bank.questions.map((q: Question) => q.id);
+          allQuestionIds.push(...questionIds);
+        }
+      });
+      // Remove duplicates
+      setSelectedQuestions([...new Set(allQuestionIds)]);
     } else {
-      setSelectedQuestions([...selectedQuestions, qId]);
+      setSelectedQuestions([]);
+    }
+  }, [selectedBankIds, questionBanks]);
+
+  const toggleBankSelection = (bankId: number) => {
+    if (selectedBankIds.includes(bankId)) {
+      setSelectedBankIds(selectedBankIds.filter((id) => id !== bankId));
+    } else {
+      setSelectedBankIds([...selectedBankIds, bankId]);
     }
   };
 
@@ -76,8 +99,8 @@ export const CreateInterviewRoomModal = ({
       return;
     }
 
-    if (interviewMode === "ASYNC" && selectedQuestions.length === 0) {
-      toast.error("Please select at least one question for async interview");
+    if (interviewMode === "ASYNC" && selectedBankIds.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một BỘ CÂU HỎI cho phỏng vấn async");
       return;
     }
 
@@ -90,6 +113,7 @@ export const CreateInterviewRoomModal = ({
         applicantId,
         recruiterId,
         scheduledTime: scheduledDateTime,
+        durationMinutes: 60,
         interviewType,
         interviewMode,
         roundNumber,
@@ -111,184 +135,188 @@ export const CreateInterviewRoomModal = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
-          <div className="px-6 py-4 border-b">
-            <h2 className="text-xl font-bold">
-              Create Interview Room - Round {roundNumber}
-            </h2>
+      <DialogContent className="max-w-2xl max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>Create Interview Room - Round {roundNumber}</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium mb-1 block">
+              Job Position
+            </Label>
+            <p className="text-gray-700">{jobTitle}</p>
           </div>
 
-          {/* Content */}
-          <div className="px-6 py-4 space-y-4">
+          <div>
+            <Label className="text-sm font-medium mb-1 block">Candidate</Label>
+            <p className="text-gray-700">{applicantName}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-sm font-medium mb-1 block">
-                Job Position
+              <Label htmlFor="type" className="text-sm font-medium mb-1 block">
+                Interview Type *
               </Label>
-              <p className="text-gray-700">{jobTitle}</p>
+              <select
+                id="type"
+                value={interviewType}
+                onChange={(e) =>
+                  setInterviewType(e.target.value as "CHAT" | "VIDEO")
+                }
+                className="w-full px-3 py-2 border rounded"
+              >
+                <option value="CHAT">Chat</option>
+                <option value="VIDEO">Video (Coming Soon)</option>
+              </select>
             </div>
 
             <div>
-              <Label className="text-sm font-medium mb-1 block">
-                Candidate
+              <Label htmlFor="mode" className="text-sm font-medium mb-1 block">
+                Interview Mode *
               </Label>
-              <p className="text-gray-700">{applicantName}</p>
+              <select
+                id="mode"
+                value={interviewMode}
+                onChange={(e) =>
+                  setInterviewMode(e.target.value as "LIVE" | "ASYNC")
+                }
+                className="w-full px-3 py-2 border rounded"
+              >
+                <option value="LIVE">Live (Real-time)</option>
+                <option value="ASYNC">Async (Automated)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="date" className="text-sm font-medium mb-1 block">
+                Interview Date *
+              </Label>
+              <Input
+                id="date"
+                type="date"
+                value={scheduledDate}
+                onChange={(e) => setScheduledDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label
-                  htmlFor="type"
-                  className="text-sm font-medium mb-1 block"
-                >
-                  Interview Type *
-                </Label>
-                <select
-                  id="type"
-                  value={interviewType}
-                  onChange={(e) =>
-                    setInterviewType(e.target.value as "CHAT" | "VIDEO")
-                  }
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="CHAT">Chat</option>
-                  <option value="VIDEO">Video (Coming Soon)</option>
-                </select>
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="mode"
-                  className="text-sm font-medium mb-1 block"
-                >
-                  Interview Mode *
-                </Label>
-                <select
-                  id="mode"
-                  value={interviewMode}
-                  onChange={(e) =>
-                    setInterviewMode(e.target.value as "LIVE" | "ASYNC")
-                  }
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="LIVE">Live (Real-time)</option>
-                  <option value="ASYNC">Async (Automated)</option>
-                </select>
-              </div>
+            <div>
+              <Label htmlFor="time" className="text-sm font-medium mb-1 block">
+                Interview Time *
+              </Label>
+              <Input
+                id="time"
+                type="time"
+                value={scheduledTime}
+                onChange={(e) => setScheduledTime(e.target.value)}
+              />
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label
-                  htmlFor="date"
-                  className="text-sm font-medium mb-1 block"
-                >
-                  Interview Date *
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={scheduledDate}
-                  onChange={(e) => setScheduledDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-              </div>
+          {interviewMode === "ASYNC" && (
+            <div className="border-t pt-4">
+              <Label className="text-sm font-medium mb-2 block">
+                Chọn BỘ CÂU HỎI * (có thể chọn nhiều)
+              </Label>
 
-              <div>
-                <Label
-                  htmlFor="time"
-                  className="text-sm font-medium mb-1 block"
-                >
-                  Interview Time *
-                </Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={scheduledTime}
-                  onChange={(e) => setScheduledTime(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {interviewMode === "ASYNC" && (
-              <div className="border-t pt-4">
-                <Label className="text-sm font-medium mb-2 block">
-                  Select Questions *
-                </Label>
-
-                <div className="mb-3">
-                  <select
-                    value={selectedBankId || ""}
-                    onChange={(e) =>
-                      setSelectedBankId(Number(e.target.value) || null)
-                    }
-                    className="w-full px-3 py-2 border rounded"
-                  >
-                    <option value="">-- Select Question Bank --</option>
-                    {questionBanks.map((bank) => (
-                      <option key={bank.id} value={bank.id}>
-                        {bank.title} ({bank.questions?.length || 0} questions)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {selectedBank && (
-                  <div className="space-y-2 max-h-60 overflow-y-auto border rounded p-3">
-                    {selectedBank.questions?.map((q) => (
-                      <label
-                        key={q.id}
-                        className="flex items-start gap-2 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedQuestions.includes(q.id)}
-                          onChange={() => toggleQuestion(q.id)}
-                          className="mt-1"
-                        />
-                        <span className="text-sm">{q.content}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                {selectedQuestions.length > 0 && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✓ {selectedQuestions.length} questions selected
+              <div className="space-y-2 max-h-60 overflow-y-auto border rounded p-3 mb-3">
+                {questionBanks.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    Chưa có bộ câu hỏi nào. Vui lòng tạo bộ câu hỏi trước.
                   </p>
+                ) : (
+                  questionBanks.map((bank) => (
+                    <label
+                      key={bank.id}
+                      className="flex items-start gap-3 cursor-pointer p-2 rounded hover:bg-gray-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedBankIds.includes(bank.id)}
+                        onChange={() => toggleBankSelection(bank.id)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-gray-900">
+                          {bank.title}
+                        </span>
+                        <span className="text-sm text-gray-500 ml-2">
+                          ({bank.questions?.length || 0} câu hỏi)
+                        </span>
+                      </div>
+                    </label>
+                  ))
                 )}
               </div>
-            )}
 
-            <div className="bg-blue-50 border border-blue-200 rounded p-3">
-              <p className="text-sm text-blue-800">
-                <strong>📧 Automatic Notification:</strong>{" "}
-                {interviewMode === "LIVE"
-                  ? "The candidate will receive an email and notification with the interview link."
-                  : "The candidate will receive an email with questions to answer at their own pace."}
-              </p>
+              {selectedBankIds.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Đã chọn {selectedBankIds.length} bộ câu hỏi, tổng cộng{" "}
+                    {selectedQuestions.length} câu hỏi
+                  </p>
+                  <div className="max-h-60 overflow-y-auto border rounded p-3 bg-gray-50">
+                    {selectedBankIds.map((bankId) => {
+                      const bank = questionBanks.find((b) => b.id === bankId);
+                      if (!bank || !bank.questions) return null;
+                      return (
+                        <div key={bankId} className="mb-4 last:mb-0">
+                          <p className="text-sm font-semibold text-gray-700 mb-2">
+                            {bank.title}:
+                          </p>
+                          <div className="space-y-1 pl-4">
+                            {bank.questions.map(
+                              (q: Question, index: number) => (
+                                <div
+                                  key={q.id || index}
+                                  className="flex items-start gap-2 py-1"
+                                >
+                                  <span className="text-sm font-medium text-gray-500 min-w-[20px]">
+                                    {index + 1}.
+                                  </span>
+                                  <span className="text-sm text-gray-700">
+                                    {q.content}
+                                  </span>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t bg-gray-50 flex gap-3 justify-end">
-            <Button onClick={onClose} variant="outline" disabled={submitting}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={submitting || !scheduledDate || !scheduledTime}
-            >
-              {submitting ? "Creating..." : "Create & Send Invitation"}
-            </Button>
+          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+            <p className="text-sm text-blue-800">
+              <strong>📧 Automatic Notification:</strong>{" "}
+              {interviewMode === "LIVE"
+                ? "The candidate will receive an email and notification with the interview link."
+                : "The candidate will receive an email with questions to answer at their own pace."}
+            </p>
           </div>
         </div>
-      </div>
+
+        <DialogFooter>
+          <Button onClick={onClose} variant="outline" disabled={submitting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting || !scheduledDate || !scheduledTime}
+          >
+            {submitting ? "Creating..." : "Create & Send Invitation"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 };

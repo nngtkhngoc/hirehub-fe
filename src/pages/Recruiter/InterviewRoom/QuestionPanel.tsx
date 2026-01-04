@@ -3,7 +3,11 @@ import type { InterviewMessage, InterviewQuestion } from "@/types/Interview";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Plus, Loader2, Check, X } from "lucide-react";
-import { getInterviewQuestions, evaluateQuestion, markQuestionAsSent } from "@/apis/interview.api";
+import {
+  getInterviewQuestions,
+  evaluateQuestion,
+  markQuestionAsSent,
+} from "@/apis/interview.api";
 import { toast } from "sonner";
 
 interface QuestionPanelProps {
@@ -112,10 +116,11 @@ export const QuestionPanel = ({
     });
   }, [questions]);
 
-  const handleQuestionClick = async (questionId: number, questionContent: string) => {
-    console.log("test")
+  const handleQuestionClick = async (
+    questionId: number,
+    questionContent: string
+  ) => {
     if (disabled) {
-      console.log("hoi")
       toast.error("Cannot send questions. This interview has ended.");
       return;
     }
@@ -125,10 +130,8 @@ export const QuestionPanel = ({
       await markQuestionAsSent(questionId);
 
       // Update local roomQuestions state
-      setRoomQuestions(prev =>
-        prev.map(q =>
-          q.id === questionId ? { ...q, status: "SENT" } : q
-        )
+      setRoomQuestions((prev) =>
+        prev.map((q) => (q.id === questionId ? { ...q, status: "SENT" } : q))
       );
 
       // Send question to candidate via socket
@@ -149,7 +152,12 @@ export const QuestionPanel = ({
       // Call backend API to save evaluation
       await evaluateQuestion(questionId, evaluation);
 
-      // Update local state
+      // Update local roomQuestions state
+      setRoomQuestions((prev) =>
+        prev.map((q) => (q.id === questionId ? { ...q, evaluation } : q))
+      );
+
+      // Update local sentQuestions state
       setSentQuestions((prev) => {
         const newMap = new Map(prev);
         const existing = newMap.get(questionContent);
@@ -194,17 +202,19 @@ export const QuestionPanel = ({
               // Determine status based on backend data
               const isPending = q.status === "PENDING";
               const isSent = q.status === "SENT";
-              const isEvaluated = q.evaluation !== undefined && q.evaluation !== null;
+              const isEvaluated =
+                q.evaluation !== undefined && q.evaluation !== null;
 
               return (
                 <div
                   key={q.id}
-                  className={`border rounded-lg p-3 ${isEvaluated
-                    ? "bg-gray-50 border-gray-300"
-                    : isSent
+                  className={`border rounded-lg p-3 ${
+                    isEvaluated
+                      ? "bg-gray-50 border-gray-300"
+                      : isSent
                       ? "bg-blue-50 border-blue-200"
                       : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
-                    }`}
+                  }`}
                   onClick={() =>
                     isPending &&
                     !disabled &&
@@ -263,14 +273,13 @@ export const QuestionPanel = ({
                   {/* Evaluation Status */}
                   {isEvaluated && (
                     <div
-                      className={`mt-2 text-xs font-medium ${q.evaluation === "PASS"
-                        ? "text-green-600"
-                        : "text-red-600"
-                        }`}
+                      className={`mt-2 text-xs font-medium ${
+                        q.evaluation === "PASS"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
                     >
-                      {q.evaluation === "PASS"
-                        ? "✓ Passed"
-                        : "✗ Failed"}
+                      {q.evaluation === "PASS" ? "✓ Passed" : "✗ Failed"}
                     </div>
                   )}
                 </div>
