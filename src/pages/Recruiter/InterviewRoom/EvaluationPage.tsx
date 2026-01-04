@@ -35,6 +35,8 @@ export const EvaluationPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
 
+  const isSubmitted = !!(existingResult && !existingResult.isDraft);
+
   useEffect(() => {
     if (!roomId || !user) return;
 
@@ -44,16 +46,10 @@ export const EvaluationPage = () => {
         const roomData = await getRoomById(Number(roomId));
         setRoom(roomData);
 
-        // Check if user is recruiter
-        if (user.id != roomData.recruiterId.toString()) {
-          toast.error("Bạn không có quyền đánh giá cuộc phỏng vấn này");
-          navigate("/recruiter/interviews");
-          return;
-        }
-
         // Try to load existing result (draft or submitted)
+        let result: InterviewResult | null = null;
         try {
-          const result = await getResultByRoomId(roomData.id);
+          result = await getResultByRoomId(roomData.id);
           setExistingResult(result);
           if (result) {
             setScore(result.score);
@@ -62,8 +58,18 @@ export const EvaluationPage = () => {
             setRecommendation(result.recommendation);
           }
         } catch (error) {
-          // No existing result, that's fine
           console.log("No existing evaluation found");
+        }
+
+        // Permission check
+        const isRecruiter = user.id == roomData.recruiterId.toString();
+        const isApplicant = user.id == roomData.applicantId.toString();
+        const isSubmittedLocal = !!(result && !result.isDraft);
+
+        if (!isRecruiter && !(isApplicant && isSubmittedLocal)) {
+          toast.error("Bạn không có quyền xem đánh giá này");
+          navigate("/");
+          return;
         }
       } catch (error) {
         console.error("Error loading room:", error);
@@ -185,8 +191,7 @@ export const EvaluationPage = () => {
             onClick={() => navigate("/recruiter/interviews")}
             className="mb-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại danh sách phỏng vấn
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-3xl font-bold">Đánh giá phỏng vấn</h1>
           <p className="text-gray-600 mt-2">
@@ -199,7 +204,7 @@ export const EvaluationPage = () => {
           )}
           {existingResult && !existingResult.isDraft && (
             <div className="mt-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded">
-              Đánh giá đã được gửi. Bạn có thể cập nhật bên dưới.
+              Đánh giá đã được gửi. Bạn chỉ có thể xem lại thông tin này.
             </div>
           )}
         </div>
@@ -215,11 +220,12 @@ export const EvaluationPage = () => {
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                 <button
                   key={num}
-                  onClick={() => setScore(num)}
+                  onClick={() => !isSubmitted && setScore(num)}
+                  disabled={isSubmitted}
                   className={`w-12 h-12 rounded-lg border-2 font-medium transition-colors ${score === num
                     ? "bg-blue-500 text-white border-blue-500"
                     : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
-                    }`}
+                    } ${isSubmitted ? "cursor-not-allowed opacity-80" : ""}`}
                 >
                   {num}
                 </button>
@@ -235,8 +241,9 @@ export const EvaluationPage = () => {
             <RadioGroup
               value={recommendation}
               onValueChange={(value) =>
-                setRecommendation(value as "PASS" | "FAIL")
+                !isSubmitted && setRecommendation(value as any)
               }
+              disabled={isSubmitted}
             >
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -245,9 +252,10 @@ export const EvaluationPage = () => {
                     value="PASS"
                     checked={recommendation === "PASS"}
                     onChange={(e) =>
-                      setRecommendation(e.target.value as "PASS" | "FAIL")
+                      !isSubmitted && setRecommendation(e.target.value as any)
                     }
                     className="w-4 h-4"
+                    disabled={isSubmitted}
                   />
                   <span className="text-sm font-medium">
                     ✓ Đạt - Đề xuất tuyển dụng
@@ -259,9 +267,10 @@ export const EvaluationPage = () => {
                     value="FAIL"
                     checked={recommendation === "FAIL"}
                     onChange={(e) =>
-                      setRecommendation(e.target.value as "PASS" | "FAIL")
+                      !isSubmitted && setRecommendation(e.target.value as any)
                     }
                     className="w-4 h-4"
+                    disabled={isSubmitted}
                   />
                   <span className="text-sm font-medium">
                     ✗ Không đạt - Không đề xuất tuyển dụng
@@ -286,46 +295,52 @@ export const EvaluationPage = () => {
               placeholder="Cung cấp nhận xét tổng quan về ứng viên..."
               rows={4}
               className="w-full"
+              disabled={isSubmitted}
             />
           </div>
 
-          {/* Private Notes */}
-          <div>
-            <Label
-              htmlFor="privateNotes"
-              className="text-base font-medium mb-2 block"
-            >
-              Ghi chú riêng (Tùy chọn)
-            </Label>
-            <Textarea
-              id="privateNotes"
-              value={privateNotes}
-              onChange={(e) => setPrivateNotes(e.target.value)}
-              placeholder="Ghi chú nội bộ không được chia sẻ với ứng viên..."
-              rows={3}
-              className="w-full"
-            />
-          </div>
+          {/* Private Notes - Only for recruiter */}
+          {user?.id == room.recruiterId.toString() && (
+            <div>
+              <Label
+                htmlFor="privateNotes"
+                className="text-base font-medium mb-2 block"
+              >
+                Ghi chú riêng (Tùy chọn)
+              </Label>
+              <Textarea
+                id="privateNotes"
+                value={privateNotes}
+                onChange={(e) => setPrivateNotes(e.target.value)}
+                placeholder="Ghi chú nội bộ không được chia sẻ với ứng viên..."
+                rows={3}
+                className="w-full"
+                disabled={isSubmitted}
+              />
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex gap-3 justify-end">
-          <Button
-            onClick={handleSaveDraft}
-            variant="outline"
-            disabled={savingDraft || submitting}
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            {savingDraft ? "Đang lưu..." : "Lưu nháp"}
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={submitting || savingDraft || !comment.trim()}
-          >
-            {submitting ? "Đang gửi..." : "Gửi đánh giá"}
-          </Button>
-        </div>
+        {!isSubmitted && (
+          <div className="mt-6 flex gap-3 justify-end">
+            <Button
+              onClick={handleSaveDraft}
+              variant="outline"
+              disabled={savingDraft || submitting}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {savingDraft ? "Đang lưu..." : "Lưu nháp"}
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting || savingDraft || !comment.trim()}
+            >
+              {submitting ? "Đang gửi..." : "Gửi đánh giá"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

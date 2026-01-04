@@ -104,24 +104,19 @@ export const InterviewListPage = () => {
       </div>
 
       {loading ? (
-        <div className="grid gap-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Card key={index} className="p-6 animate-pulse">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 space-y-3">
-                  <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                  <div className="flex items-center gap-4">
-                    <div className="h-4 bg-gray-100 rounded w-32"></div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="h-4 bg-gray-100 rounded w-24"></div>
-                    <div className="h-4 bg-gray-100 rounded w-20"></div>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="p-6 animate-pulse flex flex-col h-full">
+              <div className="flex-1 space-y-4">
+                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-100 rounded w-2/3"></div>
                 </div>
-                <div className="flex flex-col items-end gap-3">
-                  <div className="h-6 bg-gray-200 rounded-full w-24"></div>
-                  <div className="h-9 bg-gray-200 rounded w-28"></div>
-                </div>
+              </div>
+              <div className="mt-6 flex flex-col gap-3 border-t pt-4">
+                <div className="h-6 bg-gray-200 rounded-full w-24"></div>
+                <div className="h-10 bg-gray-200 rounded w-full"></div>
               </div>
             </Card>
           ))}
@@ -140,98 +135,99 @@ export const InterviewListPage = () => {
         </Card>
       ) : (
         <>
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedRooms.map((room) => (
-              <Card key={room.id} className="p-6 hover:bg-gray-50/50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    {/* Job Title */}
-                    <h3 className="text-xl font-semibold mb-2">
-                      {room.jobTitle}
-                    </h3>
+              <Card key={room.id} className="p-6 hover:bg-gray-50/50 transition-all hover:shadow-md flex flex-col h-full group">
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${room.status === "SCHEDULED"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : room.status === "ONGOING"
+                          ? "bg-green-100 text-green-800"
+                          : room.status === "FINISHED"
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                    >
+                      {getStatusText(room.status)}
+                    </span>
+                    {room.isExpired && (
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 flex items-center gap-1">
+                        <Lock className="h-3 w-3" />
+                        Hết hạn
+                      </span>
+                    )}
+                  </div>
 
-                    {/* Participants */}
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">
-                          {user?.role?.name?.toLowerCase() === "recruiter"
-                            ? room.applicantName
-                            : room.recruiterName}
-                        </span>
+                  {/* Job Title */}
+                  <h3 className="text-xl font-bold mb-4 line-clamp-2 group-hover:text-primary transition-colors">
+                    {room.jobTitle}
+                  </h3>
+
+                  {/* Participants & Schedule */}
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center gap-3 text-gray-600">
+                      <div className="p-2 bg-gray-100 rounded-lg">
+                        <User className="h-4 w-4" />
                       </div>
+                      <span className="text-sm font-medium">
+                        {user?.role?.name?.toLowerCase() === "recruiter"
+                          ? room.applicantName
+                          : room.recruiterName}
+                      </span>
                     </div>
 
-                    {/* Schedule */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         <span>{formatDate(room.scheduledTime)}</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 border-l pl-4">
                         <Clock className="h-4 w-4" />
                         <span>{formatTime(room.scheduledTime)}</span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Status & Action */}
-                  <div className="flex flex-col items-end gap-3">
-                    <div className="flex gap-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${room.status === "SCHEDULED"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : room.status === "ONGOING"
-                            ? "bg-green-100 text-green-800"
-                            : room.status === "FINISHED"
-                              ? "bg-gray-100 text-gray-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                      >
-                        {getStatusText(room.status)}
-                      </span>
-                      {room.isExpired && (
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 flex items-center gap-1">
-                          <Lock className="h-3 w-3" />
-                          Đã hết hạn
-                        </span>
+                {/* Footer Action */}
+                <div className="pt-4 border-t flex flex-col gap-2">
+                  {room.status !== "CANCELLED" && (
+                    <>
+                      {room.status !== "FINISHED" && !room.isExpired && room.status !== "EXPIRED" ? (
+                        <Button
+                          onClick={() => handleJoinRoom(room.roomCode)}
+                          className="w-full"
+                          variant="default"
+                        >
+                          Tham gia Phòng
+                        </Button>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            onClick={() => handleJoinRoom(room.roomCode)}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            Lịch sử
+                          </Button>
+                          <Button
+                            onClick={() => handleViewEvaluation(room.id)}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            Đánh giá
+                          </Button>
+                        </div>
                       )}
-                    </div>
-
-                    {/* Show buttons for all rooms except CANCELLED */}
-                    {room.status !== "CANCELLED" && (
-                      <div className="flex gap-2">
-                        {(room.status === "FINISHED" ||
-                          room.isExpired ||
-                          room.status === "EXPIRED") && (
-                            <>
-                              <Button
-                                onClick={() => handleJoinRoom(room.roomCode)}
-                                variant="outline"
-                              >
-                                Xem Lịch sử
-                              </Button>
-                              <Button
-                                onClick={() => handleViewEvaluation(room.id)}
-                                variant="outline"
-                              >
-                                Xem Đánh giá
-                              </Button>
-                            </>
-                          )}
-                        {room.status !== "FINISHED" &&
-                          !room.isExpired &&
-                          room.status !== "EXPIRED" && (
-                            <Button
-                              onClick={() => handleJoinRoom(room.roomCode)}
-                              variant="default"
-                            >
-                              Tham gia Phòng
-                            </Button>
-                          )}
-                      </div>
-                    )}
-                  </div>
+                    </>
+                  )}
+                  {room.status === "CANCELLED" && (
+                    <p className="text-center text-sm text-gray-400 py-2">Hợp đồng đã hủy</p>
+                  )}
                 </div>
               </Card>
             ))}

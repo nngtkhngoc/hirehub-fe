@@ -48,7 +48,7 @@ export const QuestionBankListPage = () => {
   const loadQuestionBanks = async () => {
     if (!user) return;
     try {
-      const data = await getQuestionBanksByRecruiterId(user.id);
+      const data = await getQuestionBanksByRecruiterId(Number(user.id));
       setQuestionBanks(data);
     } catch (error) {
       console.error("Error loading question banks:", error);
@@ -93,22 +93,20 @@ export const QuestionBankListPage = () => {
       </div>
 
       {loading ? (
-        <div className="grid gap-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Card key={index} className="p-6 animate-pulse">
-              <div className="flex justify-between items-start">
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                    <div className="h-5 bg-gray-200 rounded-full w-20"></div>
-                  </div>
-                  <div className="h-4 bg-gray-100 rounded w-2/3"></div>
-                  <div className="h-3 bg-gray-100 rounded w-24"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="p-6 animate-pulse flex flex-col h-full">
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-200 rounded-full w-16"></div>
                 </div>
-                <div className="flex gap-2">
-                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                </div>
+                <div className="h-4 bg-gray-100 rounded w-full"></div>
+                <div className="h-4 bg-gray-100 rounded w-2/3"></div>
+              </div>
+              <div className="mt-6 pt-4 border-t flex justify-end gap-2">
+                <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                <div className="h-8 w-8 bg-gray-200 rounded"></div>
               </div>
             </Card>
           ))}
@@ -128,36 +126,49 @@ export const QuestionBankListPage = () => {
           </Button>
         </Card>
       ) : (
-        <>
-          <div className="grid gap-4">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedBanks.map((bank) => (
-              <Card key={bank.id} className="p-6 hover:bg-gray-50/50 transition-colors">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold">{bank.title}</h3>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                        {bank.category}
-                      </span>
+              <Card key={bank.id} className="p-6 hover:bg-gray-50/50 transition-all hover:shadow-md flex flex-col h-full group">
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="text-xs text-gray-400 font-medium font-mono uppercase tracking-wider">
+                      ID: #{bank.id}
                     </div>
-                    {bank.description && (
-                      <p className="text-gray-600 mb-3">{bank.description}</p>
-                    )}
-                    <p className="text-sm text-gray-500">
+                    <div className="text-xs text-gray-400 font-medium">
                       {bank.questions?.length || 0} câu hỏi
+                    </div>
+                  </div>
+
+                  <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                    {bank.title}
+                  </h3>
+
+                  {bank.description && (
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+                      {bank.description}
                     </p>
+                  )}
+                </div>
+
+                <div className="mt-6 pt-4 border-t flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+                    <BookOpen className="h-4 w-4" />
+                    <span>Chi tiết</span>
                   </div>
                   <div className="flex gap-2">
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 shadow-none"
                       onClick={() => navigate(`/recruiter/question-banks/${bank.id}/edit`)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-red-50 hover:text-red-600 shadow-none"
                       onClick={() => setDeleteDialog({
                         open: true,
                         id: bank.id,
@@ -212,7 +223,7 @@ export const QuestionBankListPage = () => {
               </Pagination>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Delete Confirmation Dialog */}

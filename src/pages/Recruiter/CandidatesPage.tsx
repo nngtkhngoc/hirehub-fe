@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Eye, FileText, MessageCircle, Clock, UserCheck, UserX, Ban, Filter, Users, Video } from "lucide-react";
+import { Search, Eye, FileText, MessageCircle, Clock, Ban, Filter, Users, Video, Trophy, CheckCircle2, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,8 +72,9 @@ const statusOptions = [
     { value: "ALL", label: "Tất cả trạng thái", icon: null, color: "" },
     { value: "NOT VIEW", label: "Chưa xem", icon: Clock, color: "text-gray-600" },
     { value: "VIEWED", label: "Đã xem", icon: Eye, color: "text-blue-600" },
-    { value: "ACCEPTED", label: "Đã chấp nhận", icon: UserCheck, color: "text-green-600" },
-    { value: "REJECTED", label: "Đã từ chối", icon: UserX, color: "text-red-600" },
+    { value: "ACCEPTED", label: "Đã chấp nhận", icon: CheckCircle2, color: "text-green-600" },
+    { value: "REJECTED", label: "Đã từ chối", icon: XCircle, color: "text-red-600" },
+    { value: "PASS_INTERVIEW", label: "Vượt qua phỏng vấn", icon: Trophy, color: "text-green-600" },
 ];
 
 const getStatusConfig = (status: string) => {
@@ -97,14 +98,21 @@ const getStatusConfig = (status: string) => {
                 bg: "bg-green-100",
                 text: "text-green-700",
                 label: "Chấp nhận",
-                icon: UserCheck
+                icon: CheckCircle2
             };
         case "REJECTED":
             return {
                 bg: "bg-red-100",
                 text: "text-red-700",
                 label: "Từ chối",
-                icon: UserX
+                icon: XCircle
+            };
+        case "PASS_INTERVIEW":
+            return {
+                bg: "bg-green-100",
+                text: "text-green-700",
+                label: "Vượt qua phỏng vấn",
+                icon: Trophy
             };
         default:
             return {
@@ -433,9 +441,9 @@ export const CandidatesPage = () => {
 
                                         {/* Status - Improved UI with Select */}
                                         <TableCell>
-                                            {/* If job is banned, show status as read-only */}
-                                            {(resume.job.status === "BANNED" || resume.job.isBanned) ? (
-                                                <div className="flex items-center gap-2 px-2 py-1.5 opacity-60">
+                                            {/* If job is banned or status is PASS_INTERVIEW, show status as read-only */}
+                                            {(resume.job.status === "BANNED" || resume.job.isBanned || resume.status === "PASS_INTERVIEW") ? (
+                                                <div className="flex items-center gap-2 px-2 py-1.5 opacity-80">
                                                     <StatusIcon size={16} className={statusConfig.text} />
                                                     <Badge className={`${statusConfig.bg} ${statusConfig.text} font-medium`}>
                                                         {statusConfig.label}
@@ -456,7 +464,7 @@ export const CandidatesPage = () => {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {/* Only show ACCEPTED and REJECTED as options to change - VIEWED is auto-set on CV view */}
-                                                        {statusOptions.filter(s => s.value !== "ALL" && s.value !== "NOT VIEW" && s.value !== "VIEWED").map((option) => {
+                                                        {statusOptions.filter(s => s.value !== "ALL" && s.value !== "NOT VIEW" && s.value !== "VIEWED" && s.value !== "PASS_INTERVIEW").map((option) => {
                                                             const Icon = option.icon;
                                                             return (
                                                                 <SelectItem key={option.value} value={option.value}>
