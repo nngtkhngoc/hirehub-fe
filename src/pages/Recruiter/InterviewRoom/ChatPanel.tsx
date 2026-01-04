@@ -46,14 +46,14 @@ export const ChatPanel = ({
     <div className="flex flex-col h-full">
       {/* Chat Header */}
       <div className="bg-white border-b px-6 py-3">
-        <h2 className="text-lg font-semibold">Chat</h2>
+        <h2 className="text-lg font-semibold">Trò chuyện</h2>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500">
-            <p>No messages yet. Start the conversation!</p>
+            <p>Chưa có tin nhắn nào. Hãy bắt đầu cuộc hội thoại!</p>
           </div>
         ) : (
           messages.map((msg) => {
@@ -80,9 +80,8 @@ export const ChatPanel = ({
                 className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[70%] ${
-                    isOwn ? "items-end" : "items-start"
-                  } flex flex-col`}
+                  className={`max-w-[70%] ${isOwn ? "items-end" : "items-start"
+                    } flex flex-col`}
                 >
                   {!isOwn && (
                     <div className="flex items-center gap-2 mb-1">
@@ -99,25 +98,24 @@ export const ChatPanel = ({
                     </div>
                   )}
                   <div
-                    className={`rounded-lg px-4 py-2 ${
-                      isQuestion
+                    className={`rounded-lg px-4 py-2 ${isQuestion
                         ? isOwn
                           ? "bg-purple-500 text-white"
                           : "bg-purple-100 text-purple-900 border border-purple-300"
                         : isOwn
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-900"
-                    }`}
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-gray-900"
+                      }`}
                   >
                     {isQuestion && (
                       <span className="text-xs font-semibold mb-1 block opacity-80">
-                        Question:
+                        Câu hỏi:
                       </span>
                     )}
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
                   <span className="text-xs text-gray-500 mt-1">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
+                    {new Date(msg.timestamp).toLocaleTimeString("vi-VN")}
                   </span>
                 </div>
               </div>
@@ -136,8 +134,8 @@ export const ChatPanel = ({
             onKeyPress={handleKeyPress}
             placeholder={
               disabled
-                ? "Interview has ended - Read only mode"
-                : "Type a message..."
+                ? "Cuộc phỏng vấn đã kết thúc - Chế độ chỉ đọc"
+                : "Nhập tin nhắn..."
             }
             className="flex-1"
             disabled={disabled}

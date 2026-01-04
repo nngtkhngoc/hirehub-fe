@@ -14,6 +14,7 @@ import { RadioGroup } from "@/components/ui/radio-group";
 import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const EvaluationPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -28,7 +29,9 @@ export const EvaluationPage = () => {
   const [score, setScore] = useState<number>(5);
   const [comment, setComment] = useState("");
   const [privateNotes, setPrivateNotes] = useState("");
-  const [recommendation, setRecommendation] = useState<"PASS" | "FAIL">("PASS");
+  const [recommendation, setRecommendation] = useState<
+    "PASS" | "FAIL" | "HIRE" | "REJECT" | "CONSIDER"
+  >("PASS");
   const [submitting, setSubmitting] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
 
@@ -43,7 +46,7 @@ export const EvaluationPage = () => {
 
         // Check if user is recruiter
         if (user.id != roomData.recruiterId.toString()) {
-          toast.error("You don't have permission to evaluate this interview");
+          toast.error("Bạn không có quyền đánh giá cuộc phỏng vấn này");
           navigate("/recruiter/interviews");
           return;
         }
@@ -64,7 +67,7 @@ export const EvaluationPage = () => {
         }
       } catch (error) {
         console.error("Error loading room:", error);
-        toast.error("Failed to load interview room");
+        toast.error("Không thể tải thông tin phòng phỏng vấn");
         navigate("/recruiter/interviews");
       } finally {
         setLoading(false);
@@ -87,10 +90,10 @@ export const EvaluationPage = () => {
         recommendation,
         isDraft: true,
       });
-      toast.success("Draft saved successfully");
+      toast.success("Đã lưu bản nháp thành công");
     } catch (error) {
       console.error("Error saving draft:", error);
-      toast.error("Failed to save draft");
+      toast.error("Lưu bản nháp thất bại");
     } finally {
       setSavingDraft(false);
     }
@@ -100,7 +103,7 @@ export const EvaluationPage = () => {
     if (!room) return;
 
     if (!comment.trim()) {
-      toast.error("Please provide a comment");
+      toast.error("Vui lòng nhập nhận xét");
       return;
     }
 
@@ -115,11 +118,11 @@ export const EvaluationPage = () => {
         isDraft: false,
       });
 
-      toast.success("Interview evaluation submitted successfully");
+      toast.success("Đã gửi đánh giá phỏng vấn thành công");
       navigate("/recruiter/interviews");
     } catch (error) {
       console.error("Error submitting evaluation:", error);
-      toast.error("Failed to submit evaluation");
+      toast.error("Gửi đánh giá thất bại");
     } finally {
       setSubmitting(false);
     }
@@ -127,8 +130,43 @@ export const EvaluationPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Loading...</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Skeleton className="h-10 w-48 mb-4" />
+            <Skeleton className="h-10 w-64 mb-2" />
+            <Skeleton className="h-5 w-80" />
+          </div>
+          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-8">
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-32" />
+              <div className="flex gap-2">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-12 rounded-lg" />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-32" />
+              <div className="flex gap-8">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-6 w-40" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-40" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -148,20 +186,20 @@ export const EvaluationPage = () => {
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Interviews
+            Quay lại danh sách phỏng vấn
           </Button>
-          <h1 className="text-3xl font-bold">Interview Evaluation</h1>
+          <h1 className="text-3xl font-bold">Đánh giá phỏng vấn</h1>
           <p className="text-gray-600 mt-2">
-            Evaluate interview for {room.applicantName} - {room.jobTitle}
+            Đánh giá cuộc phỏng vấn cho {room.applicantName} - {room.jobTitle}
           </p>
           {existingResult && existingResult.isDraft && (
             <div className="mt-2 text-sm text-orange-600 bg-orange-50 px-3 py-2 rounded">
-              You have a saved draft. Continue editing or submit when ready.
+              Bạn có một bản nháp đã lưu. Tiếp tục chỉnh sửa hoặc gửi khi sẵn sàng.
             </div>
           )}
           {existingResult && !existingResult.isDraft && (
             <div className="mt-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded">
-              Evaluation already submitted. You can update it below.
+              Đánh giá đã được gửi. Bạn có thể cập nhật bên dưới.
             </div>
           )}
         </div>
@@ -171,18 +209,17 @@ export const EvaluationPage = () => {
           {/* Score */}
           <div>
             <Label className="text-base font-medium mb-3 block">
-              Score (1-10)
+              Điểm số (1-10)
             </Label>
             <div className="flex gap-2 flex-wrap">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                 <button
                   key={num}
                   onClick={() => setScore(num)}
-                  className={`w-12 h-12 rounded-lg border-2 font-medium transition-colors ${
-                    score === num
-                      ? "bg-blue-500 text-white border-blue-500"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
-                  }`}
+                  className={`w-12 h-12 rounded-lg border-2 font-medium transition-colors ${score === num
+                    ? "bg-blue-500 text-white border-blue-500"
+                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
+                    }`}
                 >
                   {num}
                 </button>
@@ -193,7 +230,7 @@ export const EvaluationPage = () => {
           {/* Recommendation */}
           <div>
             <Label className="text-base font-medium mb-3 block">
-              Recommendation
+              Đề xuất
             </Label>
             <RadioGroup
               value={recommendation}
@@ -213,7 +250,7 @@ export const EvaluationPage = () => {
                     className="w-4 h-4"
                   />
                   <span className="text-sm font-medium">
-                    ✓ Pass - Recommend for hiring
+                    ✓ Đạt - Đề xuất tuyển dụng
                   </span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -227,7 +264,7 @@ export const EvaluationPage = () => {
                     className="w-4 h-4"
                   />
                   <span className="text-sm font-medium">
-                    ✗ Fail - Do not recommend
+                    ✗ Không đạt - Không đề xuất tuyển dụng
                   </span>
                 </label>
               </div>
@@ -240,13 +277,13 @@ export const EvaluationPage = () => {
               htmlFor="comment"
               className="text-base font-medium mb-2 block"
             >
-              Comment (Required) *
+              Nhận xét (Bắt buộc) *
             </Label>
             <Textarea
               id="comment"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Provide your overall feedback about the candidate..."
+              placeholder="Cung cấp nhận xét tổng quan về ứng viên..."
               rows={4}
               className="w-full"
             />
@@ -258,13 +295,13 @@ export const EvaluationPage = () => {
               htmlFor="privateNotes"
               className="text-base font-medium mb-2 block"
             >
-              Private Notes (Optional)
+              Ghi chú riêng (Tùy chọn)
             </Label>
             <Textarea
               id="privateNotes"
               value={privateNotes}
               onChange={(e) => setPrivateNotes(e.target.value)}
-              placeholder="Internal notes that won't be shared with the candidate..."
+              placeholder="Ghi chú nội bộ không được chia sẻ với ứng viên..."
               rows={3}
               className="w-full"
             />
@@ -280,13 +317,13 @@ export const EvaluationPage = () => {
             className="flex items-center gap-2"
           >
             <Save className="h-4 w-4" />
-            {savingDraft ? "Saving..." : "Save for Later"}
+            {savingDraft ? "Đang lưu..." : "Lưu nháp"}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={submitting || savingDraft || !comment.trim()}
           >
-            {submitting ? "Submitting..." : "Submit Evaluation"}
+            {submitting ? "Đang gửi..." : "Gửi đánh giá"}
           </Button>
         </div>
       </div>

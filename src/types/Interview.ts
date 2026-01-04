@@ -3,14 +3,20 @@ export interface InterviewRoom {
   roomCode: string;
   recruiterId: number;
   recruiterName: string;
+  recruiterEmail?: string;
+  recruiterAvatar?: string;
   applicantId: number;
   applicantName: string;
+  applicantEmail?: string;
+  applicantAvatar?: string;
   jobId: number;
   jobTitle: string;
   scheduledTime: string;
   duration: number;
   status: "SCHEDULED" | "ONGOING" | "FINISHED" | "CANCELLED" | "EXPIRED";
   isExpired: boolean;
+  interviewType?: "CHAT" | "VIDEO";
+  interviewMode?: "LIVE" | "ASYNC";
   createdAt: string;
   updatedAt: string;
 }
@@ -33,6 +39,8 @@ export interface InterviewMessage {
   roomCode: string;
   senderId: number;
   senderName: string;
+  senderRole?: "RECRUITER" | "APPLICANT" | "SYSTEM";
+  senderAvatar?: string;
   content: string;
   type: "TEXT" | "QUESTION" | "ANSWER" | "SYSTEM";
   timestamp: string;
@@ -52,26 +60,34 @@ export interface InterviewQuestion {
 export interface InterviewResult {
   id: number;
   roomId: number;
-  overallRating: number;
-  technicalSkills: number;
-  communication: number;
-  problemSolving: number;
-  cultureFit: number;
-  notes: string;
-  recommendation: "HIRE" | "REJECT" | "CONSIDER";
+  overallRating?: number;
+  technicalSkills?: number;
+  communication?: number;
+  problemSolving?: number;
+  cultureFit?: number;
+  notes?: string;
+  score: number;
+  comment: string;
+  privateNotes?: string;
+  recommendation: "PASS" | "FAIL" | "HIRE" | "REJECT" | "CONSIDER";
+  isDraft?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateInterviewResultRequest {
   roomId: number;
-  overallRating: number;
-  technicalSkills: number;
-  communication: number;
-  problemSolving: number;
-  cultureFit: number;
-  notes: string;
-  recommendation: "HIRE" | "REJECT" | "CONSIDER";
+  overallRating?: number;
+  technicalSkills?: number;
+  communication?: number;
+  problemSolving?: number;
+  cultureFit?: number;
+  notes?: string;
+  score: number;
+  comment: string;
+  privateNotes?: string;
+  recommendation: "PASS" | "FAIL" | "HIRE" | "REJECT" | "CONSIDER";
+  isDraft?: boolean;
 }
 
 export interface Question {

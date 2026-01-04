@@ -183,7 +183,7 @@ export const QuestionPanel = ({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="bg-white border-b px-4 py-3">
-        <h2 className="text-lg font-semibold">Interview Questions</h2>
+        <h2 className="text-lg font-semibold">Câu hỏi phỏng vấn</h2>
       </div>
 
       {/* Questions List */}
@@ -196,25 +196,24 @@ export const QuestionPanel = ({
         ) : roomQuestions.length > 0 ? (
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-gray-600">
-              Available Questions ({roomQuestions.length})
+              Câu hỏi hiện có ({roomQuestions.length})
             </h3>
             {roomQuestions.map((q) => {
               // Determine status based on backend data
               const isPending = q.status === "PENDING";
               const isSent = q.status === "SENT";
               const isEvaluated =
-                q.evaluation !== undefined && q.evaluation !== null;
+                q.evaluation !== undefined && q.evaluation !== null && q.evaluation !== "PENDING";
 
               return (
                 <div
                   key={q.id}
-                  className={`border rounded-lg p-3 ${
-                    isEvaluated
+                  className={`border rounded-lg p-3 ${isEvaluated
                       ? "bg-gray-50 border-gray-300"
                       : isSent
-                      ? "bg-blue-50 border-blue-200"
-                      : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
-                  }`}
+                        ? "bg-blue-50 border-blue-200"
+                        : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
+                    }`}
                   onClick={() =>
                     isPending &&
                     !disabled &&
@@ -226,7 +225,7 @@ export const QuestionPanel = ({
                   {/* Show status based on question state */}
                   {isSent && !isEvaluated && (
                     <span className="text-xs text-gray-500 mt-1 block">
-                      Sent
+                      Đã gửi
                     </span>
                   )}
 
@@ -248,7 +247,7 @@ export const QuestionPanel = ({
                         disabled={disabled}
                       >
                         <Check className="h-3 w-3 mr-1" />
-                        Pass
+                        Đạt
                       </Button>
                       <Button
                         size="sm"
@@ -265,7 +264,7 @@ export const QuestionPanel = ({
                         disabled={disabled}
                       >
                         <X className="h-3 w-3 mr-1" />
-                        Fail
+                        Không đạt
                       </Button>
                     </div>
                   )}
@@ -273,13 +272,12 @@ export const QuestionPanel = ({
                   {/* Evaluation Status */}
                   {isEvaluated && (
                     <div
-                      className={`mt-2 text-xs font-medium ${
-                        q.evaluation === "PASS"
+                      className={`mt-2 text-xs font-medium ${q.evaluation === "PASS"
                           ? "text-green-600"
                           : "text-red-600"
-                      }`}
+                        }`}
                     >
-                      {q.evaluation === "PASS" ? "✓ Passed" : "✗ Failed"}
+                      {q.evaluation === "PASS" ? "✓ Đạt" : "✗ Không đạt"}
                     </div>
                   )}
                 </div>
@@ -288,7 +286,7 @@ export const QuestionPanel = ({
           </div>
         ) : (
           <div className="text-center py-8 text-gray-500 text-sm">
-            <p>No questions available for this interview.</p>
+            <p>Không có câu hỏi nào cho cuộc phỏng vấn này.</p>
           </div>
         )}
       </div>
@@ -303,22 +301,24 @@ export const QuestionPanel = ({
             disabled={disabled}
           >
             <Plus className="h-4 w-4 mr-2" />
-            {disabled ? "Interview Ended" : "Add Custom Question"}
+            {disabled ? "Cuộc phỏng vấn đã kết thúc" : "Thêm câu hỏi tùy chỉnh"}
           </Button>
         ) : (
           <div className="space-y-2">
-            <Textarea
-              value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              placeholder={
-                disabled
-                  ? "Interview has ended - Read only mode"
-                  : "Type your question..."
-              }
-              rows={3}
-              className="w-full"
-              disabled={disabled}
-            />
+            <div className="relative">
+              <Textarea
+                value={questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+                placeholder={
+                  disabled
+                    ? "Cuộc phỏng vấn đã kết thúc - Chế độ chỉ đọc"
+                    : "Nhập câu hỏi của bạn..."
+                }
+                rows={3}
+                className="w-full"
+                disabled={disabled}
+              />
+            </div>
             <div className="flex gap-2">
               <Button
                 onClick={handleSend}
@@ -326,7 +326,7 @@ export const QuestionPanel = ({
                 className="flex-1"
               >
                 <Send className="h-4 w-4 mr-2" />
-                Send
+                Gửi
               </Button>
               <Button
                 onClick={() => {
@@ -335,7 +335,7 @@ export const QuestionPanel = ({
                 }}
                 variant="outline"
               >
-                Cancel
+                Hủy
               </Button>
             </div>
           </div>

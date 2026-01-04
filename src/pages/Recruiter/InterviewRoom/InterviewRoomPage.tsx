@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Lock, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const InterviewRoomPage = () => {
   const { roomCode } = useParams<{ roomCode: string }>();
@@ -62,7 +63,7 @@ export const InterviewRoomPage = () => {
         // Validate access
         const hasAccess = await validateAccess(roomCode, Number(user.id));
         if (!hasAccess) {
-          toast.error("You don't have access to this interview room");
+          toast.error("Bạn không có quyền truy cập vào phòng phỏng vấn này");
           navigate("/");
           return;
         }
@@ -74,7 +75,7 @@ export const InterviewRoomPage = () => {
         // Load message history
         const messageHistory = await getMessagesByRoomCode(roomCode);
         const chatMessages = messageHistory.filter(
-          (m) => m.type === "CHAT" || m.type === "SYSTEM"
+          (m) => m.type === "TEXT" || m.type === "SYSTEM"
         );
         const questionMessages = messageHistory.filter(
           (m) => m.type === "QUESTION"
@@ -85,7 +86,7 @@ export const InterviewRoomPage = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error loading room:", error);
-        toast.error("Failed to load interview room");
+        toast.error("Không thể tải phòng phỏng vấn");
         navigate("/");
       }
     };
@@ -102,7 +103,7 @@ export const InterviewRoomPage = () => {
 
     // Subscribe to messages
     const messageSub = subscribeInterviewMessage((msg: InterviewMessage) => {
-      if (msg.type === "CHAT" || msg.type === "SYSTEM") {
+      if (msg.type === "TEXT" || msg.type === "SYSTEM") {
         setMessages((prev) => {
           // Check if message already exists to prevent duplicates
           const exists = prev.some(
@@ -135,11 +136,11 @@ export const InterviewRoomPage = () => {
         if (exists) return prev;
         return [...prev, msg];
       });
-      toast.info("New interview question received");
+      toast.info("Đã nhận được câu hỏi phỏng vấn mới");
     });
 
     const endSub = subscribeInterviewEnd(() => {
-      toast.info("Interview has ended");
+      toast.info("Cuộc phỏng vấn đã kết thúc");
       if (room && user.id === room.recruiterId.toString()) {
         // Navigate to evaluation page
         navigate(`/recruiter/interviews/evaluate/${room.id}`);
@@ -174,7 +175,7 @@ export const InterviewRoomPage = () => {
 
     // Prevent sending messages if room is expired or finished
     if (isReadOnly) {
-      toast.error("Cannot send messages. This interview has ended.");
+      toast.error("Không thể gửi tin nhắn. Cuộc phỏng vấn này đã kết thúc.");
       return;
     }
 
@@ -185,7 +186,7 @@ export const InterviewRoomPage = () => {
       roomCode,
       senderId: Number(user.id),
       senderRole,
-      type: "CHAT",
+      type: "TEXT",
       content,
     });
   };
@@ -195,7 +196,7 @@ export const InterviewRoomPage = () => {
 
     // Prevent sending questions if room is expired or finished
     if (isReadOnly) {
-      toast.error("Cannot send questions. This interview has ended.");
+      toast.error("Không thể gửi câu hỏi. Cuộc phỏng vấn này đã kết thúc.");
       return;
     }
 
@@ -213,7 +214,7 @@ export const InterviewRoomPage = () => {
 
     // Prevent ending if already expired or finished
     if (room.isExpired || room.status === "FINISHED") {
-      toast.error("This interview has already ended.");
+      toast.error("Cuộc phỏng vấn này đã kết thúc.");
       return;
     }
 
@@ -229,17 +230,86 @@ export const InterviewRoomPage = () => {
       setShowEndConfirmDialog(false);
       // Navigate to evaluation page instead of showing modal
       navigate(`/recruiter/interviews/evaluate/${room.id}`);
-      toast.success("Interview ended successfully");
+      toast.success("Kết thúc cuộc phỏng vấn thành công");
     } catch (error) {
       console.error("Error ending interview:", error);
-      toast.error("Failed to end interview");
+      toast.error("Không thể kết thúc cuộc phỏng vấn");
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Loading interview room...</div>
+      <div className="h-screen flex flex-col bg-gray-50">
+        <div className="bg-white shadow-sm border-b px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-9 w-9" />
+              <div>
+                <Skeleton className="h-8 w-64 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+            </div>
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <div className="flex-1 flex overflow-hidden">
+          <div className="w-80 bg-white border-r p-6 space-y-6">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col bg-white">
+            <div className="border-b px-6 py-3">
+              <Skeleton className="h-7 w-20" />
+            </div>
+            <div className="flex-1 p-6 space-y-4">
+              <Skeleton className="h-12 w-[60%]" />
+              <Skeleton className="h-12 w-[60%] self-end" />
+              <Skeleton className="h-12 w-[40%]" />
+            </div>
+            <div className="border-t px-6 py-4">
+              <div className="flex gap-2">
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 w-12" />
+              </div>
+            </div>
+          </div>
+          <div className="w-96 bg-white border-l p-4 flex flex-col">
+            <div className="border-b py-3 mb-4">
+              <Skeleton className="h-7 w-48" />
+            </div>
+            <div className="flex-1 space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+            <div className="mt-4 pt-4 border-t">
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -251,6 +321,23 @@ export const InterviewRoomPage = () => {
   const isRecruiter = user.id == room.recruiterId.toString();
   const isReadOnly =
     room.isExpired || room.status == "FINISHED" || room.status == "EXPIRED";
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "SCHEDULED":
+        return "Đã lên lịch";
+      case "ONGOING":
+        return "Đang diễn ra";
+      case "FINISHED":
+        return "Đã kết thúc";
+      case "CANCELLED":
+        return "Đã hủy";
+      case "EXPIRED":
+        return "Đã hết hạn";
+      default:
+        return status;
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -270,15 +357,15 @@ export const InterviewRoomPage = () => {
             <div>
               <h1 className="text-2xl font-bold">{room.jobTitle}</h1>
               <p className="text-sm text-gray-600">
-                Interview Room • Status: {room.status}
-                {room.isExpired && " • EXPIRED"}
+                Phòng phỏng vấn • Trạng thái: {getStatusText(room.status)}
+                {room.isExpired && " • ĐÃ HẾT HẠN"}
               </p>
             </div>
           </div>
-          {isRecruiter && !room.isExpired && (
+          {isRecruiter && !room.isExpired && room.status !== "FINISHED" && (
             <div className="flex gap-2">
               <Button onClick={handleEndInterview} variant="destructive">
-                End Interview
+                Kết thúc phỏng vấn
               </Button>
             </div>
           )}
@@ -290,8 +377,8 @@ export const InterviewRoomPage = () => {
         <Alert className="m-4 border-orange-500 bg-orange-50">
           <Lock className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
-            This interview has expired. You can view the conversation history
-            but cannot send new messages or questions.
+            Cuộc phỏng vấn này đã hết hạn. Bạn có thể xem lại lịch sử trò chuyện
+            nhưng không thể gửi tin nhắn hoặc câu hỏi mới.
           </AlertDescription>
         </Alert>
       )}
@@ -300,8 +387,8 @@ export const InterviewRoomPage = () => {
         <Alert className="m-4 border-blue-500 bg-blue-50">
           <Lock className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
-            This interview has been completed. You are viewing the conversation
-            history in read-only mode.
+            Cuộc phỏng vấn này đã hoàn thành. Bạn đang xem lịch sử trò chuyện ở
+            chế độ chỉ đọc.
           </AlertDescription>
         </Alert>
       )}
@@ -353,25 +440,12 @@ export const InterviewRoomPage = () => {
         {/* Right Panel - Questions (Only for Recruiter) */}
         {isRecruiter && (
           <div className="w-96 bg-white border-l">
-            {room.interviewMode == "ASYNC" ? (
-              // <QuestionRecommendedPanel
-              //   roomId={room.id}
-              //   disabled={isReadOnly}
-              // />
-              <QuestionPanel
-                questions={questions}
-                onSendQuestion={handleSendQuestion}
-                roomId={room.id}
-                disabled={isReadOnly}
-              />
-            ) : (
-              <QuestionPanel
-                questions={questions}
-                onSendQuestion={handleSendQuestion}
-                roomId={room.id}
-                disabled={isReadOnly}
-              />
-            )}
+            <QuestionPanel
+              questions={questions}
+              onSendQuestion={handleSendQuestion}
+              roomId={room.id}
+              disabled={isReadOnly}
+            />
           </div>
         )}
       </div>
@@ -383,19 +457,19 @@ export const InterviewRoomPage = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>End Interview</AlertDialogTitle>
+            <AlertDialogTitle>Kết thúc phỏng vấn</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to end this interview? This action cannot be
-              undone. You will be redirected to the evaluation page.
+              Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn này? Hành động này không
+              thể hoàn tác. Bạn sẽ được chuyển hướng đến trang đánh giá.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmEndInterview}
               className="bg-red-600 hover:bg-red-700"
             >
-              End Interview
+              Kết thúc phỏng vấn
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
