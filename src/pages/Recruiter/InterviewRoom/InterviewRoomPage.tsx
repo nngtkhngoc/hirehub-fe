@@ -11,6 +11,7 @@ import { useInterviewSocket } from "@/hooks/useInterviewSocket";
 import type { InterviewRoom, InterviewMessage } from "@/types/Interview";
 import { ChatPanel } from "./ChatPanel";
 import { QuestionPanel } from "./QuestionPanel";
+// import { QuestionRecommendedPanel } from "./QuestionRecommendedPanel";
 import { InterviewInfo } from "./InterviewInfo";
 import { EvaluationModal } from "./EvaluationModal";
 import { Button } from "@/components/ui/button";
@@ -92,12 +93,38 @@ export const InterviewRoomPage = () => {
     // Subscribe to messages
     const messageSub = subscribeInterviewMessage((msg: InterviewMessage) => {
       if (msg.type === "CHAT" || msg.type === "SYSTEM") {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => {
+          // Check if message already exists to prevent duplicates
+          const exists = prev.some(
+            (m) =>
+              (m.id && m.id === msg.id) ||
+              (!m.id &&
+                !msg.id &&
+                m.content === msg.content &&
+                m.timestamp === msg.timestamp &&
+                m.senderId === msg.senderId)
+          );
+          if (exists) return prev;
+          return [...prev, msg];
+        });
       }
     });
 
     const questionSub = subscribeInterviewQuestion((msg: InterviewMessage) => {
-      setQuestions((prev) => [...prev, msg]);
+      setQuestions((prev) => {
+        // Check if question already exists to prevent duplicates
+        const exists = prev.some(
+          (m) =>
+            (m.id && m.id === msg.id) ||
+            (!m.id &&
+              !msg.id &&
+              m.content === msg.content &&
+              m.timestamp === msg.timestamp &&
+              m.senderId === msg.senderId)
+        );
+        if (exists) return prev;
+        return [...prev, msg];
+      });
       toast.info("New interview question received");
     });
 
@@ -201,8 +228,9 @@ export const InterviewRoomPage = () => {
     return null;
   }
 
-  const isRecruiter = user.id === room.recruiterId.toString();
-  const isReadOnly = room.isExpired || room.status === "FINISHED";
+  const isRecruiter = user.id == room.recruiterId.toString();
+  const isReadOnly =
+    room.isExpired || room.status == "FINISHED" || room.status == "EXPIRED";
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -255,7 +283,34 @@ export const InterviewRoomPage = () => {
         {/* Center Panel - Chat */}
         <div className="flex-1 flex flex-col">
           <ChatPanel
-            messages={messages}
+            messages={(() => {
+              // Merge all messages and questions
+              const allMessages = [...messages, ...questions];
+
+              // Remove duplicates: prefer messages with id, or use content+timestamp+senderId+type as unique key
+              const seen = new Set<string>();
+              const uniqueMessages = allMessages.filter((msg) => {
+                let key: string;
+                if (msg.id) {
+                  key = `id-${msg.id}`;
+                } else {
+                  key = `content-${msg.content}-${msg.timestamp}-${msg.senderId}-${msg.type}`;
+                }
+
+                if (seen.has(key)) {
+                  return false;
+                }
+                seen.add(key);
+                return true;
+              });
+
+              // Sort by timestamp
+              return uniqueMessages.sort(
+                (a, b) =>
+                  new Date(a.timestamp).getTime() -
+                  new Date(b.timestamp).getTime()
+              );
+            })()}
             currentUserId={Number(user.id)}
             onSendMessage={handleSendMessage}
             disabled={isReadOnly}
@@ -265,12 +320,25 @@ export const InterviewRoomPage = () => {
         {/* Right Panel - Questions (Only for Recruiter) */}
         {isRecruiter && (
           <div className="w-96 bg-white border-l">
-            <QuestionPanel
-              questions={questions}
-              onSendQuestion={handleSendQuestion}
-              recruiterId={room.recruiterId.toString()}
-              disabled={isReadOnly}
-            />
+            {room.interviewMode == "ASYNC" ? (
+              // <QuestionRecommendedPanel
+              //   roomId={room.id}
+              //   disabled={isReadOnly}
+              // />
+              <QuestionPanel
+                questions={questions}
+                onSendQuestion={handleSendQuestion}
+                roomId={room.id}
+                disabled={isReadOnly}
+              />
+            ) : (
+              <QuestionPanel
+                questions={questions}
+                onSendQuestion={handleSendQuestion}
+                roomId={room.id}
+                disabled={isReadOnly}
+              />
+            )}
           </div>
         )}
       </div>

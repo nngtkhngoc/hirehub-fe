@@ -11,7 +11,12 @@ interface ChatPanelProps {
   disabled?: boolean;
 }
 
-export const ChatPanel = ({ messages, currentUserId, onSendMessage, disabled = false }: ChatPanelProps) => {
+export const ChatPanel = ({
+  messages,
+  currentUserId,
+  onSendMessage,
+  disabled = false,
+}: ChatPanelProps) => {
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -46,56 +51,79 @@ export const ChatPanel = ({ messages, currentUserId, onSendMessage, disabled = f
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.map((msg, index) => {
-          const isOwn = msg.senderId === currentUserId;
-          const isSystem = msg.senderRole === "SYSTEM";
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            <p>No messages yet. Start the conversation!</p>
+          </div>
+        ) : (
+          messages.map((msg) => {
+            const isOwn = msg.senderId == currentUserId;
+            const isSystem = msg.senderRole == "SYSTEM";
+            const isQuestion = msg.type == "QUESTION";
 
-          if (isSystem) {
+            if (isSystem) {
+              return (
+                <div
+                  key={msg.id || `system-${msg.timestamp}`}
+                  className="flex justify-center"
+                >
+                  <div className="bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-full">
+                    {msg.content}
+                  </div>
+                </div>
+              );
+            }
+
             return (
-              <div key={index} className="flex justify-center">
-                <div className="bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-full">
-                  {msg.content}
+              <div
+                key={msg.id || `msg-${msg.timestamp}-${msg.senderId}`}
+                className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[70%] ${
+                    isOwn ? "items-end" : "items-start"
+                  } flex flex-col`}
+                >
+                  {!isOwn && (
+                    <div className="flex items-center gap-2 mb-1">
+                      {msg.senderAvatar && (
+                        <img
+                          src={msg.senderAvatar}
+                          alt={msg.senderName}
+                          className="w-6 h-6 rounded-full"
+                        />
+                      )}
+                      <span className="text-sm font-medium text-gray-700">
+                        {msg.senderName}
+                      </span>
+                    </div>
+                  )}
+                  <div
+                    className={`rounded-lg px-4 py-2 ${
+                      isQuestion
+                        ? isOwn
+                          ? "bg-purple-500 text-white"
+                          : "bg-purple-100 text-purple-900 border border-purple-300"
+                        : isOwn
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-900"
+                    }`}
+                  >
+                    {isQuestion && (
+                      <span className="text-xs font-semibold mb-1 block opacity-80">
+                        Question:
+                      </span>
+                    )}
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                  <span className="text-xs text-gray-500 mt-1">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
                 </div>
               </div>
             );
-          }
-
-          return (
-            <div
-              key={index}
-              className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-            >
-              <div className={`max-w-[70%] ${isOwn ? "items-end" : "items-start"} flex flex-col`}>
-                {!isOwn && (
-                  <div className="flex items-center gap-2 mb-1">
-                    {msg.senderAvatar && (
-                      <img
-                        src={msg.senderAvatar}
-                        alt={msg.senderName}
-                        className="w-6 h-6 rounded-full"
-                      />
-                    )}
-                    <span className="text-sm font-medium text-gray-700">
-                      {msg.senderName}
-                    </span>
-                  </div>
-                )}
-                <div
-                  className={`rounded-lg px-4 py-2 ${
-                    isOwn
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-900"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                </div>
-                <span className="text-xs text-gray-500 mt-1">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+          })
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -106,11 +134,18 @@ export const ChatPanel = ({ messages, currentUserId, onSendMessage, disabled = f
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={disabled ? "Interview has ended - Read only mode" : "Type a message..."}
+            placeholder={
+              disabled
+                ? "Interview has ended - Read only mode"
+                : "Type a message..."
+            }
             className="flex-1"
             disabled={disabled}
           />
-          <Button onClick={handleSend} disabled={!messageText.trim() || disabled}>
+          <Button
+            onClick={handleSend}
+            disabled={!messageText.trim() || disabled}
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
@@ -118,4 +153,3 @@ export const ChatPanel = ({ messages, currentUserId, onSendMessage, disabled = f
     </div>
   );
 };
-

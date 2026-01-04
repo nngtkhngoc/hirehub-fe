@@ -138,6 +138,17 @@ export const answerQuestion = async (questionId: number, answer: string) => {
   return res.data.data as InterviewQuestion;
 };
 
+export const evaluateQuestion = async (
+  questionId: number,
+  evaluation: "PASS" | "FAIL"
+) => {
+  const res = await axiosClient.post(
+    `${BASE_URL}/api/interview-rooms/questions/${questionId}/evaluate`,
+    { evaluation }
+  );
+  return res.data.data as InterviewQuestion;
+};
+
 export const submitAsyncResult = async (data: CreateInterviewResultRequest) => {
   const res = await axiosClient.post(
     `${BASE_URL}/api/interview-rooms/results/async`,

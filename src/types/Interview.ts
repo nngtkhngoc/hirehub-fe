@@ -1,4 +1,9 @@
-export type InterviewRoomStatus = "SCHEDULED" | "ONGOING" | "FINISHED" | "CANCELLED";
+export type InterviewRoomStatus =
+  | "SCHEDULED"
+  | "ONGOING"
+  | "FINISHED"
+  | "CANCELLED"
+  | "EXPIRED";
 
 export type InterviewMessageType = "CHAT" | "QUESTION" | "SYSTEM";
 
@@ -75,6 +80,7 @@ export interface InterviewQuestion {
   askedAt: string;
   answeredAt?: string;
   status: InterviewQuestionStatus;
+  evaluation?: "PASS" | "FAIL"; // Recruiter's evaluation
 }
 
 export interface QuestionBank {
@@ -130,7 +136,11 @@ export interface CreateInterviewResultRequest {
 }
 
 // Flexible Interview Scheduling Types
-export type ScheduleRequestStatus = "PENDING" | "SELECTED" | "EXPIRED" | "CANCELLED";
+export type ScheduleRequestStatus =
+  | "PENDING"
+  | "SELECTED"
+  | "EXPIRED"
+  | "CANCELLED";
 
 export interface InterviewScheduleRequest {
   id: number;
@@ -179,4 +189,3 @@ export interface SelectTimeSlotDTO {
   timeSlotId: number;
   applicantId: number;
 }
-

@@ -1,72 +1,154 @@
 import { useState, useEffect } from "react";
-import type { InterviewMessage, QuestionBank } from "@/types/Interview";
+import type { InterviewMessage, InterviewQuestion } from "@/types/Interview";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Plus, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
-import { getQuestionBanksByRecruiterId } from "@/apis/interview.api";
+import { Send, Plus, Loader2, Check, X } from "lucide-react";
+import { getInterviewQuestions } from "@/apis/interview.api";
 import { toast } from "sonner";
 
 interface QuestionPanelProps {
   questions: InterviewMessage[];
   onSendQuestion: (content: string) => void;
-  recruiterId: string;
+  roomId: number;
   disabled?: boolean;
 }
 
-export const QuestionPanel = ({ questions, onSendQuestion, recruiterId, disabled = false }: QuestionPanelProps) => {
+interface SentQuestionStatus {
+  content: string;
+  messageId?: number;
+  evaluation?: "ACCEPT" | "DECLINED";
+}
+
+export const QuestionPanel = ({
+  questions,
+  onSendQuestion,
+  roomId,
+  disabled = false,
+}: QuestionPanelProps) => {
   const [questionText, setQuestionText] = useState("");
   const [showInput, setShowInput] = useState(false);
-  const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
-  const [expandedBanks, setExpandedBanks] = useState<Set<number>>(new Set());
+  const [roomQuestions, setRoomQuestions] = useState<InterviewQuestion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sentQuestions, setSentQuestions] = useState<
+    Map<string, SentQuestionStatus>
+  >(new Map());
 
   useEffect(() => {
-    const fetchQuestionBanks = async () => {
+    const fetchRoomQuestions = async () => {
       try {
         setLoading(true);
-        const banks = await getQuestionBanksByRecruiterId(Number(recruiterId));
-        setQuestionBanks(banks);
-        // Expand first bank by default if exists
-        if (banks.length > 0) {
-          setExpandedBanks(new Set([banks[0].id]));
-        }
+        const questions = await getInterviewQuestions(roomId);
+        setRoomQuestions(questions);
       } catch (error) {
-        console.error("Error fetching question banks:", error);
-        toast.error("Failed to load question banks");
+        console.error("Error fetching room questions:", error);
+        toast.error("Failed to load questions");
       } finally {
         setLoading(false);
       }
     };
 
-    if (recruiterId) {
-      fetchQuestionBanks();
+    if (roomId) {
+      fetchRoomQuestions();
     }
-  }, [recruiterId]);
+  }, [roomId]);
 
   const handleSend = () => {
     if (questionText.trim()) {
-      onSendQuestion(questionText);
+      // Check if question is already sent to prevent duplicate
+      const isAlreadySent =
+        questions.some(
+          (q) => q.type === "QUESTION" && q.content === questionText.trim()
+        ) || sentQuestions.has(questionText.trim());
+
+      if (isAlreadySent) {
+        toast.warning("This question has already been sent");
+        return;
+      }
+
+      onSendQuestion(questionText.trim());
+      // Track sent question
+      setSentQuestions((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(questionText.trim(), {
+          content: questionText.trim(),
+          evaluation: undefined,
+        });
+        return newMap;
+      });
       setQuestionText("");
       setShowInput(false);
+      toast.success("Question sent to candidate");
     }
   };
 
-  const toggleBank = (bankId: number) => {
-    const newExpanded = new Set(expandedBanks);
-    if (newExpanded.has(bankId)) {
-      newExpanded.delete(bankId);
-    } else {
-      newExpanded.add(bankId);
-    }
-    setExpandedBanks(newExpanded);
-  };
+  // Sync sent questions with actual questions from socket
+  useEffect(() => {
+    setSentQuestions((prev) => {
+      const newMap = new Map(prev);
+      let hasChanges = false;
+      questions.forEach((q) => {
+        if (q.type === "QUESTION" && !newMap.has(q.content)) {
+          newMap.set(q.content, {
+            content: q.content,
+            messageId: q.id,
+            evaluation: undefined,
+          });
+          hasChanges = true;
+        }
+      });
+      return hasChanges ? newMap : prev;
+    });
+  }, [questions]);
 
   const handleQuestionClick = (questionContent: string) => {
     if (disabled) {
       toast.error("Cannot send questions. This interview has ended.");
       return;
     }
+
+    // Check if question is already sent to prevent duplicate
+    const isAlreadySent =
+      questions.some(
+        (q) => q.type === "QUESTION" && q.content === questionContent
+      ) || sentQuestions.has(questionContent);
+
+    if (isAlreadySent) {
+      toast.warning("This question has already been sent");
+      return;
+    }
+
+    // Send question to candidate
     onSendQuestion(questionContent);
+    // Track sent question immediately to prevent duplicate clicks
+    setSentQuestions((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(questionContent, {
+        content: questionContent,
+        evaluation: undefined,
+      });
+      return newMap;
+    });
+    toast.success("Question sent to candidate");
+  };
+
+  const handleEvaluateQuestion = (
+    questionContent: string,
+    evaluation: "ACCEPT" | "DECLINED"
+  ) => {
+    setSentQuestions((prev) => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(questionContent);
+      if (existing) {
+        newMap.set(questionContent, {
+          ...existing,
+          evaluation,
+        });
+      }
+      return newMap;
+    });
+    toast.success(
+      `Question marked as ${evaluation === "ACCEPT" ? "Accepted" : "Declined"}`
+    );
   };
 
   return (
@@ -78,85 +160,110 @@ export const QuestionPanel = ({ questions, onSendQuestion, recruiterId, disabled
 
       {/* Questions List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {/* Sent Questions */}
-        {questions.length > 0 && (
+        {/* Room Questions - Available to send */}
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+          </div>
+        ) : roomQuestions.length > 0 ? (
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-gray-600">
-              Sent Questions ({questions.length})
+              Available Questions ({roomQuestions.length})
             </h3>
-            {questions.map((q, index) => (
-              <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-gray-800">{q.content}</p>
-                <span className="text-xs text-gray-500 mt-1 block">
-                  {new Date(q.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+            {roomQuestions.map((q) => {
+              // Check if question is sent (either in questions array or in sentQuestions map)
+              const isSentInMessages = questions.some(
+                (sentQ) => sentQ.content === q.questionContent
+              );
+              const isSentInState = sentQuestions.has(q.questionContent);
+              const isSent = isSentInMessages || isSentInState;
+              const questionStatus = sentQuestions.get(q.questionContent);
+              const isEvaluated = questionStatus?.evaluation !== undefined;
 
-        {/* Question Banks */}
-        <div className="space-y-2 mt-4">
-          <h3 className="text-sm font-medium text-gray-600">Question Banks</h3>
-
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-            </div>
-          ) : questionBanks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 text-sm">
-              <p>No question banks found.</p>
-              <p className="mt-1">Create question banks to use them here.</p>
-            </div>
-          ) : (
-            questionBanks.map((bank) => {
-              const isExpanded = expandedBanks.has(bank.id);
               return (
-                <div key={bank.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                  {/* Bank Header */}
-                  <button
-                    onClick={() => toggleBank(bank.id)}
-                    className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-600" />
-                      )}
-                      <div className="text-left">
-                        <p className="font-medium text-sm">{bank.title}</p>
-                        {bank.description && (
-                          <p className="text-xs text-gray-500 mt-0.5">{bank.description}</p>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded">
-                      {bank.questions.length} questions
-                    </span>
-                  </button>
+                <div
+                  key={q.id}
+                  className={`border rounded-lg p-3 ${
+                    isSent
+                      ? "bg-blue-50 border-blue-200"
+                      : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
+                  }`}
+                  onClick={() =>
+                    !isSent &&
+                    !disabled &&
+                    handleQuestionClick(q.questionContent)
+                  }
+                >
+                  <p className="text-sm text-gray-800">{q.questionContent}</p>
 
-                  {/* Bank Questions */}
-                  {isExpanded && (
-                    <div className="bg-white">
-                      {bank.questions.map((question) => (
-                        <button
-                          key={question.id}
-                          onClick={() => handleQuestionClick(question.content)}
-                          className="w-full text-left px-4 py-3 hover:bg-blue-50 border-t border-gray-100 transition-colors group"
+                  {/* Show evaluation buttons only after question is sent */}
+                  {isSent && (
+                    <>
+                      <span className="text-xs text-gray-500 mt-1 block">
+                        Sent
+                      </span>
+                      {/* Accept/Declined Buttons - Only show after sent */}
+                      {!isEvaluated && (
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEvaluateQuestion(
+                                q.questionContent,
+                                "ACCEPT"
+                              );
+                            }}
+                            disabled={disabled}
+                          >
+                            <Check className="h-3 w-3 mr-1" />
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEvaluateQuestion(
+                                q.questionContent,
+                                "DECLINED"
+                              );
+                            }}
+                            disabled={disabled}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Declined
+                          </Button>
+                        </div>
+                      )}
+                      {/* Evaluation Status */}
+                      {isEvaluated && (
+                        <div
+                          className={`mt-2 text-xs font-medium ${
+                            questionStatus.evaluation === "ACCEPT"
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
                         >
-                          <p className="text-sm text-gray-700 group-hover:text-blue-700">
-                            {question.content}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
+                          {questionStatus.evaluation === "ACCEPT"
+                            ? "✓ Accepted"
+                            : "✗ Declined"}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500 text-sm">
+            <p>No questions available for this interview.</p>
+          </div>
+        )}
       </div>
 
       {/* Custom Question Input */}
@@ -176,7 +283,11 @@ export const QuestionPanel = ({ questions, onSendQuestion, recruiterId, disabled
             <Textarea
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
-              placeholder={disabled ? "Interview has ended - Read only mode" : "Type your question..."}
+              placeholder={
+                disabled
+                  ? "Interview has ended - Read only mode"
+                  : "Type your question..."
+              }
               rows={3}
               className="w-full"
               disabled={disabled}
@@ -206,4 +317,3 @@ export const QuestionPanel = ({ questions, onSendQuestion, recruiterId, disabled
     </div>
   );
 };
-
