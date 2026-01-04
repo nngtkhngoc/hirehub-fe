@@ -46,17 +46,17 @@ export const SelectTimeSlotPage = () => {
       if (data.status !== "PENDING") {
         if (data.status === "SELECTED") {
           toast.info(
-            "You have already selected a time slot for this interview"
+            "Bạn đã chọn khung giờ cho buổi phỏng vấn này"
           );
         } else if (data.status === "EXPIRED") {
-          toast.error("This schedule request has expired");
+          toast.error("Yêu cầu đặt lịch này đã hết hạn");
         } else if (data.status === "CANCELLED") {
-          toast.error("This schedule request has been cancelled");
+          toast.error("Yêu cầu đặt lịch này đã bị hủy");
         }
       }
     } catch (error) {
       console.error("Error loading schedule request:", error);
-      toast.error("Failed to load schedule request");
+      toast.error("Tải thông tin yêu cầu đặt lịch thất bại");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export const SelectTimeSlotPage = () => {
     // Verify user is the applicant
     if (Number(user.id) !== scheduleRequest.applicantId) {
       toast.error(
-        "You are not authorized to select a time slot for this interview"
+        "Bạn không có quyền chọn khung giờ cho buổi phỏng vấn này"
       );
       return;
     }
@@ -84,7 +84,7 @@ export const SelectTimeSlotPage = () => {
       });
 
       toast.success(
-        "Time slot selected! Interview room created. You will receive a confirmation email."
+        "Đã chọn khung giờ! Phòng phỏng vấn đã được tạo. Bạn sẽ nhận được email xác nhận."
       );
 
       // Navigate to the interview room
@@ -94,7 +94,9 @@ export const SelectTimeSlotPage = () => {
     } catch (error: any) {
       console.error("Error selecting time slot:", error);
       const errorMessage =
-        error.response?.data?.message || "Failed to select time slot";
+        error.response?.data?.message === "All proposed time slots are no longer available"
+          ? "Tất cả các khung giờ đề xuất không còn khả dụng"
+          : "Chọn khung giờ thất bại";
       toast.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -121,22 +123,22 @@ export const SelectTimeSlotPage = () => {
     const badges = {
       PENDING: (
         <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-          Pending Selection
+          Chờ xác nhận
         </span>
       ),
       SELECTED: (
         <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-          Time Slot Selected
+          Đã chọn khung giờ
         </span>
       ),
       EXPIRED: (
         <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-          Expired
+          Đã hết hạn
         </span>
       ),
       CANCELLED: (
         <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
-          Cancelled
+          Đã hủy
         </span>
       ),
     };
@@ -152,7 +154,7 @@ export const SelectTimeSlotPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading schedule request...</p>
+          <p className="text-gray-600">Đang tải yêu cầu lịch hẹn...</p>
         </div>
       </div>
     );
@@ -163,10 +165,9 @@ export const SelectTimeSlotPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="p-8 max-w-md text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Request Not Found</h2>
+          <h2 className="text-2xl font-bold mb-2">Không tìm thấy yêu cầu</h2>
           <p className="text-gray-600">
-            The schedule request you're looking for doesn't exist or has been
-            removed.
+            Yêu cầu đặt lịch bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
           </p>
         </Card>
       </div>
@@ -180,14 +181,14 @@ export const SelectTimeSlotPage = () => {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <Card className="p-6 mb-6">
-          <div className="flex justify-between items-start mb-4">
+        <Card className="p-6 mb-2">
+          <div className="flex justify-between items-start ">
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                Interview Time Slot Selection
+                Chọn khung giờ phỏng vấn
               </h1>
               <p className="text-gray-600">
-                Select your preferred available time for the interview
+                Chọn thời gian bạn muốn cho buổi phỏng vấn
               </p>
             </div>
             {getStatusBadge(scheduleRequest.status)}
@@ -197,7 +198,7 @@ export const SelectTimeSlotPage = () => {
             <div className="flex items-start gap-3">
               <Briefcase className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <p className="text-sm text-gray-600">Position</p>
+                <p className="text-sm text-gray-600">Vị trí</p>
                 <p className="font-semibold">{scheduleRequest.jobTitle}</p>
               </div>
             </div>
@@ -205,7 +206,7 @@ export const SelectTimeSlotPage = () => {
             <div className="flex items-start gap-3">
               <User className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <p className="text-sm text-gray-600">Recruiter</p>
+                <p className="text-sm text-gray-600">Người tuyển dụng</p>
                 <p className="font-semibold">{scheduleRequest.recruiterName}</p>
               </div>
             </div>
@@ -213,10 +214,10 @@ export const SelectTimeSlotPage = () => {
             <div className="flex items-start gap-3">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <p className="text-sm text-gray-600">Interview Type</p>
+                <p className="text-sm text-gray-600">Loại phỏng vấn</p>
                 <p className="font-semibold">
-                  {scheduleRequest.interviewType} -{" "}
-                  {scheduleRequest.interviewMode}
+                  {scheduleRequest.interviewType === "CHAT" ? "Chat" : "Video"} -{" "}
+                  {scheduleRequest.interviewMode === "LIVE" ? "Trực tiếp" : "Gợi ý câu hỏi"}
                 </p>
               </div>
             </div>
@@ -224,9 +225,9 @@ export const SelectTimeSlotPage = () => {
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <p className="text-sm text-gray-600">Round</p>
+                <p className="text-sm text-gray-600">Vòng</p>
                 <p className="font-semibold">
-                  Round {scheduleRequest.roundNumber}
+                  Vòng {scheduleRequest.roundNumber}
                 </p>
               </div>
             </div>
@@ -235,7 +236,7 @@ export const SelectTimeSlotPage = () => {
           {scheduleRequest.expiresAt && isPending && (
             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
               <p className="text-sm text-yellow-800">
-                <strong>⏰ Expires:</strong>{" "}
+                <strong>⏰ Hết hạn lúc:</strong>{" "}
                 {new Date(scheduleRequest.expiresAt).toLocaleString("vi-VN")}
               </p>
             </div>
@@ -244,14 +245,14 @@ export const SelectTimeSlotPage = () => {
 
         {/* Time Slots */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">Proposed Time Slots</h2>
+          <h2 className="text-xl font-bold mb-4">Các khung giờ đề xuất</h2>
 
           {!isPending && (
             <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded">
               <p className="text-sm text-blue-800">
                 {scheduleRequest.status === "SELECTED"
-                  ? "You have already selected a time slot. The interview room has been created."
-                  : "This schedule request is no longer active."}
+                  ? "Bạn đã chọn khung giờ. Phòng phỏng vấn đã được tạo."
+                  : "Yêu cầu đặt lịch này không còn hiệu lực."}
               </p>
             </div>
           )}
@@ -260,11 +261,11 @@ export const SelectTimeSlotPage = () => {
             <div className="p-6 text-center bg-red-50 border border-red-200 rounded">
               <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
               <h3 className="text-lg font-semibold text-red-800 mb-2">
-                No Available Time Slots
+                Không có khung giờ trống
               </h3>
               <p className="text-red-700">
-                All proposed time slots conflict with your existing interviews.
-                Please contact the recruiter to propose alternative times.
+                Tất cả các khung giờ đề xuất đều trùng với các buổi phỏng vấn khác của bạn.
+                Vui lòng liên hệ với người tuyển dụng để đề xuất thời gian khác.
               </p>
             </div>
           )}
@@ -278,13 +279,12 @@ export const SelectTimeSlotPage = () => {
               return (
                 <div
                   key={slot.id}
-                  className={`p-4 border-2 rounded-lg transition-all cursor-pointer ${
-                    isSelected
-                      ? "border-blue-500 bg-blue-50"
-                      : isAvailable
+                  className={`p-4 border-2 rounded-lg transition-all cursor-pointer ${isSelected
+                    ? "border-blue-500 bg-blue-50"
+                    : isAvailable
                       ? "border-gray-200 hover:border-blue-300 bg-white"
                       : "border-red-200 bg-red-50 opacity-60 cursor-not-allowed"
-                  }`}
+                    }`}
                   onClick={() => {
                     if (isAvailable && isPending) {
                       setSelectedSlotId(slot.id);
@@ -335,7 +335,7 @@ export const SelectTimeSlotPage = () => {
                 variant="outline"
                 disabled={submitting}
               >
-                Cancel
+                Hủy
               </Button>
               <Button
                 onClick={handleSelectSlot}
@@ -344,10 +344,10 @@ export const SelectTimeSlotPage = () => {
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Confirming...
+                    Đang xác nhận...
                   </>
                 ) : (
-                  "Confirm Selection"
+                  "Xác nhận chọn"
                 )}
               </Button>
             </div>

@@ -15,6 +15,28 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  MessageSquare,
+  Video,
+  UserCheck,
+  Laptop,
+  Calendar as CalendarIcon
+} from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface CreateInterviewRoomModalProps {
   jobId: number;
@@ -95,12 +117,12 @@ export const CreateInterviewRoomModal = ({
 
   const handleSubmit = async () => {
     if (!scheduledDate || !scheduledTime) {
-      toast.error("Please select both date and time");
+      toast.error("Vui lòng chọn cả ngày và giờ");
       return;
     }
 
     if (interviewMode === "ASYNC" && selectedBankIds.length === 0) {
-      toast.error("Vui lòng chọn ít nhất một BỘ CÂU HỎI cho phỏng vấn async");
+      toast.error("Vui lòng chọn ít nhất một BỘ CÂU HỎI cho phỏng vấn tự động");
       return;
     }
 
@@ -122,14 +144,14 @@ export const CreateInterviewRoomModal = ({
           interviewMode === "ASYNC" ? selectedQuestions : undefined,
       });
 
-      toast.success("Interview room created and invitation sent!");
+      toast.success("Đã tạo phòng phỏng vấn và gửi lời mời!");
       onSuccess?.();
       onClose();
 
       console.log("Created room:", room);
     } catch (error) {
       console.error("Error creating interview room:", error);
-      toast.error("Failed to create interview room");
+      toast.error("Tạo phòng phỏng vấn thất bại");
     } finally {
       setSubmitting(false);
     }
@@ -137,83 +159,130 @@ export const CreateInterviewRoomModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-2xl h-9/10 overflow-auto">
         <DialogHeader>
-          <DialogTitle>Create Interview Room - Round {roundNumber}</DialogTitle>
+          <DialogTitle>Tạo phòng phỏng vấn - Vòng {roundNumber}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 py-4">
           <div>
             <Label className="text-sm font-medium mb-1 block">
-              Job Position
+              Vị trí công việc
             </Label>
             <p className="text-gray-700">{jobTitle}</p>
           </div>
 
           <div>
-            <Label className="text-sm font-medium mb-1 block">Candidate</Label>
+            <Label className="text-sm font-medium mb-1 block">Ứng viên</Label>
             <p className="text-gray-700">{applicantName}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="type" className="text-sm font-medium mb-1 block">
-                Interview Type *
+            <div className="space-y-2">
+              <Label htmlFor="type" className="text-sm font-medium block">
+                Loại phỏng vấn *
               </Label>
-              <select
-                id="type"
+              <Select
                 value={interviewType}
-                onChange={(e) =>
-                  setInterviewType(e.target.value as "CHAT" | "VIDEO")
-                }
-                className="w-full px-3 py-2 border rounded"
+                onValueChange={(value) => setInterviewType(value as "CHAT" | "VIDEO")}
               >
-                <option value="CHAT">Chat</option>
-                <option value="VIDEO">Video (Coming Soon)</option>
-              </select>
+                <SelectTrigger id="type" className="w-full h-10 bg-white">
+                  <SelectValue placeholder="Chọn loại phỏng vấn" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CHAT">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-blue-500" />
+                      <span>Chat</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="VIDEO">
+                    <div className="flex items-center gap-2">
+                      <Video className="w-4 h-4 text-purple-500" />
+                      <span>Video (Sắp ra mắt)</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div>
-              <Label htmlFor="mode" className="text-sm font-medium mb-1 block">
-                Interview Mode *
+            <div className="space-y-2">
+              <Label htmlFor="mode" className="text-sm font-medium block">
+                Chế độ phỏng vấn *
               </Label>
-              <select
-                id="mode"
+              <Select
                 value={interviewMode}
-                onChange={(e) =>
-                  setInterviewMode(e.target.value as "LIVE" | "ASYNC")
-                }
-                className="w-full px-3 py-2 border rounded"
+                onValueChange={(value) => setInterviewMode(value as "LIVE" | "ASYNC")}
               >
-                <option value="LIVE">Live (Real-time)</option>
-                <option value="ASYNC">Async (Automated)</option>
-              </select>
+                <SelectTrigger id="mode" className="w-full h-10 bg-white">
+                  <SelectValue placeholder="Chọn chế độ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="LIVE">
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="w-4 h-4 text-green-500" />
+                      <span>Phỏng vấn trực tiếp</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ASYNC">
+                    <div className="flex items-center gap-2">
+                      <Laptop className="w-4 h-4 text-orange-500" />
+                      <span>Gợi ý câu hỏi</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="date" className="text-sm font-medium mb-1 block">
-                Interview Date *
+                Ngày phỏng vấn *
               </Label>
-              <Input
-                id="date"
-                type="date"
-                value={scheduledDate}
-                onChange={(e) => setScheduledDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-10 bg-white",
+                      !scheduledDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {scheduledDate ? (
+                      format(new Date(scheduledDate), "dd/MM/yyyy")
+                    ) : (
+                      <span>Chọn ngày</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={scheduledDate ? new Date(scheduledDate) : undefined}
+                    onSelect={(date) =>
+                      setScheduledDate(date ? format(date, "yyyy-MM-dd") : "")
+                    }
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div>
               <Label htmlFor="time" className="text-sm font-medium mb-1 block">
-                Interview Time *
+                Giờ phỏng vấn *
               </Label>
               <Input
                 id="time"
                 type="time"
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
+                className="focus:ring-2 focus:ring-primary h-10 bg-white"
               />
             </div>
           </div>
@@ -297,23 +366,23 @@ export const CreateInterviewRoomModal = ({
 
           <div className="bg-blue-50 border border-blue-200 rounded p-3">
             <p className="text-sm text-blue-800">
-              <strong>📧 Automatic Notification:</strong>{" "}
+              <strong>📧 Thông báo tự động:</strong>{" "}
               {interviewMode === "LIVE"
-                ? "The candidate will receive an email and notification with the interview link."
-                : "The candidate will receive an email with questions to answer at their own pace."}
+                ? "Ứng viên sẽ nhận được email và thông báo kèm theo link phỏng vấn."
+                : "Ứng viên sẽ nhận được email với các câu hỏi để tự trả lời."}
             </p>
           </div>
         </div>
 
         <DialogFooter>
           <Button onClick={onClose} variant="outline" disabled={submitting}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={submitting || !scheduledDate || !scheduledTime}
           >
-            {submitting ? "Creating..." : "Create & Send Invitation"}
+            {submitting ? "Đang tạo..." : "Tạo & Gửi lời mời"}
           </Button>
         </DialogFooter>
       </DialogContent>

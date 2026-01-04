@@ -15,6 +15,7 @@ interface QuestionPanelProps {
   onSendQuestion: (content: string) => void;
   roomId: number;
   disabled?: boolean;
+  isNotStartedYet?: boolean;
 }
 
 interface SentQuestionStatus {
@@ -29,6 +30,7 @@ export const QuestionPanel = ({
   onSendQuestion,
   roomId,
   disabled = false,
+  isNotStartedYet = false,
 }: QuestionPanelProps) => {
   const [questionText, setQuestionText] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -120,8 +122,12 @@ export const QuestionPanel = ({
     questionId: number,
     questionContent: string
   ) => {
-    if (disabled) {
-      toast.error("Cannot send questions. This interview has ended.");
+    if (disabled || isNotStartedYet) {
+      toast.error(
+        isNotStartedYet
+          ? "Cuộc phỏng vấn chưa đến giờ bắt đầu"
+          : "Không thể gửi câu hỏi. Cuộc phỏng vấn này đã kết thúc."
+      );
       return;
     }
 
@@ -209,10 +215,10 @@ export const QuestionPanel = ({
                 <div
                   key={q.id}
                   className={`border rounded-lg p-3 ${isEvaluated
-                      ? "bg-gray-50 border-gray-300"
-                      : isSent
-                        ? "bg-blue-50 border-blue-200"
-                        : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
+                    ? "bg-gray-50 border-gray-300"
+                    : isSent
+                      ? "bg-blue-50 border-blue-200"
+                      : "bg-white border-gray-200 hover:border-blue-300 cursor-pointer"
                     }`}
                   onClick={() =>
                     isPending &&
@@ -273,8 +279,8 @@ export const QuestionPanel = ({
                   {isEvaluated && (
                     <div
                       className={`mt-2 text-xs font-medium ${q.evaluation === "PASS"
-                          ? "text-green-600"
-                          : "text-red-600"
+                        ? "text-green-600"
+                        : "text-red-600"
                         }`}
                     >
                       {q.evaluation === "PASS" ? "✓ Đạt" : "✗ Không đạt"}
@@ -298,10 +304,14 @@ export const QuestionPanel = ({
             onClick={() => setShowInput(true)}
             variant="outline"
             className="w-full"
-            disabled={disabled}
+            disabled={disabled || isNotStartedYet}
           >
             <Plus className="h-4 w-4 mr-2" />
-            {disabled ? "Cuộc phỏng vấn đã kết thúc" : "Thêm câu hỏi tùy chỉnh"}
+            {isNotStartedYet
+              ? "Cuộc phỏng vấn chưa bắt đầu"
+              : disabled
+                ? "Cuộc phỏng vấn đã kết thúc"
+                : "Thêm câu hỏi tùy chỉnh"}
           </Button>
         ) : (
           <div className="space-y-2">
@@ -310,19 +320,21 @@ export const QuestionPanel = ({
                 value={questionText}
                 onChange={(e) => setQuestionText(e.target.value)}
                 placeholder={
-                  disabled
-                    ? "Cuộc phỏng vấn đã kết thúc - Chế độ chỉ đọc"
-                    : "Nhập câu hỏi của bạn..."
+                  isNotStartedYet
+                    ? "Cuộc phỏng vấn chưa đến giờ bắt đầu"
+                    : disabled
+                      ? "Cuộc phỏng vấn đã kết thúc - Chế độ chỉ đọc"
+                      : "Nhập câu hỏi của bạn..."
                 }
                 rows={3}
                 className="w-full"
-                disabled={disabled}
+                disabled={disabled || isNotStartedYet}
               />
             </div>
             <div className="flex gap-2">
               <Button
                 onClick={handleSend}
-                disabled={!questionText.trim() || disabled}
+                disabled={!questionText.trim() || disabled || isNotStartedYet}
                 className="flex-1"
               >
                 <Send className="h-4 w-4 mr-2" />

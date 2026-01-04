@@ -13,6 +13,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
     Empty,
     EmptyContent,
     EmptyDescription,
@@ -542,42 +548,59 @@ export const CandidatesPage = () => {
 
 
             {/* Scheduling Mode Choice Dialog */}
-            {showSchedulingChoice && selectedCandidate && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                        <h3 className="text-lg font-bold mb-4">Chọn cách lên lịch phỏng vấn</h3>
-                        <p className="text-gray-600 mb-6">
+            <Dialog
+                open={showSchedulingChoice && !!selectedCandidate}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setShowSchedulingChoice(false);
+                        setSelectedCandidate(null);
+                    }
+                }}
+            >
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold">Chọn cách lên lịch phỏng vấn</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="py-4">
+                        <p className="text-gray-600 mb-6 font-title">
                             Bạn muốn tạo phỏng vấn trực tiếp hay đề xuất nhiều khung giờ cho ứng viên chọn?
                         </p>
 
                         <div className="space-y-3">
                             <Button
-                                className="w-full justify-start h-auto py-4"
+                                className="w-full justify-start h-auto py-4 px-6 border-2 hover:border-primary hover:bg-primary/5 transition-all duration-200"
                                 variant="outline"
                                 onClick={() => {
                                     setShowSchedulingChoice(false);
                                     setShowInterviewModal(true);
                                 }}
                             >
-                                <div className="text-left">
-                                    <div className="font-semibold mb-1">📅 Lên lịch trực tiếp</div>
-                                    <div className="text-sm text-gray-600">
+                                <div className="text-left w-full">
+                                    <div className="font-bold text-lg mb-1 flex items-center justify-between">
+                                        <span>📅 Lên lịch trực tiếp</span>
+                                        <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                                    </div>
+                                    <div className="text-sm text-gray-500">
                                         Chọn thời gian cụ thể và tạo phỏng vấn ngay
                                     </div>
                                 </div>
                             </Button>
 
                             <Button
-                                className="w-full justify-start h-auto py-4"
+                                className="w-full justify-start h-auto py-4 px-6 border-2 hover:border-primary hover:bg-primary/5 transition-all duration-200"
                                 variant="outline"
                                 onClick={() => {
                                     setShowSchedulingChoice(false);
                                     setShowProposeModal(true);
                                 }}
                             >
-                                <div className="text-left">
-                                    <div className="font-semibold mb-1">⏰ Đề xuất khung giờ</div>
-                                    <div className="text-sm text-gray-600">
+                                <div className="text-left w-full">
+                                    <div className="font-bold text-lg mb-1 flex items-center justify-between">
+                                        <span>⏰ Đề xuất khung giờ</span>
+                                        <div className="h-2 w-2 rounded-full bg-primary" />
+                                    </div>
+                                    <div className="text-sm text-gray-500">
                                         Gửi nhiều lựa chọn thời gian cho ứng viên chọn
                                     </div>
                                 </div>
@@ -585,7 +608,7 @@ export const CandidatesPage = () => {
                         </div>
 
                         <Button
-                            className="w-full mt-4"
+                            className="w-full mt-6"
                             variant="ghost"
                             onClick={() => {
                                 setShowSchedulingChoice(false);
@@ -595,8 +618,8 @@ export const CandidatesPage = () => {
                             Hủy
                         </Button>
                     </div>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
 
             {/* Direct Interview Modal */}
             {showInterviewModal && selectedCandidate && user && (

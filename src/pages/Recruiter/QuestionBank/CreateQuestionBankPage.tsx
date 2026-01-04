@@ -9,6 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Plus, Trash2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const CreateQuestionBankPage = () => {
   const { id } = useParams();
@@ -140,17 +147,19 @@ export const CreateQuestionBankPage = () => {
 
         <div>
           <Label htmlFor="category">Danh mục *</Label>
-          <select
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full mt-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary outline-none"
-          >
-            <option value="TECHNICAL">Kỹ thuật (Technical)</option>
-            <option value="BEHAVIORAL">Hành vi (Behavioral)</option>
-            <option value="GENERAL">Chung (General)</option>
-            <option value="HR">Nhân sự (HR)</option>
-          </select>
+          <div className="mt-1">
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger id="category" className="w-full">
+                <SelectValue placeholder="Chọn danh mục" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TECHNICAL">Kỹ thuật (Technical)</SelectItem>
+                <SelectItem value="BEHAVIORAL">Hành vi (Behavioral)</SelectItem>
+                <SelectItem value="GENERAL">Chung (General)</SelectItem>
+                <SelectItem value="HR">Nhân sự (HR)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div>

@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Lock, ArrowLeft } from "lucide-react";
+import { Lock, ArrowLeft, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -40,6 +40,12 @@ export const InterviewRoomPage = () => {
   const [questions, setQuestions] = useState<InterviewMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEndConfirmDialog, setShowEndConfirmDialog] = useState(false);
+  const roomRef = useRef<InterviewRoom | null>(null);
+
+  // Sync roomRef with room state
+  useEffect(() => {
+    roomRef.current = room;
+  }, [room]);
 
   const {
     connected,
@@ -95,11 +101,13 @@ export const InterviewRoomPage = () => {
   }, [roomCode, user, navigate]);
 
   useEffect(() => {
-    if (!connected || !roomCode || !user || hasJoined.current) return;
+    if (!connected || !roomCode || !user) return;
 
-    // Join room
-    joinInterviewRoom(roomCode, Number(user.id));
-    hasJoined.current = true;
+    // Join room (only once per mount/roomCode change)
+    if (!hasJoined.current) {
+      joinInterviewRoom(roomCode, Number(user.id));
+      hasJoined.current = true;
+    }
 
     // Subscribe to messages
     const messageSub = subscribeInterviewMessage((msg: InterviewMessage) => {
@@ -141,9 +149,10 @@ export const InterviewRoomPage = () => {
 
     const endSub = subscribeInterviewEnd(() => {
       toast.info("Cuộc phỏng vấn đã kết thúc");
-      if (room && user.id === room.recruiterId.toString()) {
+      const currentRoom = roomRef.current;
+      if (currentRoom && user.id === currentRoom.recruiterId.toString()) {
         // Navigate to evaluation page
-        navigate(`/recruiter/interviews/evaluate/${room.id}`);
+        navigate(`/recruiter/interviews/evaluate/${currentRoom.id}`);
       } else {
         setTimeout(() => navigate("/"), 3000);
       }
@@ -167,15 +176,18 @@ export const InterviewRoomPage = () => {
     subscribeInterviewQuestion,
     subscribeInterviewEnd,
     navigate,
-    room,
   ]);
 
   const handleSendMessage = (content: string) => {
     if (!roomCode || !user || !room) return;
 
     // Prevent sending messages if room is expired or finished
-    if (isReadOnly) {
-      toast.error("Không thể gửi tin nhắn. Cuộc phỏng vấn này đã kết thúc.");
+    if (isReadOnly || isNotStartedYet) {
+      toast.error(
+        isNotStartedYet
+          ? "Phòng phỏng vấn chưa mở. Vui lòng quay lại sau."
+          : "Không thể gửi tin nhắn. Cuộc phỏng vấn này đã kết thúc."
+      );
       return;
     }
 
@@ -195,8 +207,12 @@ export const InterviewRoomPage = () => {
     if (!roomCode || !user || !room) return;
 
     // Prevent sending questions if room is expired or finished
-    if (isReadOnly) {
-      toast.error("Không thể gửi câu hỏi. Cuộc phỏng vấn này đã kết thúc.");
+    if (isReadOnly || isNotStartedYet) {
+      toast.error(
+        isNotStartedYet
+          ? "Phòng phỏng vấn chưa mở. Vui lòng quay lại sau."
+          : "Không thể gửi câu hỏi. Cuộc phỏng vấn này đã kết thúc."
+      );
       return;
     }
 
@@ -319,6 +335,7 @@ export const InterviewRoomPage = () => {
   }
 
   const isRecruiter = user.id == room.recruiterId.toString();
+  const isNotStartedYet = new Date(room.scheduledTime).getTime() > new Date().getTime() && room.status === "SCHEDULED";
   const isReadOnly =
     room.isExpired || room.status == "FINISHED" || room.status == "EXPIRED";
 
@@ -372,9 +389,25 @@ export const InterviewRoomPage = () => {
         </div>
       </div>
 
+      {/* Not Started Warning Banner */}
+      {isNotStartedYet && (
+        <div className="m-4">
+          <Alert className="border-blue-500 bg-blue-50 flex flex-row items-center ">
+            <Clock className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              Cuộc phỏng vấn này được lên lịch vào lúc{" "}
+              <strong>
+                {new Date(room.scheduledTime).toLocaleString("vi-VN")}
+              </strong>
+              . Bạn có thể vào phòng sớm nhưng không thể gửi tin nhắn cho đến giờ hẹn.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Expired/Finished Warning Banner */}
       {room.isExpired && (
-        <Alert className="m-4 border-orange-500 bg-orange-50">
+        <Alert className="m-4 border-orange-500 bg-orange-50 flex flex-row items-center justify-center">
           <Lock className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
             Cuộc phỏng vấn này đã hết hạn. Bạn có thể xem lại lịch sử trò chuyện
@@ -384,7 +417,7 @@ export const InterviewRoomPage = () => {
       )}
 
       {room.status === "FINISHED" && !room.isExpired && (
-        <Alert className="m-4 border-blue-500 bg-blue-50">
+        <Alert className="m-4 border-blue-500 bg-blue-50 flex flex-row items-center justify-start">
           <Lock className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
             Cuộc phỏng vấn này đã hoàn thành. Bạn đang xem lịch sử trò chuyện ở
@@ -434,6 +467,7 @@ export const InterviewRoomPage = () => {
             currentUserId={Number(user.id)}
             onSendMessage={handleSendMessage}
             disabled={isReadOnly}
+            isNotStartedYet={isNotStartedYet}
           />
         </div>
 
@@ -445,6 +479,7 @@ export const InterviewRoomPage = () => {
               onSendQuestion={handleSendQuestion}
               roomId={room.id}
               disabled={isReadOnly}
+              isNotStartedYet={isNotStartedYet}
             />
           </div>
         )}

@@ -9,6 +9,7 @@ interface ChatPanelProps {
   currentUserId: number;
   onSendMessage: (content: string) => void;
   disabled?: boolean;
+  isNotStartedYet?: boolean;
 }
 
 export const ChatPanel = ({
@@ -16,6 +17,7 @@ export const ChatPanel = ({
   currentUserId,
   onSendMessage,
   disabled = false,
+  isNotStartedYet = false,
 }: ChatPanelProps) => {
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -99,12 +101,12 @@ export const ChatPanel = ({
                   )}
                   <div
                     className={`rounded-lg px-4 py-2 ${isQuestion
-                        ? isOwn
-                          ? "bg-purple-500 text-white"
-                          : "bg-purple-100 text-purple-900 border border-purple-300"
-                        : isOwn
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-gray-900"
+                      ? isOwn
+                        ? "bg-purple-500 text-white"
+                        : "bg-purple-100 text-purple-900 border border-purple-300"
+                      : isOwn
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-900"
                       }`}
                   >
                     {isQuestion && (
@@ -133,16 +135,18 @@ export const ChatPanel = ({
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={
-              disabled
-                ? "Cuộc phỏng vấn đã kết thúc - Chế độ chỉ đọc"
-                : "Nhập tin nhắn..."
+              isNotStartedYet
+                ? "Cuộc phỏng vấn chưa đến giờ bắt đầu"
+                : disabled
+                  ? "Cuộc phỏng vấn đã kết thúc - Chế độ chỉ đọc"
+                  : "Nhập tin nhắn..."
             }
             className="flex-1"
-            disabled={disabled}
+            disabled={disabled || isNotStartedYet}
           />
           <Button
             onClick={handleSend}
-            disabled={!messageText.trim() || disabled}
+            disabled={!messageText.trim() || disabled || isNotStartedYet}
           >
             <Send className="h-4 w-4" />
           </Button>
