@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getRoomsByRecruiterId, getRoomsByApplicantId } from "@/apis/interview.api";
+import {
+  getRoomsByRecruiterId,
+  getRoomsByApplicantId,
+} from "@/apis/interview.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { InterviewRoom } from "@/types/Interview";
 import { Button } from "@/components/ui/button";
@@ -94,7 +97,9 @@ export const InterviewListPage = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   {/* Job Title */}
-                  <h3 className="text-xl font-semibold mb-2">{room.jobTitle}</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {room.jobTitle}
+                  </h3>
 
                   {/* Participants */}
                   <div className="flex items-center gap-4 mb-3">
@@ -125,14 +130,15 @@ export const InterviewListPage = () => {
                 <div className="flex flex-col items-end gap-3">
                   <div className="flex gap-2">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${room.status === "SCHEDULED"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : room.status === "ONGOING"
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        room.status === "SCHEDULED"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : room.status === "ONGOING"
                           ? "bg-green-100 text-green-800"
                           : room.status === "FINISHED"
-                            ? "bg-gray-100 text-gray-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
                     >
                       {room.status}
                     </span>
@@ -146,15 +152,19 @@ export const InterviewListPage = () => {
 
                   {/* Show button for all rooms except CANCELLED */}
                   {room.status !== "CANCELLED" && (
-                    <Button 
+                    <Button
                       onClick={() => handleJoinRoom(room.roomCode)}
                       variant={
-                        room.status === "FINISHED" || room.isExpired
+                        room.status === "FINISHED" ||
+                        room.isExpired ||
+                        room.status === "EXPIRED"
                           ? "outline"
                           : "default"
                       }
                     >
-                      {room.status === "FINISHED" || room.isExpired
+                      {room.status === "FINISHED" ||
+                      room.isExpired ||
+                      room.status === "EXPIRED"
                         ? "View History"
                         : "Join Room"}
                     </Button>
@@ -168,4 +178,3 @@ export const InterviewListPage = () => {
     </div>
   );
 };
-

@@ -59,6 +59,17 @@ export const updateRoomStatus = async (
   return res.data.data as InterviewRoom;
 };
 
+export const extendInterviewDuration = async (
+  roomCode: string,
+  additionalMinutes: number
+) => {
+  const res = await axiosClient.put(
+    `${BASE_URL}/api/interview-rooms/${roomCode}/extend`,
+    { additionalMinutes }
+  );
+  return res.data.data as InterviewRoom;
+};
+
 export const getMessagesByRoomCode = async (roomCode: string) => {
   const res = await axiosClient.get(
     `${BASE_URL}/api/interview-rooms/${roomCode}/messages`
